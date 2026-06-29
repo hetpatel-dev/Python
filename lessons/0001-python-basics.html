@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 1: Python Basics — Variables & Output</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../MISSION.md" class="mission-link">← Back to Mission</a>
+  <h1>Lesson 1: Python Basics — Variables & Output</h1>
+
+  <p><span class="tag">concept</span> Python Basics</p>
+
+  <p>Welcome! The goal of this lesson is simple: write a Python program that asks for someone's name, stores it, and prints a personalized greeting. That's your first tangible win.</p>
+
+  <h2>What is Python?</h2>
+  <p>Python is a programming language designed for readability. You write instructions in plain-English-like syntax, and Python executes them line by line.</p>
+
+  <p>You have Python installed (v3.14). There are two ways to run Python:</p>
+  <ul>
+    <li><strong>REPL</strong> — type <code>python</code> in your terminal and get an interactive prompt. Good for experimenting.</li>
+    <li><strong>Script</strong> — write code in a <code>.py</code> file and run it with <code>python filename.py</code>. That's what we'll do.</li>
+  </ul>
+
+  <h2>Your first program</h2>
+  <p>Create a file called <code>hello.py</code> and write:</p>
+
+<pre><code>print("Hello, world!")</code></pre>
+
+  <p>Run it:</p>
+<pre><code>python hello.py</code></pre>
+
+  <p>You'll see <code>Hello, world!</code> printed. The <code>print()</code> function outputs text to the console.</p>
+
+  <h2>Variables</h2>
+  <p>A variable is a named box that holds a value. You create one with <code>=</code>:</p>
+
+<pre><code>name = "Alice"
+age = 25
+height = 1.68
+is_student = True</code></pre>
+
+  <p>Python figures out the type automatically. You don't need to declare it.</p>
+
+  <table>
+    <tr><th>Type</th><th>Name</th><th>Example</th></tr>
+    <tr><td><code>int</code></td><td>Integer</td><td><code>42</code>, <code>-3</code>, <code>0</code></td></tr>
+    <tr><td><code>float</code></td><td>Decimal number</td><td><code>3.14</code>, <code>-0.5</code></td></tr>
+    <tr><td><code>str</code></td><td>String (text)</td><td><code>"hello"</code>, <code>'hi'</code></td></tr>
+    <tr><td><code>bool</code></td><td>Boolean (True/False)</td><td><code>True</code>, <code>False</code></td></tr>
+  </table>
+
+  <p>Use <code>type()</code> to check:</p>
+<pre><code>print(type(42))       # &lt;class 'int'&gt;
+print(type("hello"))  # &lt;class 'str'&gt;</code></pre>
+
+  <h2>Comments</h2>
+  <p>Anything after <code>#</code> is ignored. Use them for notes.</p>
+
+<pre><code># This is a comment — Python won't run it
+print("This will run")  # inline comment</code></pre>
+
+  <h2>Getting user input</h2>
+  <p><code>input()</code> reads a line from the user. It always returns a <strong>string</strong>.</p>
+
+<pre><code>name = input("What is your name? ")
+print("Hello, " + name)</code></pre>
+
+  <h2>f-strings (the best way to format text)</h2>
+  <p>Put an <code>f</code> before the string and use <code>{}</code> to insert variables:</p>
+
+<pre><code>name = "Alice"
+age = 25
+print(f"{name} is {age} years old.")</code></pre>
+
+  <p>This is cleaner than using <code>+</code> to concatenate. Get used to f-strings early — you'll use them constantly.</p>
+
+  <h2>Your mission win</h2>
+  <p>Write a script that:</p>
+  <ol>
+    <li>Asks for the user's name</li>
+    <li>Asks for their age</li>
+    <li>Prints: <code>"Hello [name]! You are [age] years old."</code></li>
+  </ol>
+
+  <p><strong>Try it now.</strong> Create a <code>greeting.py</code> file, write the code, and run it. This is your first tangible win.</p>
+
+  <div class="exercise">
+    <h3>Solution (check after you try)</h3>
+    <details>
+      <summary>Reveal solution</summary>
+<pre><code>name = input("What is your name? ")
+age = input("How old are you? ")
+print(f"Hello {name}! You are {age} years old.")</code></pre>
+    </details>
+  </div>
+
+  <h2>Practice exercises</h2>
+  <p>Create each exercise as a separate <code>.py</code> file in <code>exercises/01-python-basics/</code>. Run each one to verify.</p>
+
+  <div class="exercise">
+    <h3>Exercise 1: About Me</h3>
+    <p>Create three variables: <code>city</code>, <code>country</code>, <code>population</code>. Assign values and print a sentence like: <code>"I live in [city], [country]. Population: [population]."</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Simple Calculator</h3>
+    <p>Ask the user for two numbers (<code>input()</code> returns strings — you'll need <code>int()</code> to convert). Print their sum, difference, product, and quotient.</p>
+    <div class="hint"><strong>Hint:</strong> <code>int("5")</code> converts the string "5" to the integer 5.</div>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Type Explorer</h3>
+    <p>Create a variable of each type (<code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>). Print each value and its type using <code>type()</code>.</p>
+    <p>Output should look like:</p>
+<pre><code>42 is &lt;class 'int'&gt;
+3.14 is &lt;class 'float'&gt;
+hello is &lt;class 'str'&gt;
+True is &lt;class 'bool'&gt;</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Age in Days</h3>
+    <p>Ask for the user's age in years. Convert to an integer, calculate their approximate age in days (age * 365), and print: <code>"You are approximately [days] days old."</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Mad Libs</h3>
+    <p>Ask the user for: a <em>noun</em>, an <em>adjective</em>, and a <em>verb</em>. Then print a funny sentence using all three. For example: <code>"The [adjective] [noun] decided to [verb]!"</code>.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery check</h2>
+  <p>Before moving on, you should be able to answer these without looking:</p>
+  <ul>
+    <li>How do you create a variable?</li>
+    <li>What are the four basic data types?</li>
+    <li>How do you get input from the user?</li>
+    <li>How do you embed a variable in a string?</li>
+    <li>What does <code>type()</code> do?</li>
+  </ul>
+
+  <p><strong>When you feel solid on these</strong> — you've done the exercises and can answer the mastery check without peeking — tell me and we'll move to the next concept. If you need more exercises, just say so.</p>
+
+  <h2>Reference</h2>
+  <ul>
+    <li><a href="../reference/glossary.html">Python Glossary</a> — terms used in this lesson</li>
+  </ul>
+
+  <h2>Primary resource</h2>
+  <p>Read: <a href="https://docs.python.org/3/tutorial/introduction.html">Python Official Tutorial — An Informal Introduction</a>. This covers everything in this lesson in more detail.</p>
+
+  <h2>Follow-up</h2>
+  <p>If anything was unclear, or you want more exercises on a specific area, just ask. I'm your teacher — we go at your pace.</p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

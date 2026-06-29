@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 2: Variables in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../MISSION.md" class="mission-link">← Back to Mission</a>
+  <h1>Lesson 2: Variables in Depth</h1>
+
+  <p><span class="tag">concept</span> Variables</p>
+
+  <p>In Lesson 1 you used variables as "named boxes." Now we'll open the box and see what's really going on. Understanding variables deeply is the single most important thing for avoiding bugs in Python.</p>
+
+  <hr>
+
+  <h2>1. Variables Are Names, Not Boxes</h2>
+
+  <p>Most programming languages teach variables as <em>containers</em> that hold values. Python variables are <strong>not</strong> containers — they are <strong>labels</strong> (names) that reference objects.</p>
+
+  <pre><code>a = [1, 2, 3]
+b = a       # b does NOT get a copy. b is another label for THE SAME list.
+b.append(4)
+print(a)    # [1, 2, 3, 4] — a changed too!</code></pre>
+
+  <div class="hint">
+    <strong>Think of it this way:</strong> Objects live in memory. Variables are just Post-it notes stuck to those objects. You can stick multiple notes on the same object.
+  </div>
+
+  <p>This is the Python data model (<a href="https://docs.python.org/3/reference/datamodel.html#objects-values-and-types">official docs</a>): every object has an <strong>identity</strong> (memory address), a <strong>type</strong>, and a <strong>value</strong>. The variable stores the identity, not the object itself.</p>
+
+  <h2>2. Identity: <code>id()</code> and <code>is</code></h2>
+
+  <p>Every object has a unique identity that never changes. Use <code>id()</code> to see it:</p>
+
+  <pre><code>x = 42
+y = 42
+print(id(x))   # 140735232337832 (some integer)
+print(id(y))   # 140735232337832 (SAME — Python reused the integer object)
+
+a = [1, 2]
+b = [1, 2]
+print(id(a))   # 2345678901234
+print(id(b))   # 2345678905678 (DIFFERENT — lists are mutable, always new)</code></pre>
+
+  <p><strong><code>is</code></strong> compares identities. <strong><code>==</code></strong> compares values.</p>
+
+  <pre><code>a = [1, 2]
+b = [1, 2]
+c = a
+
+print(a == b)   # True (same value)
+print(a is b)   # False (different objects)
+print(a is c)   # True (same object, just different name)</code></pre>
+
+  <p>From <a href="https://docs.python.org/3/reference/datamodel.html#objects-values-and-types">Python docs</a>: <em>"An object's identity never changes once it has been created; you may think of it as the object's address in memory."</em></p>
+
+  <h2>3. Mutable vs Immutable Types</h2>
+
+  <p>Some objects can change their value (mutable), others can't (immutable). This is <strong>critical</strong> for understanding how variables behave.</p>
+
+  <table>
+    <tr><th>Mutable</th><th>Immutable</th></tr>
+    <tr><td><code>list</code></td><td><code>int</code></td></tr>
+    <tr><td><code>dict</code></td><td><code>float</code></td></tr>
+    <tr><td><code>set</code></td><td><code>str</code></td></tr>
+    <tr><td><code>bytearray</code></td><td><code>tuple</code></td></tr>
+    <tr><td>custom class instances</td><td><code>bool</code></td></tr>
+    <tr><td></td><td><code>frozenset</code></td></tr>
+    <tr><td></td><td><code>bytes</code></td></tr>
+  </table>
+
+  <pre><code># Immutable: "changing" creates a NEW object
+x = 10
+print(id(x))   # 140735232337...
+x = x + 1      # This creates a NEW int object
+print(id(x))   # Different! x now labels a new object
+
+# Mutable: changing modifies the SAME object
+items = [1, 2, 3]
+print(id(items))   # 234567...
+items.append(4)    # Modifies the list IN PLACE
+print(id(items))   # SAME! The object is unchanged, only its value changed</code></pre>
+
+  <blockquote>
+    <strong>Key insight:</strong> For immutable types, <code>x = x + 1</code> reassigns <code>x</code> to a new object. For mutable types, <code>x.append(1)</code> modifies the existing object that <code>x</code> refers to.
+  </blockquote>
+
+  <h2>4. Assignment Patterns</h2>
+
+  <h3>Basic assignment</h3>
+  <pre><code>x = 5  # binds name x to object 5</code></pre>
+
+  <h3>Multiple assignment</h3>
+  <pre><code>a, b, c = 1, 2, 3   # a=1, b=2, c=3
+x = y = z = 0        # all three reference the same 0 object</code></pre>
+
+  <h3>Swapping (Pythonic!)</h3>
+  <pre><code>a, b = b, a  # swap — evaluates right side first, then assigns</code></pre>
+
+  <p>From <a href="https://docs.python.org/3/reference/simple_stmts.html#assignment-statements">the docs</a>: <em>"the right-hand side expressions are evaluated first before any of the assignments take place."</em> This is why swapping works.</p>
+
+  <h3>Tuple unpacking</h3>
+  <pre><code>coordinates = (10, 20)
+x, y = coordinates   # x=10, y=20
+
+# Works with any iterable
+name, age = ["Alice", 30]
+first, *rest = [1, 2, 3, 4]   # first=1, rest=[2, 3, 4]   (PEP 3132)
+*head, last = [1, 2, 3, 4]    # head=[1, 2, 3], last=4</code></pre>
+
+  <h2>5. Augmented Assignment (<code>+=</code>, <code>-=</code>, etc.)</h2>
+
+  <p>These combine an operation with assignment. <strong>But they behave differently for mutable vs immutable!</strong></p>
+
+  <pre><code># With immutable types: creates a new object
+x = 10
+x += 5   # equivalent to x = x + 5 → new object
+
+# With mutable types: may modify in-place
+list1 = [1, 2]
+list2 = list1
+list1 += [3, 4]      # IN-PLACE: modifies the list, list2 also changes
+print(list2)          # [1, 2, 3, 4]
+
+# Compare with + (always creates new object)
+list1 = [1, 2]
+list2 = list1
+list1 = list1 + [3, 4]  # CREATES NEW: list2 unchanged
+print(list2)            # [1, 2]</code></pre>
+
+  <p>From the <a href="https://docs.python.org/3/reference/simple_stmts.html#augmented-assignment-statements">docs</a>: <em>"when possible, the actual operation is performed in-place, meaning that rather than creating a new object and assigning that to the target, the old object is modified instead."</em></p>
+
+  <h2>6. Type Annotations (Type Hints)</h2>
+
+  <p>Python is dynamically typed, but you can <em>annotate</em> variable types. These are ignored at runtime but checked by tools like mypy.</p>
+
+  <pre><code>name: str = "Alice"
+age: int = 30
+height: float = 1.75
+is_active: bool = True
+
+# Without value — annotation only
+nickname: str  # no value yet, but we've documented the intended type</code></pre>
+
+  <p>This is <a href="https://docs.python.org/3/reference/simple_stmts.html#annotated-assignment-statements">PEP 526</a>. Use type hints for clarity — they make your code self-documenting and catch bugs early.</p>
+
+  <h2>7. Naming Rules and Conventions (PEP 8)</h2>
+
+  <ul>
+    <li><strong>Allowed characters:</strong> letters, digits, underscores — but can't start with a digit</li>
+    <li><strong>Case-sensitive:</strong> <code>name</code> and <code>Name</code> are different</li>
+    <li><strong>Keywords are reserved:</strong> <code>if</code>, <code>for</code>, <code>while</code>, <code>class</code>, etc. cannot be variable names</li>
+    <li><strong>Convention:</strong> <code>snake_case</code> for variables, <code>UPPER_CASE</code> for constants</li>
+    <li><strong>Private by convention:</strong> <code>_leading_underscore</code> means "internal use"</li>
+    <li><strong>Dunder (double underscore):</strong> <code>__name__</code> — Python special methods, don't invent your own</li>
+  </ul>
+
+  <h2>8. <code>del</code> — Deleting a Variable</h2>
+
+  <p><code>del</code> removes the <em>name</em> (not the object). The object may still exist if other names reference it.</p>
+
+  <pre><code>x = [1, 2, 3]
+y = x
+del x           # removes the name x
+print(y)        # [1, 2, 3] — object still exists via y
+# print(x)      # NameError: name 'x' is not defined</code></pre>
+
+  <h2>9. Variable Scope (Brief Introduction)</h2>
+
+  <p>Variables defined inside a function are local to that function. Variables at the top level are global.</p>
+
+  <pre><code>x = 10          # global
+
+def func():
+    y = 5       # local to func
+    print(x)    # can READ global
+    print(y)
+
+func()
+# print(y)      # NameError — y is not defined here</code></pre>
+
+  <p>We'll explore scope deeply in a future lesson on functions.</p>
+
+  <hr>
+
+  <h2>Exercises</h2>
+  <p>Create each exercise in <code>exercises/02-variables-in-depth/</code>.</p>
+
+  <div class="exercise">
+    <h3>Exercise 1: Identity Explorer</h3>
+    <p>Create a script that:</p>
+    <ol>
+      <li>Assigns <code>a = 256</code> and <code>b = 256</code>. Print <code>a is b</code>. <em>(Python caches small ints)</em></li>
+      <li>Assigns <code>c = 257</code> and <code>d = 257</code>. Print <code>c is d</code>. <em>(May differ!)</em></li>
+      <li>Assigns <code>e = "hello"</code> and <code>f = "hello"</code>. Print <code>e is f</code>. <em>(String interning!)</em></li>
+      <li>Assigns <code>g = [1, 2]</code> and <code>h = [1, 2]</code>. Print <code>g is h</code>. <em>(Always False!)</em></li>
+    </ol>
+    <p>Add comments explaining each result.</p>
+    <div class="hint">Use <code>print(f"a is b: {a is b}")</code> for clean output.</div>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Mutable Mayhem</h3>
+    <p>Predict the output <em>before</em> running:</p>
+    <pre><code>x = [1, 2, 3]
+y = x
+y.append(4)
+print(x)
+
+a = [1, 2, 3]
+b = a
+b = b + [4]
+print(a)
+
+p = 10
+q = p
+q += 5
+print(p)</code></pre>
+    <p>Write this in a script and check your answers. Add comments explaining <em>why</em> each output is what it is.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Swap Without Temp</h3>
+    <p>Create two variables <code>a = 5</code> and <code>b = 10</code>. Swap their values using Python's tuple unpacking (one line). Print before and after. Then verify with the user (the program asks the user for two numbers, swaps them, and prints the result).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Star Unpacking</h3>
+    <p>Given the list <code>numbers = [10, 20, 30, 40, 50]</code>, use star unpacking to:</p>
+    <ol>
+      <li>Assign the first number to <code>first</code>, the rest to <code>rest</code></li>
+      <li>Assign the last number to <code>last</code>, everything before to <code>head</code></li>
+      <li>Assign the first to <code>start</code>, last to <code>end</code>, everything between to <code>middle</code></li>
+    </ol>
+    <p>Print all variables to verify.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Type Annotator</h3>
+    <p>Create a program that asks for the user's name (str), age (int), height in meters (float), and whether they're a student (bool from y/n). Use type annotations on all variables. Print a summary sentence using f-strings that includes the types.</p>
+    <p>Example output:</p>
+    <pre><code>Name: Alice (str)
+Age: 30 (int)
+Height: 1.75 (float)
+Student: True (bool)</code></pre>
+    <div class="hint">For the bool input, use <code>input("Are you a student? (y/n): ").lower() == "y"</code></div>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Reference vs Copy</h3>
+    <p>Create a list <code>original = [1, 2, [3, 4]]</code>. Then:</p>
+    <ol>
+      <li>Assign <code>ref = original</code> (reference)</li>
+      <li>Create <code>shallow = original[:]</code> (shallow copy — copies the outer list but not nested ones)</li>
+      <li>Modify: <code>original[0] = 99</code> and <code>original[2].append(5)</code></li>
+      <li>Print all three lists. Explain why <code>ref</code> changed and whether <code>shallow</code> was affected by each change.</li>
+    </ol>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: String Immutability</h3>
+    <p>Write a script that demonstrates strings are immutable:</p>
+    <ol>
+      <li>Assign <code>word = "hello"</code></li>
+      <li>Show that <code>word[0] = "H"</code> raises an error (wrap in try/except)</li>
+      <li>Create a new string by slicing: <code>word = "H" + word[1:]</code></li>
+      <li>Print the original and new — show that <code>id()</code> changes</li>
+    </ol>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Variable Naming Quiz</h3>
+    <p>Which of these are valid Python variable names? Check by trying to assign to each one (wrap in try/except). Print "valid" or "invalid" for each.</p>
+    <pre><code>my_var = 1
+2things = 2
+my-var = 3
+_private = 4
+class = 5
+myVar = 6
+MYVAR = 7
+my_var_2 = 8
+import = 9
+camelCase = 10</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer these without looking:</p>
+  <ul>
+    <li>What's the difference between <code>is</code> and <code>==</code>?</li>
+    <li>Why does <code>b = a; b.append(1)</code> affect <code>a</code> for a list, but <code>b = a; b += 1</code> does NOT affect <code>a</code> for an int?</li>
+    <li>How does tuple unpacking let you swap two variables in one line?</li>
+    <li>What does <code>del</code> actually delete — the name or the object?</li>
+    <li>What is the difference between <code>list1 += [4]</code> and <code>list1 = list1 + [4]</code>?</li>
+  </ul>
+
+  <h2>Reference</h2>
+  <ul>
+    <li><a href="../reference/glossary.html">Python Glossary</a> — terms used in this lesson</li>
+  </ul>
+
+  <h2>Primary Resources</h2>
+  <ul>
+    <li><a href="https://docs.python.org/3/reference/datamodel.html#objects-values-and-types">Python Data Model — Objects, values and types</a></li>
+    <li><a href="https://docs.python.org/3/reference/simple_stmts.html#assignment-statements">Python Simple Statements — Assignment</a></li>
+    <li><a href="https://docs.python.org/3/reference/executionmodel.html#naming-and-binding">Python Execution Model — Naming and binding</a></li>
+  </ul>
+
+  <h2>Follow-up</h2>
+  <p>Work through the exercises in order. When you feel solid on the mastery check, tell me. If you need more exercises on any subtopic, just ask — I'll keep making them until you're confident.</p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

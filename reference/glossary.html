@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Glossary</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../MISSION.md" class="mission-link">← Back to Mission</a>
+  <h1>Python Glossary</h1>
+  <p>Essential Python terminology. Updated as new concepts are learned.</p>
+
+  <h2>Core Concepts</h2>
+
+  <dl>
+    <dt><strong>Variable</strong></dt>
+    <dd>A name that references an object. Created with <code>=</code>: <code>name = "Alice"</code>. Variables are labels on objects, not containers.</dd>
+
+    <dt><strong>Object Identity (<code>id()</code>)</strong></dt>
+    <dd>Every object has a unique identity (memory address). <code>id(x)</code> returns it. Never changes for the object's lifetime.</dd>
+
+    <dt><strong><code>is</code></strong></dt>
+    <dd>Identity comparison. <code>a is b</code> is <code>True</code> only when <code>a</code> and <code>b</code> reference the exact same object. Different from <code>==</code> (value comparison).</dd>
+
+    <dt><strong>Mutable</strong></dt>
+    <dd>An object whose value can change after creation. Examples: <code>list</code>, <code>dict</code>, <code>set</code>.</dd>
+
+    <dt><strong>Immutable</strong></dt>
+    <dd>An object whose value cannot change after creation. Examples: <code>int</code>, <code>float</code>, <code>str</code>, <code>tuple</code>, <code>bool</code>.</dd>
+
+    <dt><strong>Assignment</strong></dt>
+    <dd>Binds a name to an object: <code>x = 5</code>. The right side is evaluated first, then the name is bound to the result.</dd>
+
+    <dt><strong>Augmented Assignment</strong></dt>
+    <dd>Combines operation and assignment: <code>x += 1</code>. For mutable objects, may operate in-place. Equivalent to <code>x = x + 1</code> but <code>x</code> is evaluated only once.</dd>
+
+    <dt><strong>Tuple Unpacking</strong></dt>
+    <dd>Assigning multiple variables from an iterable: <code>a, b, c = [1, 2, 3]</code> or swapping: <code>a, b = b, a</code>.</dd>
+
+    <dt><strong>Star Unpacking</strong></dt>
+    <dd>Using <code>*</code> to capture remaining items: <code>first, *rest = [1, 2, 3]</code> → <code>first=1, rest=[2, 3]</code>.</dd>
+
+    <dt><strong>Type Annotation</strong></dt>
+    <dd>Syntax for hinting variable types: <code>name: str = "Alice"</code>. Ignored at runtime but used by linters and type checkers.</dd>
+
+    <dt><strong><code>del</code></strong></dt>
+    <dd>Removes a name binding (not the object itself). The object persists if other names reference it.</dd>
+
+    <dt><strong><code>snake_case</code></strong></dt>
+    <dd>Naming convention for Python variables and functions: lowercase with underscores between words. <code>my_variable_name</code>.</dd>
+
+    <dt><strong>Truthiness</strong></dt>
+    <dd>Every object's boolean value. False: <code>None</code>, <code>False</code>, zero, empty sequences/collections. Everything else is True.</dd>
+
+    <dt><strong>Numeric Types</strong></dt>
+    <dd><code>int</code> (unlimited precision), <code>float</code> (double-precision), <code>complex</code> (real + imag). All immutable.</dd>
+
+    <dt><strong>Sequence Types</strong></dt>
+    <dd>Ordered collections with index access. <code>list</code> (mutable), <code>tuple</code> (immutable), <code>range</code> (immutable, memory-efficient).</dd>
+
+    <dt><strong>Set Types</strong></dt>
+    <dd>Unordered collections of unique, hashable elements. <code>set</code> (mutable), <code>frozenset</code> (immutable, hashable).</dd>
+
+    <dt><strong>Mapping Type</strong></dt>
+    <dd><code>dict</code> — key-value pairs, insertion-ordered (3.7+), keys must be hashable.</dd>
+
+    <dt><strong>Binary Types</strong></dt>
+    <dd><code>bytes</code> (immutable), <code>bytearray</code> (mutable), <code>memoryview</code> (zero-copy buffer access).</dd>
+
+    <dt><strong><code>isinstance()</code></strong></dt>
+    <dd>Checks if an object is an instance of a type: <code>isinstance(x, int)</code>. Preferred over <code>type(x) is int</code> because it handles subclasses correctly.</dd>
+
+    <dt><strong>Hashable</strong></dt>
+    <dd>An object with a hash value that never changes. Immutable types are hashable. Required for dict keys and set elements. Lists and dicts are NOT hashable.</dd>
+
+    <dt><strong>String (<code>str</code>)</strong></dt>
+    <dd>Text data, enclosed in quotes: <code>"hello"</code> or <code>'hello'</code>.</dd>
+
+    <dt><strong>Integer (<code>int</code>)</strong></dt>
+    <dd>Whole numbers: <code>42</code>, <code>-7</code>, <code>0</code>.</dd>
+
+    <dt><strong>Float (<code>float</code>)</strong></dt>
+    <dd>Decimal numbers: <code>3.14</code>, <code>-0.5</code>.</dd>
+
+    <dt><strong>Boolean (<code>bool</code>)</strong></dt>
+    <dd>Truth values: <code>True</code> or <code>False</code>.</dd>
+
+    <dt><strong>f-string</strong></dt>
+    <dd>String interpolation with <code>f"..."</code> and <code>{}</code> placeholders: <code>f"Hello, {name}"</code>.</dd>
+
+    <dt><strong>Function</strong></dt>
+    <dd>A reusable block of code. Called with <code>()</code>: <code>print("hi")</code>.</dd>
+
+    <dt><strong><code>print()</code></strong></dt>
+    <dd>Built-in function that outputs text to the console.</dd>
+
+    <dt><strong><code>input()</code></strong></dt>
+    <dd>Built-in function that reads a line of text from the user. Returns a string.</dd>
+
+    <dt><strong><code>type()</code></strong></dt>
+    <dd>Built-in function that returns the type of a value: <code>type(42)</code> → <code>&lt;class 'int'&gt;</code>.</dd>
+
+    <dt><strong>REPL</strong></dt>
+    <dd>Read-Eval-Print Loop. Interactive Python shell. Start with <code>python</code> in terminal.</dd>
+
+    <dt><strong>Script</strong></dt>
+    <dd>A <code>.py</code> file containing Python code, run with <code>python filename.py</code>.</dd>
+
+    <dt><strong>Comment</strong></dt>
+    <dd>Code ignored by Python. Starts with <code>#</code>. Used for notes.</dd>
+  </dl>
+
+  <h2>Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>+</code></td><td>Addition / concatenation</td><td><code>2 + 3</code> or <code>"a" + "b"</code></td></tr>
+    <tr><td><code>-</code></td><td>Subtraction</td><td><code>5 - 2</code></td></tr>
+    <tr><td><code>*</code></td><td>Multiplication / repetition</td><td><code>3 * 4</code> or <code>"hi" * 3</code></td></tr>
+    <tr><td><code>/</code></td><td>Division (float result)</td><td><code>7 / 2</code> → <code>3.5</code></td></tr>
+    <tr><td><code>//</code></td><td>Floor division (int result)</td><td><code>7 // 2</code> → <code>3</code></td></tr>
+    <tr><td><code>%</code></td><td>Modulo (remainder)</td><td><code>7 % 2</code> → <code>1</code></td></tr>
+    <tr><td><code>**</code></td><td>Exponentiation</td><td><code>2 ** 3</code> → <code>8</code></td></tr>
+    <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code> → <code>True</code></td></tr>
+    <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 3</code> → <code>True</code></td></tr>
+    <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Greater than / Less than</td><td><code>3 &gt; 1</code> → <code>True</code></td></tr>
+  </table>
+
+  <p><em>Last updated with Lesson 3: Data Types Overview.</em></p>
+  <p><a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

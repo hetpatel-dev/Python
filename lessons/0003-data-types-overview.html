@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 3: Python Data Types Overview</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../MISSION.md" class="mission-link">← Back to Mission</a>
+  <h1>Lesson 3: Python Data Types — The Full Landscape</h1>
+
+  <p><span class="tag">concept</span> Data Types</p>
+
+  <p>In Lesson 1 you met the four basic types (<code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code>). But Python has many more built-in types. This lesson gives you the <strong>bird's-eye view</strong> — all the types, how they're organized, and when to use each. Later lessons will deep-dive into each one.</p>
+
+  <p>Primary source: <a href="https://docs.python.org/3/library/stdtypes.html">Python Docs — Built-in Types</a></p>
+
+  <hr>
+
+  <h2>1. The Python Type Hierarchy</h2>
+
+  <p>Everything in Python is an <strong>object</strong>. Every object has a <strong>type</strong>. Types determine what you can do with an object.</p>
+
+  <pre><code>print(type(42))         # &lt;class 'int'&gt;
+print(type("hello"))    # &lt;class 'str'&gt;
+print(type([1, 2]))     # &lt;class 'list'&gt;
+print(type(print))      # &lt;class 'builtin_function_or_method'&gt;</code></pre>
+
+  <p>Here's the full landscape of built-in types, grouped by category:</p>
+
+  <table>
+    <tr><th>Category</th><th>Types</th><th>Mutable?</th><th>Ordered?</th></tr>
+    <tr><td><strong>Numeric</strong></td><td><code>int</code>, <code>float</code>, <code>complex</code></td><td>No</td><td>N/A</td></tr>
+    <tr><td><strong>Boolean</strong></td><td><code>bool</code></td><td>No</td><td>N/A</td></tr>
+    <tr><td><strong>Text</strong></td><td><code>str</code></td><td>No</td><td>Yes</td></tr>
+    <tr><td><strong>Binary</strong></td><td><code>bytes</code>, <code>bytearray</code>, <code>memoryview</code></td><td>Mixed</td><td>Yes</td></tr>
+    <tr><td><strong>Sequence</strong></td><td><code>list</code>, <code>tuple</code>, <code>range</code></td><td>Mixed</td><td>Yes</td></tr>
+    <tr><td><strong>Set</strong></td><td><code>set</code>, <code>frozenset</code></td><td>Mixed</td><td>No</td></tr>
+    <tr><td><strong>Mapping</strong></td><td><code>dict</code></td><td>Yes</td><td>Yes (since 3.7)</td></tr>
+    <tr><td><strong>None</strong></td><td><code>NoneType</code></td><td>N/A</td><td>N/A</td></tr>
+    <tr><td><strong>Callable</strong></td><td>functions, methods, classes</td><td>—</td><td>—</td></tr>
+    <tr><td><strong>Internal</strong></td><td>modules, code objects, etc.</td><td>—</td><td>—</td></tr>
+  </table>
+
+  <blockquote>
+    <strong>Key concept:</strong> <em>Mutable</em> = can change in-place. <em>Ordered</em> = items have a defined position you can index into.
+  </blockquote>
+
+  <h2>2. Numeric Types: <code>int</code>, <code>float</code>, <code>complex</code></h2>
+
+  <p>Numbers are the simplest types. All are immutable.</p>
+
+  <pre><code># int — unlimited precision
+big = 2 ** 1000
+print(big)  # 1071508607186267... — no overflow!
+
+# float — double precision (like C double)
+pi = 3.14159
+
+# complex — two floats (real + imaginary)
+z = 3 + 5j
+print(z.real)  # 3.0
+print(z.imag)  # 5.0</code></pre>
+
+  <p>See <a href="https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex">docs</a>.</p>
+
+  <h2>3. Boolean: <code>bool</code></h2>
+
+  <p><code>bool</code> is a <strong>subtype of <code>int</code></strong>. <code>True == 1</code>, <code>False == 0</code>.</p>
+
+  <pre><code>print(True == 1)   # True
+print(False == 0)  # True
+print(True + 2)    # 3 (but don't do this!)
+
+# Use bool() to check truthiness of any value
+print(bool(1))     # True
+print(bool(0))     # False
+print(bool(""))    # False
+print(bool("hi"))  # True
+print(bool([]))    # False</code></pre>
+
+  <p>See <a href="https://docs.python.org/3/library/stdtypes.html#boolean-type-bool">docs</a>.</p>
+
+  <h2>4. Truthiness: Every Object Is True or False</h2>
+
+  <p>Every Python object can be used in a boolean context. The following are <strong>always false</strong>:</p>
+
+  <ul>
+    <li><code>None</code></li>
+    <li><code>False</code></li>
+    <li><strong>Zero</strong> of any numeric type: <code>0</code>, <code>0.0</code>, <code>0j</code></li>
+    <li><strong>Empty</strong> sequences/collections: <code>""</code>, <code>[]</code>, <code>()</code>, <code>{}</code>, <code>set()</code>, <code>range(0)</code></li>
+  </ul>
+
+  <p>Everything else is <code>True</code>. This is defined by <code>__bool__()</code> or <code>__len__()</code> methods (see <a href="https://docs.python.org/3/library/stdtypes.html#truth-value-testing">docs</a>).</p>
+
+  <h2>5. Sequence Types: <code>list</code>, <code>tuple</code>, <code>range</code></h2>
+
+  <p>Sequences are ordered collections you can index into with <code>[i]</code>.</p>
+
+  <pre><code># list — mutable, heterogeneous
+fruits = ["apple", "banana", "cherry"]
+fruits.append("date")
+print(fruits[1])     # banana
+
+# tuple — immutable, heterogeneous
+point = (3, 4)
+# point[0] = 5       # TypeError!
+
+# range — immutable, memory-efficient sequence of numbers
+r = range(0, 10, 2)
+print(list(r))       # [0, 2, 4, 6, 8]
+print(5 in r)        # False (tested without building the list)</code></pre>
+
+  <p>All sequences share <strong>common operations</strong>: indexing, slicing, <code>len()</code>, <code>in</code>, <code>+</code>, <code>*</code>, <code>count()</code>, <code>index()</code> (see <a href="https://docs.python.org/3/library/stdtypes.html#common-sequence-operations">docs</a>).</p>
+
+  <p>Notable: <code>range</code> uses constant memory — it stores only <code>start</code>, <code>stop</code>, <code>step</code>, not all values.</p>
+
+  <h2>6. Text Type: <code>str</code></h2>
+
+  <p>Strings are immutable sequences of Unicode code points (characters). Not bytes — Unicode.</p>
+
+  <pre><code>text = "Hello, 世界"  # Unicode supported natively
+print(len(text))       # 9 (characters, not bytes)
+print(text[7])         # '世'</code></pre>
+
+  <p>Strings have a <a href="https://docs.python.org/3/library/stdtypes.html#string-methods">huge set of methods</a>: <code>.upper()</code>, <code>.split()</code>, <code>.join()</code>, <code>.strip()</code>, <code>.replace()</code>, etc. We'll cover these in the dedicated str lesson.</p>
+
+  <h2>7. Binary Types: <code>bytes</code>, <code>bytearray</code>, <code>memoryview</code></h2>
+
+  <p>These handle raw binary data (bytes, not text).</p>
+
+  <ul>
+    <li><code>bytes</code> — immutable sequence of bytes (0-255)</li>
+    <li><code>bytearray</code> — mutable version of bytes</li>
+    <li><code>memoryview</code> — access a buffer without copying</li>
+  </ul>
+
+  <pre><code>b = b"hello"         # bytes literal
+ba = bytearray(b)     # mutable copy
+ba[0] = 72            # change 'h' to 'H' (ASCII 72)
+print(ba)             # bytearray(b'Hello')</code></pre>
+
+  <h2>8. Set Types: <code>set</code>, <code>frozenset</code></h2>
+
+  <p>Sets are <strong>unordered</strong> collections of <strong>unique</strong>, <strong>hashable</strong> elements.</p>
+
+  <pre><code># set — mutable
+s = {1, 2, 3, 1, 2}
+print(s)          # {1, 2, 3} — duplicates removed!
+s.add(4)
+
+# frozenset — immutable, can be used as dict key
+fs = frozenset([1, 2, 3])</code></pre>
+
+  <p>Fast membership testing: <code>1000000 in s</code> is O(1) average. See <a href="https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset">docs</a>.</p>
+
+  <h2>9. Mapping Type: <code>dict</code></h2>
+
+  <p>Dictionaries store key-value pairs. Keys must be <strong>hashable</strong> (immutable types).</p>
+
+  <pre><code>ages = {"Alice": 30, "Bob": 25}
+ages["Charlie"] = 35
+print(ages["Alice"])   # 30
+print("Bob" in ages)   # True (fast lookup)</code></pre>
+
+  <p>Since Python 3.7, dicts preserve <strong>insertion order</strong>. See <a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">docs</a>.</p>
+
+  <h2>10. <code>NoneType</code> — The Null Object</h2>
+
+  <p><code>None</code> is a singleton representing the <strong>absence of a value</strong>. It's <code>False</code> in boolean context.</p>
+
+  <pre><code>result = None
+if result is None:         # always use "is None", not "== None"
+    print("no result yet")</code></pre>
+
+  <h2>11. Type Conversion</h2>
+
+  <p>You can convert between types using constructor functions:</p>
+
+  <pre><code>int("42")        # 42    str → int
+float("3.14")    # 3.14  str → float
+str(42)          # "42"  int → str
+list("hello")    # ['h', 'e', 'l', 'l', 'o']
+tuple([1, 2])    # (1, 2)
+set([1, 2, 2])   # {1, 2} — deduplication!
+bool(1)          # True
+bool(0)          # False</code></pre>
+
+  <h2>12. How to Check and Compare Types</h2>
+
+  <pre><code>x = 42
+
+# Check type
+print(type(x))           # &lt;class 'int'&gt;
+print(type(x) is int)    # True
+
+# Check if instance of a type (preferred)
+print(isinstance(x, int))                # True
+print(isinstance(x, (int, float)))       # True (checks against multiple)
+
+# Duck typing — "if it walks like a duck..."
+# Prefer isinstance() over type() for most code</code></pre>
+
+  <hr>
+
+  <h2>Exercises</h2>
+  <p>Create each in <code>exercises/03-data-types-overview/</code>.</p>
+
+  <div class="exercise">
+    <h3>Exercise 1: Type Catalog</h3>
+    <p>Create a <code>.py</code> file that creates <strong>one example</strong> of each built-in type listed below. Use <code>print(f"{name}: {value} → {type(value)}")</code> for each.</p>
+    <p>Types to include: <code>int</code>, <code>float</code>, <code>complex</code>, <code>bool</code>, <code>str</code>, <code>bytes</code>, <code>bytearray</code>, <code>list</code>, <code>tuple</code>, <code>range</code>, <code>set</code>, <code>frozenset</code>, <code>dict</code>, <code>NoneType</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Truthiness Tester</h3>
+    <p>Create a list of 10 different values of different types (including <code>0</code>, <code>""</code>, <code>[]</code>, <code>None</code>, <code>"text"</code>, <code>[1]</code>, etc.). Loop through them and print:</p>
+    <pre><code>Value: 0 → bool: False
+Value: "hello" → bool: True
+...</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Mutable vs Immutable Sorter</h3>
+    <p>Create a list: <code>types_to_check = [42, "hello", [1,2], (3,4), {1,2}, {"a":1}, b"bytes", bytearray(b"abc"), True, None]</code></p>
+    <p>For each, print whether the type is mutable or immutable. Research if unsure. Output format:</p>
+    <pre><code>int -> immutable
+list -> mutable
+...</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Constructor Explorer</h3>
+    <p>Take the string <code>"Python"</code> and convert it to each of these types using constructors. Print the result and type for each. Catch any errors with try/except.</p>
+    <ul>
+      <li><code>list("Python")</code></li>
+      <li><code>tuple("Python")</code></li>
+      <li><code>set("Python")</code></li>
+      <li><code>bytes("Python", "utf-8")</code></li>
+      <li><code>dict()</code> — try creating a dict from "Python" and see what error you get</li>
+    </ul>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Type Checker</h3>
+    <p>Write a program that asks the user to input a value, then:</p>
+    <ol>
+      <li>Tries to convert it to <code>int</code>. If successful, prints "That's an integer!"</li>
+      <li>If that fails, tries <code>float</code> and prints "That's a float!"</li>
+      <li>If that fails, prints "That's a string!"</li>
+    </ol>
+    <p>Use try/except blocks. Example:</p>
+    <pre><code>Enter a value: 42
+That's an integer!
+
+Enter a value: 3.14
+That's a float!
+
+Enter a value: hello
+That's a string!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: is vs isinstance</h3>
+    <p>Create <code>value = True</code>. Then test:</p>
+    <ol>
+      <li><code>type(value) is int</code> — print the result</li>
+      <li><code>isinstance(value, int)</code> — print the result</li>
+    </ol>
+    <p>They differ! Explain in a comment why. (Hint: <code>bool</code> is a subclass of <code>int</code>.)</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Common Sequence Ops</h3>
+    <p>Create a list <code>nums = [10, 20, 30, 40, 50]</code>. Demonstrate all of these operations, printing the result of each:</p>
+    <ul>
+      <li><code>len(nums)</code></li>
+      <li><code>20 in nums</code></li>
+      <li><code>nums[1]</code></li>
+      <li><code>nums[-1]</code></li>
+      <li><code>nums[1:3]</code></li>
+      <li><code>nums + [60, 70]</code></li>
+      <li><code>nums * 2</code></li>
+      <li><code>min(nums)</code></li>
+      <li><code>max(nums)</code></li>
+    </ul>
+    <p>Then do the same for a tuple <code>(10, 20, 30, 40, 50)</code> — confirm all operations work on tuples too.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What are the 5 main categories of built-in types?</li>
+    <li>Which types are mutable? Which are immutable?</li>
+    <li>What values are always false in Python?</li>
+    <li>What's the difference between <code>type(x) is int</code> and <code>isinstance(x, int)</code>?</li>
+    <li>Why can't a <code>list</code> be used as a <code>dict</code> key?</li>
+    <li>What's special about <code>range</code> compared to a list of numbers?</li>
+    <li>What's the difference between <code>bytes</code> and <code>str</code>?</li>
+  </ul>
+
+  <h2>Reference</h2>
+  <ul>
+    <li><a href="../reference/glossary.html">Python Glossary</a></li>
+  </ul>
+
+  <h2>Primary Resource</h2>
+  <ul>
+    <li><a href="https://docs.python.org/3/library/stdtypes.html">Python Docs — Built-in Types</a> (bookmark this page)</li>
+  </ul>
+
+  <h2>Follow-up</h2>
+  <p>Work through the exercises. When you feel solid on the mastery check, tell me. If you need more exercises on any part, just ask — this is a survey lesson so the real depth comes in the dedicated type lessons later.</p>
+
+  <p><a href="../lessons/0002-variables-in-depth.html">← Previous: Variables in Depth</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>
