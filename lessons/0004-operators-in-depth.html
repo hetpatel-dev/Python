@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 4: Operators in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+  <a href="../MISSION.md" class="mission-link" style="margin-left: 1rem;">📌 Mission</a>
+  <h1>Lesson 4: Operators in Depth</h1>
+
+  <p><span class="tag">concept</span> Operators</p>
+
+  <p>You've already used <code>+</code>, <code>-</code>, <code>*</code>, and friends. This lesson fills in every operator Python offers, how they interact, and what's happening under the hood.</p>
+
+  <p>Primary source: <a href="https://docs.python.org/3/reference/expressions.html">Python Docs — Expressions</a></p>
+
+  <hr>
+
+  <h2>1. Arithmetic Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Name</th><th>Example</th><th>Result</th></tr>
+    <tr><td><code>+</code></td><td>Addition</td><td><code>10 + 3</code></td><td><code>13</code></td></tr>
+    <tr><td><code>-</code></td><td>Subtraction</td><td><code>10 - 3</code></td><td><code>7</code></td></tr>
+    <tr><td><code>*</code></td><td>Multiplication</td><td><code>10 * 3</code></td><td><code>30</code></td></tr>
+    <tr><td><code>/</code></td><td>Division (float)</td><td><code>10 / 3</code></td><td><code>3.333...</code></td></tr>
+    <tr><td><code>//</code></td><td>Floor division</td><td><code>10 // 3</code></td><td><code>3</code></td></tr>
+    <tr><td><code>%</code></td><td>Modulo (remainder)</td><td><code>10 % 3</code></td><td><code>1</code></td></tr>
+    <tr><td><code>**</code></td><td>Exponentiation</td><td><code>10 ** 3</code></td><td><code>1000</code></td></tr>
+  </table>
+
+  <p>Floor division <code>//</code> rounds toward negative infinity (not toward zero):</p>
+
+  <pre><code>print(10 // 3)    # 3
+print(-10 // 3)   # -4  (not -3!)
+print(10 // -3)   # -4</code></pre>
+
+  <h2>2. Comparison Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code> → <code>True</code></td></tr>
+    <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 3</code> → <code>True</code></td></tr>
+    <tr><td><code>&lt;</code></td><td>Less than</td><td><code>3 &lt; 5</code> → <code>True</code></td></tr>
+    <tr><td><code>&gt;</code></td><td>Greater than</td><td><code>5 &gt; 3</code> → <code>True</code></td></tr>
+    <tr><td><code>&lt;=</code></td><td>Less than or equal</td><td><code>5 &lt;= 5</code> → <code>True</code></td></tr>
+    <tr><td><code>&gt;=</code></td><td>Greater than or equal</td><td><code>5 &gt;= 3</code> → <code>True</code></td></tr>
+  </table>
+
+  <h3>Chained Comparisons</h3>
+
+  <p>Python lets you chain comparisons naturally — this is a unique feature not all languages have:</p>
+
+  <pre><code>x = 5
+print(1 &lt; x &lt; 10)      # True  (same as: 1 &lt; x and x &lt; 10)
+print(1 &lt; x &lt;= 5)      # True
+print(10 &gt; x &gt; 0)       # True</code></pre>
+
+  <p>Under the hood, <code>a &lt; b &lt; c</code> is equivalent to <code>a &lt; b and b &lt; c</code> — but <code>b</code> is evaluated only once.</p>
+
+  <h2>3. Logical Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>and</code></td><td>Both True</td><td><code>True and False</code> → <code>False</code></td></tr>
+    <tr><td><code>or</code></td><td>At least one True</td><td><code>True or False</code> → <code>True</code></td></tr>
+    <tr><td><code>not</code></td><td>Negation</td><td><code>not True</code> → <code>False</code></td></tr>
+  </table>
+
+  <h3>Short-Circuit Evaluation</h3>
+
+  <p>Python evaluates <code>and</code>/<code>or</code> lazily — it stops as soon as the result is determined:</p>
+
+  <pre><code>def say(word):
+    print(f"  ran say('{word}')")
+    return word
+
+print("and:")
+result = say("a") and say("b")   # prints "ran say('a')" then stops (falsy)
+# Only the first call runs because "a" is truthy but say returns "a",
+# which is truthy — so it continues. Let's try with a falsy first value:
+
+result = "" and say("b")          # "" is falsy, short-circuits — say("b") never runs
+print(result)                     # ""  (returns the falsy value)
+
+print("or:")
+result = "hello" or say("b")     # "hello" is truthy, short-circuits — say("b") never runs</code></pre>
+
+  <p>Key behavior: <code>and</code> and <code>or</code> return the <strong>actual value</strong> that determined the result, not necessarily <code>True</code>/<code>False</code>.</p>
+
+  <h2>4. Membership Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>in</code></td><td>Is item in collection?</td><td><code>3 in [1, 2, 3]</code> → <code>True</code></td></tr>
+    <tr><td><code>not in</code></td><td>Is item not in collection?</td><td><code>3 not in [1, 2]</code> → <code>True</code></td></tr>
+  </table>
+
+  <pre><code>print("a" in "hello")            # False
+print("ell" in "hello")          # True  (substring check works!)
+print(2 in {1, 2, 3})            # True  (O(1) lookup in sets)
+print("x" in {"a": 1, "b": 2})  # False (in checks dict keys)</code></pre>
+
+  <h2>5. Identity Operators</h2>
+
+  <table>
+    <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+    <tr><td><code>is</code></td><td>Same object?</td><td><code>x is y</code></td></tr>
+    <tr><td><code>is not</code></td><td>Different object?</td><td><code>x is not y</code></td></tr>
+  </table>
+
+  <pre><code>a = [1, 2]
+b = [1, 2]
+c = a
+print(a == b)     # True  (same value)
+print(a is b)     # False (different objects)
+print(a is c)     # True  (same object)</code></pre>
+
+  <p>Use <code>is</code> for comparing with <code>None</code>, <code>True</code>, <code>False</code> — not for value comparison:</p>
+
+  <pre><code>if x is None:     # idiomatic
+if x is not None: # idiomatic</code></pre>
+
+  <h2>6. Bitwise Operators</h2>
+
+  <p>These operate on integers at the binary-bit level. Less common in everyday code but essential for flags, permissions, and low-level work.</p>
+
+  <table>
+    <tr><th>Operator</th><th>Name</th><th>Example</th><th>Binary</th><th>Result</th></tr>
+    <tr><td><code>&amp;</code></td><td>AND</td><td><code>5 &amp; 3</code></td><td><code>101 &amp; 011</code></td><td><code>1</code></td></tr>
+    <tr><td><code>|</code></td><td>OR</td><td><code>5 | 3</code></td><td><code>101 | 011</code></td><td><code>7</code></td></tr>
+    <tr><td><code>^</code></td><td>XOR</td><td><code>5 ^ 3</code></td><td><code>101 ^ 011</code></td><td><code>6</code></td></tr>
+    <tr><td><code>~</code></td><td>NOT (invert)</td><td><code>~5</code></td><td><code>~101</code></td><td><code>-6</code></td></tr>
+    <tr><td><code>&lt;&lt;</code></td><td>Left shift</td><td><code>5 &lt;&lt; 1</code></td><td><code>101 &lt;&lt; 1</code></td><td><code>10</code></td></tr>
+    <tr><td><code>&gt;&gt;</code></td><td>Right shift</td><td><code>5 &gt;&gt; 1</code></td><td><code>101 &gt;&gt; 1</code></td><td><code>2</code></td></tr>
+  </table>
+
+  <pre><code># Bitwise AND — both bits must be 1
+print(5 & 3)   # 1   (101 & 011 = 001)
+
+# Bitwise OR — at least one bit is 1
+print(5 | 3)   # 7   (101 | 011 = 111)
+
+# Bitwise XOR — exactly one bit is 1
+print(5 ^ 3)   # 6   (101 ^ 011 = 110)
+
+# Left shift — shifts bits left (multiply by 2^n)
+print(5 << 2)  # 20  (101 << 2 = 10100)
+
+# Right shift — shifts bits right (floor-divide by 2^n)
+print(20 >> 2) # 5   (10100 >> 2 = 101)</code></pre>
+
+  <h2>7. Operator Precedence</h2>
+
+  <p>When multiple operators appear in one expression, Python follows a strict order. From highest to lowest precedence:</p>
+
+  <table>
+    <tr><th>Level</th><th>Operators</th><th>Notes</th></tr>
+    <tr><td>1 (highest)</td><td><code>**</code></td><td>Exponentiation (right-associative!)</td></tr>
+    <tr><td>2</td><td><code>+x</code>, <code>-x</code>, <code>~x</code></td><td>Unary operators</td></tr>
+    <tr><td>3</td><td><code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></td><td>Multiplication, division, floor div, modulo</td></tr>
+    <tr><td>4</td><td><code>+</code>, <code>-</code></td><td>Addition, subtraction</td></tr>
+    <tr><td>5</td><td><code>&lt;&lt;</code>, <code>&gt;&gt;</code></td><td>Bitwise shifts</td></tr>
+    <tr><td>6</td><td><code>&amp;</code></td><td>Bitwise AND</td></tr>
+    <tr><td>7</td><td><code>^</code></td><td>Bitwise XOR</td></tr>
+    <tr><td>8</td><td><code>|</code></td><td>Bitwise OR</td></tr>
+    <tr><td>9</td><td><code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>in</code>, <code>not in</code>, <code>is</code>, <code>is not</code></td><td>Comparisons, membership, identity</td></tr>
+    <tr><td>10</td><td><code>not</code></td><td>Logical NOT</td></tr>
+    <tr><td>11</td><td><code>and</code></td><td>Logical AND</td></tr>
+    <tr><td>12 (lowest)</td><td><code>or</code></td><td>Logical OR</td></tr>
+  </table>
+
+  <pre><code># Without parentheses — uses precedence
+result = 2 + 3 * 4 ** 2   # 2 + 3 * 16 = 2 + 48 = 50
+print(result)
+
+# With parentheses — explicit
+result = ((2 + 3) * 4) ** 2  # (5 * 4) ** 2 = 20 ** 2 = 400
+print(result)</code></pre>
+
+  <p>When in doubt, <strong>use parentheses</strong>. They cost nothing and make intent obvious.</p>
+
+  <h2>8. Operator Overloading (Brief Intro)</h2>
+
+  <p>Operators work differently depending on the types involved because types define special methods (dunder methods) that implement each operator:</p>
+
+  <pre><code>print("hello" + " world")  # str.__add__ — concatenation
+print([1, 2] + [3])         # list.__add__ — list concatenation
+print(3 + 4)                # int.__add__ — numeric addition
+
+# Same operator (+), different behavior depending on type.</code></pre>
+
+  <p>You can define these methods in your own classes to make custom objects support operators. We'll cover this in detail in the OOP phase.</p>
+
+  <hr>
+
+  <h2>Practice Exercises</h2>
+
+  <p>Head over to <a href="../exercises/04-operators-in-depth/">exercises/04-operators-in-depth/</a> to solidify your understanding.</p>
+
+  <hr>
+
+  <p><a href="../index.html">← Back to Home</a></p>
+
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

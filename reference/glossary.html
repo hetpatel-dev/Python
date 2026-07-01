@@ -126,10 +126,43 @@
     <tr><td><code>==</code></td><td>Equal to</td><td><code>5 == 5</code> → <code>True</code></td></tr>
     <tr><td><code>!=</code></td><td>Not equal to</td><td><code>5 != 3</code> → <code>True</code></td></tr>
     <tr><td><code>&gt;</code> <code>&lt;</code></td><td>Greater than / Less than</td><td><code>3 &gt; 1</code> → <code>True</code></td></tr>
+    <tr><td><code>&gt;=</code> <code>&lt;=</code></td><td>Greater/less than or equal</td><td><code>5 &gt;= 5</code> → <code>True</code></td></tr>
+    <tr><td><code>and</code></td><td>Logical AND (short-circuits)</td><td><code>True and False</code> → <code>False</code></td></tr>
+    <tr><td><code>or</code></td><td>Logical OR (short-circuits)</td><td><code>True or False</code> → <code>True</code></td></tr>
+    <tr><td><code>not</code></td><td>Logical NOT</td><td><code>not True</code> → <code>False</code></td></tr>
+    <tr><td><code>in</code></td><td>Membership test</td><td><code>3 in [1, 2, 3]</code> → <code>True</code></td></tr>
+    <tr><td><code>not in</code></td><td>Non-membership test</td><td><code>3 not in [1, 2]</code> → <code>True</code></td></tr>
+    <tr><td><code>is</code></td><td>Identity test (same object)</td><td><code>x is None</code></td></tr>
+    <tr><td><code>is not</code></td><td>Negative identity test</td><td><code>x is not None</code></td></tr>
+    <tr><td><code>&amp;</code></td><td>Bitwise AND</td><td><code>5 &amp; 3</code> → <code>1</code></td></tr>
+    <tr><td><code>|</code></td><td>Bitwise OR</td><td><code>5 | 3</code> → <code>7</code></td></tr>
+    <tr><td><code>^</code></td><td>Bitwise XOR</td><td><code>5 ^ 3</code> → <code>6</code></td></tr>
+    <tr><td><code>~</code></td><td>Bitwise NOT (invert)</td><td><code>~5</code> → <code>-6</code></td></tr>
+    <tr><td><code>&lt;&lt;</code></td><td>Left shift</td><td><code>5 &lt;&lt; 1</code> → <code>10</code></td></tr>
+    <tr><td><code>&gt;&gt;</code></td><td>Right shift</td><td><code>5 &gt;&gt; 1</code> → <code>2</code></td></tr>
   </table>
 
-  <p><em>Last updated with Lesson 3: Data Types Overview.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a></p>
+  <h2>Operator Concepts</h2>
+
+  <dl>
+    <dt><strong>Short-Circuit Evaluation</strong></dt>
+    <dd>Logical <code>and</code>/<code>or</code> stop evaluating as soon as the result is determined. <code>False and x</code> never evaluates <code>x</code>. <code>True or x</code> never evaluates <code>x</code>.</dd>
+
+    <dt><strong>Chained Comparisons</strong></dt>
+    <dd>Python allows <code>a &lt; b &lt; c</code> instead of <code>a &lt; b and b &lt; c</code>. Each middle operand is evaluated only once.</dd>
+
+    <dt><strong>Operator Precedence</strong></dt>
+    <dd>The order in which Python evaluates operators in an expression. From highest: <code>**</code>, unary <code>+-~</code>, <code>*///%</code>, <code>+-</code>, shifts, bitwise, comparisons, <code>not</code>, <code>and</code>, <code>or</code> (lowest).</dd>
+
+    <dt><strong>Operator Overloading</strong></dt>
+    <dd>Operators like <code>+</code> behave differently based on operand types because types define special methods (e.g., <code>__add__</code>). <code>int.__add__</code> does arithmetic; <code>str.__add__</code> concatenates.</dd>
+
+    <dt><strong>Right-Associativity</strong></dt>
+    <dd>Some operators evaluate right-to-left. <code>**</code> is right-associative: <code>2 ** 3 ** 2</code> = <code>2 ** (3 ** 2)</code> = <code>2 ** 9</code> = <code>512</code>.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 4: Operators in Depth.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>
