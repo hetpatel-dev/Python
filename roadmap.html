@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python & DSA — Full Curriculum Roadmap</title>
+  <link rel="stylesheet" href="assets/style.css">
+
+</head>
+<body>
+  <a href="index.html" class="mission-link">← Home</a>
+  <h1>Python &amp; DSA — Full Curriculum Roadmap</h1>
+
+  <p>Each topic has its own folder under <code>exercises/&lt;topic-name&gt;/</code> with progressive exercises. The <code>exercises/general/</code> folder holds mixed-concept exercises for retrieval practice.</p>
+
+  <h2>Phase 1: Python Fundamentals</h2>
+
+  <h3>1. Python Basics</h3>
+  <ul>
+    <li><code>print()</code> and <code>input()</code> functions</li>
+    <li>Comments (<code>#</code>)</li>
+    <li>Variables — assignment and naming rules</li>
+    <li>Basic data types: <code>int</code>, <code>float</code>, <code>str</code>, <code>bool</code></li>
+    <li><code>type()</code> function</li>
+    <li>f-strings and string formatting</li>
+    <li>Basic arithmetic operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>, <code>**</code>)</li>
+  </ul>
+
+  <h3>2. Variables in Depth</h3>
+  <ul>
+    <li>Python's data model: objects, identity, type, value</li>
+    <li><code>id()</code> and <code>is</code> vs <code>==</code></li>
+    <li>Mutable vs immutable types</li>
+    <li>Assignment patterns: multiple assignment, swapping, tuple unpacking, star unpacking (<code>*</code>)</li>
+    <li>Augmented assignment (<code>+=</code>, <code>-=</code>, etc.) — in-place vs rebind</li>
+    <li>Type annotations / type hints (<code>name: str = "Alice"</code>)</li>
+    <li><code>del</code> — unbinding names</li>
+    <li>Naming conventions (PEP 8: <code>snake_case</code>, <code>UPPER_CASE</code>, <code>_private</code>)</li>
+    <li>Variable scope (brief intro)</li>
+  </ul>
+
+  <h3>3. Data Types Overview</h3>
+  <ul>
+    <li>Full type hierarchy: numeric, boolean, text, binary, sequence, set, mapping, None, callable</li>
+    <li>Truthiness — what's False in Python</li>
+    <li><code>bool()</code> and truth value testing</li>
+    <li>Type conversion constructors (<code>int()</code>, <code>float()</code>, <code>str()</code>, <code>list()</code>, etc.)</li>
+    <li><code>type()</code> vs <code>isinstance()</code></li>
+    <li>Hashable concept</li>
+    <li>Mutable vs immutable overview per category</li>
+    <li>Ordered vs unordered</li>
+  </ul>
+
+  <h3>4. Operators in Depth</h3>
+  <ul>
+    <li>Arithmetic operators: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>, <code>**</code></li>
+    <li>Comparison operators: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
+    <li>Chained comparisons: <code>a &lt; b &lt; c</code></li>
+    <li>Logical operators: <code>and</code>, <code>or</code>, <code>not</code> — short-circuit evaluation</li>
+    <li>Membership operators: <code>in</code>, <code>not in</code></li>
+    <li>Identity operators: <code>is</code>, <code>is not</code></li>
+    <li>Bitwise operators: <code>&amp;</code>, <code>|</code>, <code>^</code>, <code>~</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code></li>
+    <li>Operator precedence table</li>
+    <li>Operator overloading concept (mention <code>__add__</code>, etc.)</li>
+  </ul>
+
+  <h3>5. Conditionals</h3>
+  <ul>
+    <li><code>if</code>, <code>elif</code>, <code>else</code></li>
+    <li>Truthiness in conditions</li>
+    <li>Nested conditionals</li>
+    <li>Ternary expression: <code>x if cond else y</code></li>
+    <li><code>match</code>/<code>case</code> (structural pattern matching — Python 3.10+)</li>
+    <li>Common patterns: <code>if x is None</code>, <code>if not x</code>, <code>if x in collection</code></li>
+  </ul>
+
+  <h3>6. Loops</h3>
+  <ul>
+    <li><code>for</code> loop — iterating over sequences</li>
+    <li><code>range()</code> — <code>start</code>, <code>stop</code>, <code>step</code></li>
+    <li><code>while</code> loop</li>
+    <li><code>break</code> and <code>continue</code></li>
+    <li><code>else</code> clause on loops</li>
+    <li>Nested loops</li>
+    <li><code>enumerate()</code> — getting index + value</li>
+    <li><code>zip()</code> — iterating multiple sequences</li>
+    <li>Loop else patterns</li>
+  </ul>
+
+  <h3>7. Strings in Depth</h3>
+  <ul>
+    <li>String methods</li>
+    <li>String indexing and slicing</li>
+    <li>String immutability</li>
+    <li><code>ord()</code> and <code>chr()</code></li>
+    <li>Unicode and encoding</li>
+    <li>Raw strings</li>
+    <li>Multi-line strings</li>
+    <li>Advanced f-strings</li>
+  </ul>
+
+  <h3>8. Lists in Depth</h3>
+  <ul>
+    <li>List methods</li>
+    <li>List indexing and slicing</li>
+    <li>Nested lists</li>
+    <li>List as stack / queue</li>
+    <li><code>sorted()</code> vs <code>.sort()</code></li>
+    <li>List pitfalls</li>
+  </ul>
+
+  <h3>9. Tuples</h3>
+  <ul>
+    <li>Tuple creation and unpacking</li>
+    <li>Single-element tuple</li>
+    <li>Tuple immutability</li>
+    <li>Named tuples</li>
+    <li>Tuple as dict keys</li>
+  </ul>
+
+  <h3>10. Dictionaries in Depth</h3>
+  <ul>
+    <li>Dict methods</li>
+    <li>Dict iteration</li>
+    <li><code>defaultdict</code>, <code>Counter</code>, <code>OrderedDict</code></li>
+    <li>Dict comprehensions</li>
+    <li>Insertion ordering</li>
+  </ul>
+
+  <h3>11. Sets</h3>
+  <ul>
+    <li>Set methods</li>
+    <li>Set operations: union, intersection, difference, symmetric difference</li>
+    <li>Set comprehensions</li>
+    <li><code>frozenset</code></li>
+  </ul>
+
+  <h3>12. Functions in Depth</h3>
+  <ul>
+    <li>Function definition and calling</li>
+    <li>Parameters: positional, keyword, default, <code>*args</code>, <code>**kwargs</code></li>
+    <li>Return values</li>
+    <li>Scope: <code>global</code>, <code>nonlocal</code></li>
+    <li>Lambda functions</li>
+    <li>Recursion basics</li>
+  </ul>
+
+  <h3>13. Comprehensions</h3>
+  <ul>
+    <li>List, dict, set comprehensions</li>
+    <li>Generator expressions</li>
+    <li>Nested comprehensions</li>
+  </ul>
+
+  <h3>14. Error Handling</h3>
+  <ul>
+    <li><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code></li>
+    <li><code>raise</code> and <code>assert</code></li>
+    <li>Custom exception classes</li>
+    <li>Context managers (<code>with</code>)</li>
+  </ul>
+
+  <h3>15. File I/O</h3>
+  <ul>
+    <li><code>open()</code> and file modes</li>
+    <li>Reading and writing</li>
+    <li><code>pathlib.Path</code></li>
+    <li>CSV and JSON</li>
+  </ul>
+
+  <h3>16. Modules &amp; Packages</h3>
+  <ul>
+    <li><code>import</code> statement</li>
+    <li><code>if __name__ == "__main__"</code></li>
+    <li>Creating modules and packages</li>
+    <li>Module search path</li>
+  </ul>
+
+  <h3>17. Iterators &amp; Generators</h3>
+  <ul>
+    <li>Iteration protocol</li>
+    <li>Generator functions with <code>yield</code></li>
+    <li><code>itertools</code> module overview</li>
+  </ul>
+
+  <hr>
+
+  <h2>Phase 2: Object-Oriented Programming</h2>
+
+  <h3>18. OOP — Classes &amp; Objects</h3>
+  <h3>19. OOP — Inheritance &amp; Polymorphism</h3>
+  <h3>20. OOP — Magic Methods &amp; Protocols</h3>
+  <h3>21. OOP — Decorators &amp; Properties</h3>
+
+  <hr>
+
+  <h2>Phase 3: Data Structures &amp; Algorithms</h2>
+
+  <h3>22. Big O Notation</h3>
+  <h3>23. Arrays &amp; Python Lists</h3>
+  <h3>24. Linked Lists</h3>
+  <h3>25. Stacks &amp; Queues</h3>
+  <h3>26. Recursion</h3>
+  <h3>27. Searching Algorithms</h3>
+  <h3>28. Sorting Algorithms</h3>
+  <h3>29. Hash Tables</h3>
+  <h3>30. Trees</h3>
+  <h3>31. Graphs</h3>
+  <h3>32. Dynamic Programming</h3>
+
+  <hr>
+
+  <h2>Phase 4: Mixed Practice</h2>
+  <h3>33. General / Mixed-Concept Exercises</h3>
+
+  <hr>
+
+  <blockquote>
+    <strong>How to use this roadmap:</strong>
+    <ul>
+      <li>We progress top-to-bottom, but you decide when each topic is mastered</li>
+      <li>Each topic gets a dedicated exercises folder</li>
+      <li>After every few topics, we can pause for mixed-concept exercises in <code>exercises/general/</code></li>
+      <li>Topics with depth will have multiple lessons (e.g., OOP spans 4 lessons)</li>
+      <li>This document will evolve as we discover new things we want to learn</li>
+    </ul>
+  </blockquote>
+
+  <hr>
+  <p style="margin-top: 2rem; text-align: center;">
+    <a href="index.html">← Back to Home</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="lessons/0001-python-basics.html" style="font-weight: 600;">Start Lesson 1: Python Basics →</a>
+  </p>
+  <script src="assets/theme-toggle.js"></script>
+</body>
+</html>

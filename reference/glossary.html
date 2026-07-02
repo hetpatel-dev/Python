@@ -8,7 +8,7 @@
 </head>
 <body>
   <a href="../index.html" class="mission-link">← Home</a>
-  <a href="../MISSION.md" class="mission-link" style="margin-left: 1rem;">📌 Mission</a>
+
   <h1>Python Glossary</h1>
   <p>Essential Python terminology. Updated as new concepts are learned.</p>
 
@@ -161,8 +161,33 @@
     <dd>Some operators evaluate right-to-left. <code>**</code> is right-associative: <code>2 ** 3 ** 2</code> = <code>2 ** (3 ** 2)</code> = <code>2 ** 9</code> = <code>512</code>.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 4: Operators in Depth.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a></p>
+  <h2>Control Flow</h2>
+
+  <dl>
+    <dt><strong><code>if</code> Statement</strong></dt>
+    <dd>Runs a block only if a condition is truthy: <code>if x &gt; 0: print("positive")</code>. Always ends with a colon.</dd>
+
+    <dt><strong><code>elif</code></strong></dt>
+    <dd>Short for "else if". Chains an additional condition after an <code>if</code>. Checked only if all previous conditions were false.</dd>
+
+    <dt><strong><code>else</code></strong></dt>
+    <dd>Fallback branch — runs when no <code>if</code> or <code>elif</code> condition was true. Optional, must be last.</dd>
+
+    <dt><strong>Ternary Expression</strong></dt>
+    <dd>One-line conditional: <code>value_if_true if condition else value_if_false</code>. Returns a value.</dd>
+
+    <dt><strong><code>match</code>/<code>case</code></strong></dt>
+    <dd>Structural pattern matching (Python 3.10+). Compares a subject against patterns. Supports literals, <code>|</code> for multiple patterns, <code>_</code> as wildcard, and guards (<code>if</code>). More powerful than <code>if</code>/<code>elif</code> for complex matching.</dd>
+
+    <dt><strong>Guard</strong></dt>
+    <dd>An extra condition in a <code>match</code>/<code>case</code> pattern: <code>case (x, y) if x == y:</code>. Must be true for the case to match.</dd>
+
+    <dt><strong><code>pass</code></strong></dt>
+    <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 5: Conditionals.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 5: Conditionals</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 5: Conditionals — Making Decisions</h1>
+
+  <p><span class="tag">concept</span> Conditionals</p>
+
+  <p>Programs need to make decisions. Python's <code>if</code>/<code>elif</code>/<code>else</code> statements let you run different code depending on conditions. Since Python 3.10 there's also <code>match</code>/<code>case</code> for pattern matching.</p>
+
+  <p>Primary source: <a href="https://docs.python.org/3/tutorial/controlflow.html">Python Docs — More Control Flow Tools</a></p>
+
+  <hr>
+
+  <h2>1. The <code>if</code> Statement</h2>
+
+  <p>The simplest conditional runs a block only when a condition is true:</p>
+
+  <pre><code>x = 10
+if x > 5:
+    print("x is greater than 5")</code></pre>
+
+  <p>Key rules:</p>
+  <ul>
+    <li>The condition <strong>must end with a colon</strong> (<code>:</code>)</li>
+    <li>The body <strong>must be indented</strong> (4 spaces by convention)</li>
+    <li>Any expression that evaluates to a boolean works — Python checks <strong>truthiness</strong></li>
+  </ul>
+
+  <pre><code>if 42:              # truthy — always runs
+    print("yes")
+
+if []:              # falsy — never runs
+    print("no")</code></pre>
+
+  <h2>2. <code>elif</code> and <code>else</code></h2>
+
+  <p>Chain multiple conditions with <code>elif</code> (short for "else if") and provide a fallback with <code>else</code>:</p>
+
+  <pre><code>score = 85
+
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+elif score >= 70:
+    grade = "C"
+elif score >= 60:
+    grade = "D"
+else:
+    grade = "F"
+
+print(grade)  # B</code></pre>
+
+  <p>Rules:</p>
+  <ul>
+    <li>Conditions are checked <strong>top to bottom</strong></li>
+    <li>The <strong>first</strong> true condition runs; the rest are skipped</li>
+    <li><code>elif</code> can appear zero or more times</li>
+    <li><code>else</code> is optional and must be last</li>
+    <li>Only <strong>one</strong> branch ever executes</li>
+  </ul>
+
+  <blockquote>
+    <strong>Note:</strong> Unlike some languages (JavaScript, C), there is no <code>switch</code> statement. Use <code>if</code>/<code>elif</code>/<code>else</code> or the newer <code>match</code>/<code>case</code> (see section 6).
+  </blockquote>
+
+  <h2>3. Truthiness in Conditions (Review)</h2>
+
+  <p>Every Python object has a truth value. These are <strong>always falsy</strong>:</p>
+  <ul>
+    <li><code>None</code></li>
+    <li><code>False</code></li>
+    <li>Zero in any numeric type: <code>0</code>, <code>0.0</code>, <code>0j</code></li>
+    <li>Empty sequences/collections: <code>""</code>, <code>[]</code>, <code>()</code>, <code>{}</code>, <code>set()</code>, <code>range(0)</code></li>
+  </ul>
+  <p>Everything else is truthy.</p>
+
+  <p>Idiomatic Python uses implicit truthiness rather than comparing to <code>True</code> or <code>False</code>:</p>
+
+  <pre><code># Good — Pythonic
+if items:
+    print(f"Got {len(items)} items")
+
+# Unnecessary — don't do this
+if len(items) > 0:
+    print(f"Got {len(items)} items")
+
+# Checking for None explicitly is fine (and required)
+if result is None:
+    print("No result")</code></pre>
+
+  <h2>4. Nested Conditionals</h2>
+
+  <p>You can put an <code>if</code> inside another <code>if</code>. Nested conditionals let you express more complex logic:</p>
+
+  <pre><code>age = 25
+has_id = True
+
+if age >= 18:
+    if has_id:
+        print("You can enter")
+    else:
+        print("Need ID")
+else:
+    print("Too young")</code></pre>
+
+  <p>Deep nesting (3+ levels) is a code smell — consider refactoring or using <code>and</code>/<code>or</code> instead:</p>
+
+  <pre><code># Instead of nesting:
+if age >= 18 and has_id:
+    print("You can enter")
+elif age >= 18:
+    print("Need ID")
+else:
+    print("Too young")</code></pre>
+
+  <h2>5. Ternary Expression (Conditional Expression)</h2>
+
+  <p>Python has a one-line conditional expression: <code>x if condition else y</code>. It returns a value:</p>
+
+  <pre><code>age = 20
+status = "adult" if age >= 18 else "minor"
+print(status)  # adult
+
+# Equivalent to:
+if age >= 18:
+    status = "adult"
+else:
+    status = "minor"</code></pre>
+
+  <p>Use judiciously — great for simple assignments, bad for complex logic:</p>
+
+  <pre><code># Good use
+discount = 0.1 if is_member else 0.0
+
+# Bad use — hard to read
+result = "positive" if x > 0 else ("zero" if x == 0 else "negative")</code></pre>
+
+  <h2>6. <code>match</code>/<code>case</code> (Structural Pattern Matching)</h2>
+
+  <p>Added in Python 3.10, <code>match</code>/<code>case</code> is a more powerful alternative to long <code>if</code>/<code>elif</code> chains. It compares a subject value against patterns:</p>
+
+  <pre><code>status_code = 404
+
+match status_code:
+    case 200:
+        print("OK")
+    case 301 | 302:
+        print("Redirect")
+    case 400:
+        print("Bad Request")
+    case 404:
+        print("Not Found")
+    case _:
+        print("Unknown")</code></pre>
+
+  <p>Key points:</p>
+  <ul>
+    <li><code>_</code> is the <strong>wildcard</strong> — matches anything (like <code>default</code> in other languages)</li>
+    <li><code>|</code> combines multiple patterns in one case</li>
+    <li>Only the <strong>first matching</strong> case runs</li>
+    <li>No fall-through (unlike C/JavaScript <code>switch</code>)</li>
+  </ul>
+
+  <p>You can also unpack sequences and bind variables:</p>
+
+  <pre><code>point = (5, 0)
+
+match point:
+    case (0, 0):
+        print("Origin")
+    case (0, y):
+        print(f"On y-axis at y={y}")
+    case (x, 0):
+        print(f"On x-axis at x={x}")
+    case (x, y):
+        print(f"At ({x}, {y})")</code></pre>
+
+  <p>You can add a <strong>guard</strong> (an extra condition) with <code>if</code>:</p>
+
+  <pre><code>match point:
+    case (x, y) if x == y:
+        print(f"On diagonal at ({x}, {y})")
+    case (x, y):
+        print(f"Not on diagonal")</code></pre>
+
+  <p>We'll revisit <code>match</code>/<code>case</code> in later lessons when we cover classes and data structures.</p>
+
+  <h2>7. <code>pass</code> — Do Nothing</h2>
+
+  <p><code>pass</code> is a placeholder that does nothing. Use it when syntax requires a statement but you haven't written the code yet:</p>
+
+  <pre><code>if condition:
+    pass  # TODO: implement later
+
+while True:
+    pass  # busy-wait</code></pre>
+
+  <hr>
+
+  <h2>Exercises</h2>
+  <p>Create each in <code>exercises/05-conditionals/</code>.</p>
+
+  <div class="exercise">
+    <h3>Exercise 1: Number Classifier</h3>
+    <p>Write a program that asks the user for a number and prints whether it's positive, negative, or zero. Handle the case where the input is not a valid number with a try/except.</p>
+    <pre><code>Enter a number: 5
+5 is positive.
+
+Enter a number: -3
+-3 is negative.
+
+Enter a number: 0
+The number is zero.
+
+Enter a number: abc
+That's not a valid number.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Even or Odd + Divisibility</h3>
+    <p>Ask the user for a number. Print whether it's even or odd, and whether it's divisible by 5 and/or 3. Use the <code>%</code> operator.</p>
+    <pre><code>Enter a number: 15
+15 is odd.
+15 is divisible by 5 and 3.
+
+Enter a number: 10
+10 is even.
+10 is divisible by 5 but not 3.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Vowel or Consonant</h3>
+    <p>Ask the user for a single letter. Use a <code>match</code>/<code>case</code> statement with the <code>|</code> operator to print whether it's a vowel or consonant. Handle uppercase and lowercase. If it's not a letter at all, print an error.</p>
+    <pre><code>Enter a letter: a
+a is a vowel.
+
+Enter a letter: B
+B is a consonant.
+
+Enter a letter: 5
+That's not a letter.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Ternary — Discount Calculator</h3>
+    <p>Ask the user for the purchase amount and whether they're a member ("yes" or "no"). Use a <strong>ternary expression</strong> to set the discount: 15% for members, 5% for non-members. Print the final price.</p>
+    <pre><code>Enter amount: 200
+Are you a member? (yes/no): yes
+Final price: $170.00
+
+Enter amount: 200
+Are you a member? (yes/no): no
+Final price: $190.00</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Shipping Calculator</h3>
+    <p>Write a program that calculates shipping cost based on <strong>order total</strong> and <strong>distance</strong>:</p>
+    <ul>
+      <li>Orders over $50 ship free</li>
+      <li>Orders $25-$50: $5 flat + $0.50 per km</li>
+      <li>Orders under $25: $3 flat + $1.00 per km</li>
+    </ul>
+    <p>If the shipping cost exceeds the order total, print "Shipping is more than the item value!" instead of the cost.</p>
+    <pre><code>Enter order total: 100
+Shipping is free! Total: $100.00
+
+Enter order total: 30
+Enter distance (km): 10
+Shipping cost: $10.00. Total: $40.00
+
+Enter order total: 15
+Enter distance (km): 20
+Shipping is more than the item value!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Simple Calculator with <code>match</code>/<code>case</code></h3>
+    <p>Revisit Exercise 1 from Lesson 4 (Arithmetic Calculator). This time, implement the operator selection using <code>match</code>/<code>case</code> instead of <code>if</code>/<code>elif</code>. Use <code>|</code> to combine <code>/</code>, <code>//</code>, <code>%</code> into one case for the division-by-zero check.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What's the difference between <code>elif</code> and <code>else</code>?</li>
+    <li>What values are falsy in Python? How do you check for an empty list idiomatically?</li>
+    <li>When would you use a ternary expression instead of a full <code>if</code>/<code>else</code>?</li>
+    <li>What does the wildcard <code>_</code> do in a <code>match</code>/<code>case</code>?</li>
+    <li>How do you combine multiple patterns in one case?</li>
+    <li>What is a guard in <code>match</code>/<code>case</code>?</li>
+    <li>How do you combine two conditions without nesting?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0004-operators-in-depth.html">← Previous: Operators in Depth</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>
