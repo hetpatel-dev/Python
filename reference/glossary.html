@@ -76,7 +76,7 @@
     <dd>An object with a hash value that never changes. Immutable types are hashable. Required for dict keys and set elements. Lists and dicts are NOT hashable.</dd>
 
     <dt><strong>String (<code>str</code>)</strong></dt>
-    <dd>Text data, enclosed in quotes: <code>"hello"</code> or <code>'hello'</code>.</dd>
+    <dd>Text data, enclosed in quotes: <code>"hello"</code> or <code>'hello'</code>. Strings are sequences of Unicode code points, immutable, and hashable.</dd>
 
     <dt><strong>Integer (<code>int</code>)</strong></dt>
     <dd>Whole numbers: <code>42</code>, <code>-7</code>, <code>0</code>.</dd>
@@ -243,8 +243,114 @@
     <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement. Also useful in loop bodies you haven't implemented yet.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 6: Loops.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a></p>
+  <h2>Strings</h2>
+
+  <dl>
+    <dt><strong>String indexing</strong></dt>
+    <dd>Individual characters accessed by position: <code>s[0]</code> (first), <code>s[-1]</code> (last). Zero-based. Negative indices count from the end.</dd>
+
+    <dt><strong>String slicing</strong></dt>
+    <dd>Extract a substring: <code>s[start:stop:step]</code>. Stop is exclusive. All bounds are optional. Never raises an error — out-of-bounds indices are silently clamped. <code>s[::-1]</code> reverses the string.</dd>
+
+    <dt><strong>String immutability</strong></dt>
+    <dd>Strings cannot be modified in place. <code>s[0] = "x"</code> raises <code>TypeError</code>. All operations return a <strong>new</strong> string. This makes strings hashable (usable as dict keys / set elements).</dd>
+
+    <dt><strong><code>.upper()</code> / <code>.lower()</code></strong></dt>
+    <dd>Return a new string with all characters converted to uppercase/lowercase. <code>"Hello".upper()</code> → <code>"HELLO"</code>.</dd>
+
+    <dt><strong><code>.capitalize()</code> / <code>.title()</code></strong></dt>
+    <dd><code>.capitalize()</code> uppercases the first character only. <code>.title()</code> uppercases the first character of each word.</dd>
+
+    <dt><strong><code>.swapcase()</code></strong></dt>
+    <dd>Swaps uppercase ↔ lowercase: <code>"Hello".swapcase()</code> → <code>"hELLO"</code>.</dd>
+
+    <dt><strong><code>.casefold()</code></strong></dt>
+    <dd>Aggressive lowercasing for caseless matching. More thorough than <code>.lower()</code> for non-ASCII text (e.g., German ß → ss).</dd>
+
+    <dt><strong><code>.find()</code> / <code>.rfind()</code></strong></dt>
+    <dd>Return the lowest/highest index where a substring is found. Returns <code>-1</code> if not found. Accepts optional <code>start</code> and <code>end</code> range.</dd>
+
+    <dt><strong><code>.index()</code> / <code>.rindex()</code></strong></dt>
+    <dd>Like <code>.find()</code> / <code>.rfind()</code> but raises <code>ValueError</code> if substring is not found.</dd>
+
+    <dt><strong><code>.count()</code></strong></dt>
+    <dd>Returns the number of non-overlapping occurrences of a substring: <code>"ababa".count("aba")</code> → <code>1</code>.</dd>
+
+    <dt><strong><code>.replace()</code></strong></dt>
+    <dd>Returns a copy with all occurrences of a substring replaced: <code>"cat cat".replace("cat", "dog")</code> → <code>"dog dog"</code>. Optional <code>count</code> limits replacements.</dd>
+
+    <dt><strong><code>.startswith()</code> / <code>.endswith()</code></strong></dt>
+    <dd>Check if a string starts/ends with a given substring. Accepts a tuple of options: <code>"file.txt".endswith((".txt", ".md"))</code>.</dd>
+
+    <dt><strong><code>.removeprefix()</code> / <code>.removesuffix()</code></strong></dt>
+    <dd>Python 3.9+. Remove a leading/trailing substring if present: <code>"https://x.com".removeprefix("https://")</code> → <code>"x.com"</code>.</dd>
+
+    <dt><strong><code>.split()</code> / <code>.rsplit()</code></strong></dt>
+    <dd>Split a string into a list using a delimiter. Default splits on any whitespace (and discards empty strings). <code>maxsplit</code> limits the number of splits. <code>rsplit</code> splits from the right.</dd>
+
+    <dt><strong><code>.join()</code></strong></dt>
+    <dd>Concatenates an iterable of strings using the separator string: <code>", ".join(["a", "b", "c"])</code> → <code>"a, b, c"</code>. Called on the separator, not the list. The idiomatic way to combine strings.</dd>
+
+    <dt><strong><code>.partition()</code> / <code>.rpartition()</code></strong></dt>
+    <dd>Split a string at the first/last occurrence of a separator. Returns a 3-tuple: <code>(before, separator, after)</code>. Always returns three elements.</dd>
+
+    <dt><strong><code>.splitlines()</code></strong></dt>
+    <dd>Split on line boundaries (<code>\n</code>, <code>\r\n</code>, etc.). Optional <code>keepends=True</code> preserves the line break characters.</dd>
+
+    <dt><strong><code>.strip()</code> / <code>.lstrip()</code> / <code>.rstrip()</code></strong></dt>
+    <dd>Remove leading/trailing characters (default: whitespace). <code>"  hello  ".strip()</code> → <code>"hello"</code>. Can specify chars to remove: <code>"...hello...".strip(".")</code> → <code>"hello"</code>.</dd>
+
+    <dt><strong><code>.center()</code> / <code>.ljust()</code> / <code>.rjust()</code></strong></dt>
+    <dd>Pad a string to a given width. <code>"hi".center(7)</code> → <code>"  hi   "</code>. Optional <code>fillchar</code> (default space).</dd>
+
+    <dt><strong><code>.zfill()</code></strong></dt>
+    <dd>Left-pad with zeros to a given width. Sign-aware: <code>"-5".zfill(5)</code> → <code>"-0005"</code>.</dd>
+
+    <dt><strong><code>.expandtabs()</code></strong></dt>
+    <dd>Replace tab characters (<code>\t</code>) with spaces, respecting tab stops. Default tab size is 8.</dd>
+
+    <dt><strong>Classification methods (<code>is*</code>)</strong></dt>
+    <dd>12 methods that check string content: <code>.isalpha()</code> (letters only), <code>.isdigit()</code> (digits only), <code>.isalnum()</code> (letters and digits), <code>.isspace()</code> (whitespace only), <code>.islower()</code> / <code>.isupper()</code> (case check), <code>.istitle()</code> (titlecased), <code>.isascii()</code> (all chars ASCII), <code>.isidentifier()</code> (valid Python identifier), <code>.isprintable()</code> (no control chars), <code>.isdecimal()</code> (decimal digits), <code>.isnumeric()</code> (any numeric including fractions/Roman). All return <code>False</code> for empty strings.</dd>
+
+    <dt><strong><code>ord()</code></strong></dt>
+    <dd>Built-in function that returns the Unicode code point (integer) of a character: <code>ord("A")</code> → <code>65</code>, <code>ord("😀")</code> → <code>128512</code>. Inverse of <code>chr()</code>.</dd>
+
+    <dt><strong><code>chr()</code></strong></dt>
+    <dd>Built-in function that returns the character for a Unicode code point: <code>chr(65)</code> → <code>"A"</code>. Inverse of <code>ord()</code>. Raises <code>ValueError</code> if the integer is out of valid Unicode range.</dd>
+
+    <dt><strong>f-string format specifier</strong></dt>
+    <dd>After the colon in an f-string expression: <code>f"{value:width.precision type}"</code>. Examples: <code>:.2f</code> (2 decimal places), <code>:>10</code> (right-align width 10), <code>:^10</code> (center), <code>:b</code> (binary), <code>:x</code> (hex).</dd>
+
+    <dt><strong>f-string debug (<code>=</code>)</strong></dt>
+    <dd>Python 3.8+. <code>f"{var=}"</code> prints <code>var=value</code>. Useful for quick debugging: <code>f"{name=} {age=}"</code> → <code>"name='Alice' age=30"</code>.</dd>
+
+    <dt><strong>f-string conversion (<code>!r</code>, <code>!s</code>, <code>!a</code>)</strong></dt>
+    <dd><code>!r</code> applies <code>repr()</code>, <code>!s</code> applies <code>str()</code> (default), <code>!a</code> applies <code>ascii()</code> (escapes non-ASCII). <code>f"{text!r}"</code> → <code>"'hello\\nworld'"</code>.</dd>
+
+    <dt><strong>Raw string (<code>r"..."</code>)</strong></dt>
+    <dd>A string prefix that treats backslashes as literal characters. No escape sequences are processed. Essential for regular expressions (<code>r"\d+\.\d+"</code>) and Windows paths (<code>r"C:\Users\name"</code>). Can combine with f-strings: <code>rf"{value}"</code>.</dd>
+
+    <dt><strong>Triple-quoted string</strong></dt>
+    <dd>A string delimited by <code>"""</code> or <code>'''</code> that spans multiple lines. Used for docstrings and long text blocks. Leading/trailing whitespace is preserved unless using <code>textwrap.dedent()</code>.</dd>
+
+    <dt><strong>Docstring</strong></dt>
+    <dd>A triple-quoted string as the first statement in a function/class/module. Accessible via <code>help()</code> and <code>obj.__doc__</code>. Standard convention for documentation.</dd>
+
+    <dt><strong>Unicode code point</strong></dt>
+    <dd>An integer in the Unicode codespace, ranging from 0 to 0x10FFFF (1,114,111). Each character maps to a code point. Represented in Python with <code>\u</code> (16-bit), <code>\U</code> (32-bit), or <code>\N{name}</code> escapes.</dd>
+
+    <dt><strong><code>.encode()</code> / <code>.decode()</code></strong></dt>
+    <dd><code>.encode(encoding)</code> converts a <code>str</code> to <code>bytes</code>. <code>.decode(encoding)</code> converts <code>bytes</code> to <code>str</code>. Common encodings: <code>"utf-8"</code> (default), <code>"utf-16"</code>, <code>"latin-1"</code>, <code>"ascii"</code>. Error handling: <code>"strict"</code> (default, raises), <code>"ignore"</code>, <code>"replace"</code> (adds <code>?</code>), <code>"xmlcharrefreplace"</code>.</dd>
+
+    <dt><strong><code>bytes</code> vs <code>str</code></strong></dt>
+    <dd>In Python 3, <code>str</code> holds Unicode text, <code>bytes</code> holds raw byte data. They are distinct types and cannot be mixed: <code>"hello" + b" world"</code> raises <code>TypeError</code>. Convert explicitly with <code>.encode()</code> / <code>.decode()</code> at program boundaries.</dd>
+
+    <dt><strong>Unicode escape sequences</strong></dt>
+    <dd><code>\u00e9</code> → é (16-bit), <code>\U0001F600</code> → 😀 (32-bit), <code>\N{GREEK SMALL LETTER PI}</code> → π (named). Used in normal and raw strings to represent characters by their code point.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 7: Strings in Depth.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>

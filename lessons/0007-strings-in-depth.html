@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 7: Strings in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 7: Strings in Depth — Text as a First-Class Citizen</h1>
+
+  <p><span class="tag">concept</span> Strings</p>
+
+  <p>You've used strings since Lesson 1 — but Python's <code>str</code> type is surprisingly deep. Strings are sequences of Unicode code points, they support powerful slicing and querying operations, and they come with dozens of built-in methods. This lesson covers everything you need to handle text effectively.</p>
+
+  <p>Primary source: <a href="https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str">Python Docs — Text Sequence Type str</a> and <a href="https://docs.python.org/3/tutorial/inputoutput.html#fancier-output-formatting">Fancier Output Formatting</a>.</p>
+
+  <hr>
+
+  <h2>1. String Indexing and Slicing</h2>
+
+  <p>Each character in a string has a position (index). Python uses zero-based indexing, and supports negative indices counting from the end:</p>
+
+  <pre><code>s = "Python"
+#     012345   (positive indices)
+#    -6-5-4-3-2-1  (negative indices)
+
+print(s[0])    # P
+print(s[-1])   # n
+print(s[2])    # t</code></pre>
+
+  <p>Slicing extracts a substring: <code>[start:stop:step]</code>. The <code>stop</code> index is exclusive:</p>
+
+  <pre><code>s = "Python"
+
+print(s[0:3])    # Pyt   (indices 0, 1, 2)
+print(s[:3])     # Pyt   (start defaults to 0)
+print(s[3:])     # hon   (stop defaults to end)
+print(s[-3:])    # hon   (last 3 characters)
+print(s[::2])    # Pto   (every 2nd character)
+print(s[::-1])   # nohtyP (reverse via step=-1)
+print(s[1:5:2])  # yh    (indices 1, 3)</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Slicing never raises an error.</strong> If <code>start</code> or <code>stop</code> is out of bounds, Python silently clamps to the string length. This is different from index access (<code>s[100]</code> raises <code>IndexError</code>).
+  </div>
+
+  <h2>2. String Immutability</h2>
+
+  <p>Strings are <strong>immutable</strong> — you cannot change a character in place:</p>
+
+  <pre><code>s = "hello"
+s[0] = "H"  # TypeError: 'str' object does not support item assignment</code></pre>
+
+  <p>All string operations return a <strong>new string</strong> rather than modifying the original:</p>
+
+  <pre><code>s = "hello"
+upper_s = s.upper()
+print(s)       # hello (unchanged)
+print(upper_s) # HELLO (new string)</code></pre>
+
+  <p>When you reassign a variable, you're pointing it at a new string object, not modifying the old one:</p>
+
+  <pre><code>name = "Alice"
+name = name.upper()  # name now points to "ALICE"
+# The original "Alice" string still exists but is unreachable.</code></pre>
+
+  <p>Because of immutability, strings are <strong>hashable</strong> — they can be used as dictionary keys and set elements.</p>
+
+  <h2>3. Case Methods</h2>
+
+  <p>Python provides several methods for changing or checking letter case:</p>
+
+  <pre><code>text = "hello World"
+
+print(text.upper())        # HELLO WORLD
+print(text.lower())        # hello world
+print(text.capitalize())   # Hello world (first letter uppercase, rest lowercase)
+print(text.title())        # Hello World (each word's first letter uppercase)
+print(text.swapcase())     # HELLO wORLD (swap uppercase ↔ lowercase)
+
+# casefold() is more aggressive than lower() — used for caseless matching
+german = "Straße"
+print(german.lower())      # straße
+print(german.casefold())   # strasse</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use each:</strong>
+    <ul>
+      <li><code>.lower()</code> — general case-insensitive comparison</li>
+      <li><code>.casefold()</code> — when dealing with non-ASCII text (German ß, Turkish İ, etc.)</li>
+      <li><code>.title()</code> — formatting names and titles (but watch for edge cases like "O'Brien")</li>
+      <li><code>.capitalize()</code> — formatting sentences</li>
+    </ul>
+  </div>
+
+  <h2>4. Search and Replace Methods</h2>
+
+  <p>Finding substrings within a string:</p>
+
+  <pre><code>text = "the cat in the hat"
+
+print(text.find("cat"))    # 4 (lowest index where "cat" starts)
+print(text.find("dog"))    # -1 (not found)
+print(text.rfind("the"))   # 11 (highest index where "the" starts)
+
+# .index() is like .find() but raises ValueError on failure
+print(text.index("cat"))   # 4
+# text.index("dog")        # ValueError: substring not found
+
+print(text.count("the"))   # 2 (non-overlapping occurrences)
+
+# Check start and end
+print(text.startswith("the"))   # True
+print(text.endswith("hat"))     # True
+
+# Modern Python (3.9+): removeprefix and removesuffix
+url = "https://example.com"
+print(url.removeprefix("https://"))  # example.com
+print(url.removesuffix(".com"))      # https://example
+
+# Replace substrings
+print(text.replace("cat", "dog"))  # the dog in the hat
+print(text.replace("the", "a"))    # a cat in a hat
+# .replace() with count argument:
+print(text.replace("the", "a", 1)) # a cat in the hat (only first occurrence)</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 1: String Slicer</h3>
+    <p>Hardcode a string like <code>"Python Programming"</code>. Print the following slices: first 6 characters, last 11 characters, every 2nd character, the string reversed, and the middle 5 characters using negative indices.</p>
+    <pre><code>String: Python Programming
+First 6: Python
+Last 11: Programming
+Every 2nd: Pto rgamn
+Reversed: gnimmargorP nohtyP
+Middle 5: gramm</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Username Normalizer</h3>
+    <p>Ask the user for their full name. Normalize it: strip leading/trailing whitespace, convert to lowercase, replace spaces with underscores, and remove any leading/trailing periods or hyphens.</p>
+    <pre><code>Enter your full name:   Alice  Smith! 
+Normalized: alice__smith!_
+
+# Hmm, the exclamation mark wasn't handled. Try removing punctuation too.</code></pre>
+  </div>
+
+  <h2>5. Split and Join</h2>
+
+  <p>Splitting turns a string into a list of substrings. Joining does the reverse:</p>
+
+  <pre><code># Split — default splits on any whitespace
+sentence = "the quick brown fox"
+words = sentence.split()
+print(words)  # ['the', 'quick', 'brown', 'fox']
+
+# Split with a specific delimiter
+csv_line = "Alice,25,Engineer"
+fields = csv_line.split(",")
+print(fields)  # ['Alice', '25', 'Engineer']
+
+# Limit splits with maxsplit
+data = "one two three four"
+print(data.split(maxsplit=2))     # ['one', 'two', 'three four']
+print(data.rsplit(maxsplit=2))    # ['one two', 'three', 'four']
+
+# Partition — split at first occurrence, returns 3-tuple
+print("a-b-c".partition("-"))     # ('a', '-', 'b-c')
+print("a-b-c".rpartition("-"))    # ('a-b', '-', 'c')
+
+# Splitlines — split on newline boundaries
+multiline = "line1\nline2\r\nline3"
+print(multiline.splitlines())     # ['line1', 'line2', 'line3']
+
+# Join — the inverse of split
+result = " | ".join(fields)
+print(result)  # Alice | 25 | Engineer
+
+# Join is called ON the separator string, not on the list
+parts = ["2026", "07", "04"]
+print("-".join(parts))            # 2026-07-04
+
+# Join works with any iterable of strings
+print("".join(["a", "b", "c"]))   # abc</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Join pitfall:</strong> <code>", ".join(items)</code> joins items <em>with</em> a comma-space <em>between</em> them. There is no trailing separator. This is the most common string-combining pattern in Python.
+  </div>
+
+  <h2>6. Strip and Pad Methods</h2>
+
+  <p>Stripping removes unwanted characters from edges. Padding adds characters to meet a width:</p>
+
+  <pre><code># Stripping — default removes whitespace
+messy = "  \t  hello   \n"
+print(repr(messy.strip()))        # 'hello'
+print(repr(messy.lstrip()))       # 'hello   \n'
+print(repr(messy.rstrip()))       # '  \t  hello'
+
+# Strip specific characters (not just whitespace)
+url = "www.example.com"
+print(url.strip("w.com"))         # example
+
+# Padding
+print("42".center(10))            # '    42    '
+print("42".ljust(10))             # '42        '
+print("42".rjust(10))             # '        42'
+print("42".zfill(10))             # '0000000042' (zeros, sign-aware)
+print("-42".zfill(10))            # '-000000042'
+
+# Expand tabs to spaces
+print("a\tb".expandtabs(4))       # 'a   b'</code></pre>
+
+  <h2>7. Classification (is*) Methods</h2>
+
+  <p>Python provides 12 methods to check what a string is made of:</p>
+
+  <pre><code>def classify(s):
+    print(f"{s!r:20} isalpha={s.isalpha():5} isdigit={s.isdigit():5} "
+          f"isalnum={s.isalnum():5} isspace={s.isspace():5} "
+          f"islower={s.islower():5} isupper={s.isupper():5}")
+
+classify("Hello")   # alpha, not digit, alnum, not space, mixed case
+classify("42")      # not alpha, digit, alnum, not space
+classify("abc123")  # not pure alpha nor pure digit, but isalnum
+classify("   ")     # not alpha, not digit, not alnum, is space
+classify("hello")   # all lower
+classify("HELLO")   # all upper
+
+# More specialized checks
+print("42".isdecimal())    # True  (decimal digits)
+print("½".isdecimal())     # False (fraction)
+print("½".isnumeric())     # True  (any numeric)
+print("Ⅳ".isnumeric())     # True  (Roman numeral)
+
+print(" ".isprintable())   # True  (space is printable)
+print("\n".isprintable())  # False (newline is not printable)
+
+print("hello".isidentifier())  # True
+print("2cool".isidentifier())  # False (starts with digit)
+
+print("".isascii())        # True  (empty string returns True)
+print("café".isascii())    # False (é is non-ASCII)</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 3: Find & Replace Tool</h3>
+    <p>Hardcode a paragraph (3-4 sentences). Ask the user for a word to find and a replacement word. Report how many times the word appears (using <code>.count()</code> or <code>.find()</code> in a loop), then show the text with all occurrences replaced.</p>
+    <pre><code>Paragraph: The cat sat on the mat. The cat was happy. The cat purred.
+Word to find: cat
+Replace with: dog
+Occurrences found: 3
+
+Result: The dog sat on the mat. The dog was happy. The dog purred.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: CSV Parser</h3>
+    <p>Hardcode a CSV line like <code>"Alice,25,Engineer,New York"</code>. Use <code>.split(",")</code> to parse it into fields. Then use <code>.join()</code> to reassemble with <code>" | "</code> as separator. Also handle a case where a field contains a comma using quotes (mention it but don't implement full CSV parsing).</p>
+    <pre><code>Original: Alice,25,Engineer,New York
+Parsed: ['Alice', '25', 'Engineer', 'New York']
+Joined: Alice | 25 | Engineer | New York</code></pre>
+  </div>
+
+  <h2>8. <code>ord()</code> and <code>chr()</code></h2>
+
+  <p>Every character in Python has an integer code point (its Unicode number). <code>ord()</code> converts character → integer, <code>chr()</code> converts integer → character:</p>
+
+  <pre><code>print(ord("A"))    # 65
+print(ord("a"))    # 97
+print(ord("0"))    # 48
+print(ord("é"))    # 233
+print(ord("😀"))   # 128512
+
+print(chr(65))     # A
+print(chr(97))     # a
+print(chr(128512)) # 😀
+
+# Useful for shifting characters (Caesar cipher)
+def shift_char(c, amount):
+    if c.isalpha():
+        base = ord("A") if c.isupper() else ord("a")
+        return chr((ord(c) - base + amount) % 26 + base)
+    return c
+
+# Letter positions relative to their case base
+print(ord("C") - ord("A"))  # 2 (C is the 3rd letter, zero-indexed)
+print(ord("z") - ord("a"))  # 25 (z is the last letter)</code></pre>
+
+  <div class="note">
+    <strong>💡 Code points vs bytes:</strong> <code>ord()</code> returns the Unicode code point, not the byte value. ASCII characters (0–127) happen to be one byte in UTF-8, but characters like <code>é</code> (code point 233) take 2 bytes in UTF-8, and emoji like 😀 (code point 128512) take 4 bytes.
+  </div>
+
+  <h2>9. Advanced f-strings</h2>
+
+  <p>You've used basic f-strings: <code>f"Hello, {name}"</code>. They can do much more:</p>
+
+  <pre><code># Format specifiers (after a colon)
+value = 12.3456
+print(f"{value:.2f}")      # 12.35  (2 decimal places)
+print(f"{value:10.2f}")    # '     12.35' (width 10, right-aligned)
+print(f"{value:<10.2f}")   # '12.35     ' (left-aligned)
+print(f"{value:^10.2f}")   # '  12.35   ' (centered)
+print(f"{value:010.2f}")   # 000012.35   (zero-padded)
+
+# Integer formatting
+n = 42
+print(f"{n:b}")            # 101010  (binary)
+print(f"{n:o}")            # 52      (octal)
+print(f"{n:x}")            # 2a      (hex lowercase)
+print(f"{n:X}")            # 2A      (hex uppercase)
+
+# Debug output — Python 3.8+
+name = "Alice"
+age = 30
+print(f"{name=}, {age=}")  # name='Alice', age=30
+print(f"{name=} {age=}")   # name='Alice' age=30
+
+# Conversions
+text = "hello\nworld"
+print(f"{text!r}")         # 'hello\nworld'  (repr)
+print(f"{text!s}")         # hello\nworld    (str, default)
+print(f"{text!a}")         # 'hello\\nworld' (ascii, escapes non-ASCII)
+
+# Nested expressions (Python 3.12+ allows backslashes in f-strings)
+width = 10
+precision = 3
+print(f"{value:{width}.{precision}f}")  # '        12.346'
+
+# Call methods inside f-strings
+print(f"{name.upper()} is {age}")       # ALICE is 30</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 5: Table Formatter</h3>
+    <p>Hardcode a list of (name, score) tuples: <code>[("Alice", 95), ("Bob", 82), ("Charlie", 91), ("Diana", 88)]</code>. Use <code>.rjust()</code>, <code>.ljust()</code>, and/or f-string format specifiers to display a neatly aligned table with a header row.</p>
+    <pre><code>Name      Score
+----      -----
+   Alice     95
+     Bob     82
+ Charlie     91
+   Diana     88</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Password Validator</h3>
+    <p>Ask the user for a password. Check these rules using classification methods: at least 8 characters, has an uppercase letter (<code>.isupper()</code>), has a lowercase letter (<code>.islower()</code>), has a digit (<code>.isdigit()</code>), has a special character (check against a string of special chars). Print pass/fail for each rule.</p>
+    <pre><code>Enter password: Hello1
+Too short (6 chars, need at least 8)
+Uppercase: ✅ Pass
+Lowercase: ✅ Pass
+Digit: ✅ Pass
+Special: ❌ Fail (no special character)</code></pre>
+  </div>
+
+  <h2>10. Raw Strings</h2>
+
+  <p>Raw strings (prefix <code>r</code>) treat backslashes as literal characters — no escape sequences are processed:</p>
+
+  <pre><code># Normal string — backslash escapes are interpreted
+normal = "C:\Users\name"
+print(normal)  # C:\Users\ame (\n becomes newline!) — bug!
+
+# Raw string — backslashes are literal
+raw = r"C:\Users\name"
+print(raw)     # C:\Users\name  (correct!)
+
+# Common use case: regular expressions
+import re
+pattern = r"\d+\.\d+"  # matches numbers like 3.14
+# Without raw string you'd need "\\d+\\.\\d+"
+
+# Raw strings still end with a backslash if that's the last char
+# This causes a syntax error:
+# bad = r"\"       # SyntaxError
+# Use a normal string or concatenation instead:
+ok = r"path" "\\"  # 'path\\'</code></pre>
+
+  <p>Raw strings work with all string prefixes: <code>r""</code>, <code>rf""</code> (raw f-string), <code>rb""</code> (raw bytes).</p>
+
+  <h2>11. Multi-line Strings</h2>
+
+  <p>Triple quotes (<code>"""</code> or <code>'''</code>) create strings that span multiple lines:</p>
+
+  <pre><code># Triple double quotes
+poem = """Roses are red,
+Violets are blue,
+Python is fun,
+And so are you."""
+
+print(poem)
+# Roses are red,
+# Violets are blue,
+# Python is fun,
+# And so are you.
+
+# Triple single quotes work the same way
+message = '''This is a
+multi-line
+message.'''
+
+# Explicit newline with backslash continuation (within regular strings)
+long = "This is a very long string that we want to \
+break across two lines in the source code."
+# The backslash continues the string — no newline in the output
+
+# Removing indentation — textwrap.dedent
+import textwrap
+code = textwrap.dedent("""\
+    def hello():
+        print("hi")
+""")
+# The leading indentation is stripped relative to the first line</code></pre>
+
+  <div class="note">
+    <strong>💡 Triple quotes for docstrings:</strong> When a triple-quoted string is the first statement in a function, class, or module, it becomes its <strong>docstring</strong> — used by <code>help()</code> and documentation tools. You'll see this in every Python codebase.
+  </div>
+
+  <h2>12. Unicode and Encoding</h2>
+
+  <p>Python strings are sequences of Unicode code points (not bytes). Encoding converts a string to bytes for storage/transmission; decoding converts bytes back to a string:</p>
+
+  <pre><code># Encode str → bytes
+text = "café"
+utf8_bytes = text.encode("utf-8")
+print(utf8_bytes)         # b'caf\xc3\xa9'
+print(type(utf8_bytes))   # &lt;class 'bytes'&gt;
+
+# Decode bytes → str
+decoded = utf8_bytes.decode("utf-8")
+print(decoded)            # café
+
+# Other encodings
+print(text.encode("utf-16"))   # b'\xff\xfec\x00a\x00f\x00\xe9\x00'
+print(text.encode("latin-1"))  # b'caf\xe9' (1 byte per char, limited)
+
+# Error handling
+# print(text.encode("ascii"))  # UnicodeEncodeError: 'é' not in ASCII
+print(text.encode("ascii", errors="ignore"))        # b'caf'
+print(text.encode("ascii", errors="replace"))       # b'caf?'
+print(text.encode("ascii", errors="xmlcharrefreplace"))  # b'caf&#233;'
+
+# Unicode escape sequences
+print("\u00e9")          # é (16-bit Unicode)
+print("\U0001F600")      # 😀 (32-bit Unicode, needs 8 hex digits)
+print("\N{GREEK SMALL LETTER PI}")  # π (named Unicode escape)
+
+# Unicode identifiers — Python allows Unicode in variable names
+π = 3.14159
+print(π)                 # 3.14159</code></pre>
+
+  <div class="note">
+    <strong>⚠️ The <code>bytes</code> vs <code>str</code> distinction matters:</strong> In Python 3, strings and bytes are <em>different types</em>. You cannot mix them:
+    <pre><code>"hello" + b" world"  # TypeError: can only concatenate str (not "bytes") to str</code></pre>
+    Always encode/decode explicitly at the boundaries of your program (file I/O, network, database).
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Caesar Cipher</h3>
+    <p>Ask the user for a message and a shift value (integer). Use <code>ord()</code> and <code>chr()</code> to shift each letter by the shift amount, wrapping around the alphabet. Preserve case and leave non-letters unchanged. Also implement decryption (shift in the opposite direction).</p>
+    <pre><code>Enter message: Hello, World!
+Enter shift: 3
+Encrypted: Khoor, Zruog!
+Decrypted: Hello, World!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Invoice Generator</h3>
+    <p>Hardcode a list of items: <code>[("Widget", 3, 4.99), ("Gadget", 2, 12.50), ("Doohickey", 1, 29.95)]</code>. Use advanced f-strings to format a receipt with right-aligned columns, currency with 2 decimal places, a dashed separator line, and a total at the bottom.</p>
+    <pre><code>Item          Qty    Price    Total
+----          ---    -----    -----
+Widget          3    4.99    14.97
+Gadget          2   12.50    25.00
+Doohickey       1   29.95    29.95
+              ---           -----
+               Total        69.92</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What does <code>s[::-1]</code> do? Why?</li>
+    <li>Why does <code>s[0] = "x"</code> raise an error? What should you do instead?</li>
+    <li>What's the difference between <code>.find()</code> and <code>.index()</code>?</li>
+    <li>What does <code>.split()</code> do by default? What does <code>.join()</code> do?</li>
+    <li>What's the difference between <code>.strip()</code>, <code>.lstrip()</code>, and <code>.rstrip()</code>?</li>
+    <li>Name three classification methods and what they check.</li>
+    <li>What does <code>ord("A")</code> return? What does <code>chr(65)</code> return?</li>
+    <li>What's the difference between <code>f"{value}"</code>, <code>f"{value!r}"</code>, <code>f"{value=}"</code>?</li>
+    <li>When would you use a raw string (<code>r"..."</code>)?</li>
+    <li>What's the difference between <code>str</code> and <code>bytes</code> in Python 3?</li>
+    <li>What happens when you encode a string with <code>errors="replace"</code>?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0006-loops.html">← Previous: Loops</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0008-lists-in-depth.html">Next: Lists in Depth →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>
