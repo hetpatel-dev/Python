@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 6: Loops</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 6: Loops — Repeating Work</h1>
+
+  <p><span class="tag">concept</span> Loops</p>
+
+  <p>Programs often need to repeat work — process every item in a list, keep asking until valid input is given, or compute a running total. Python gives you two looping tools: <code>for</code> (iterate over a sequence) and <code>while</code> (repeat while a condition is true).</p>
+
+  <p>Primary source: <a href="https://docs.python.org/3/tutorial/controlflow.html">Python Docs — More Control Flow Tools</a> (sections 4.2–4.5, 4.6) and <a href="https://docs.python.org/3/tutorial/datastructures.html#looping-techniques">Looping Techniques</a> (section 5.6).</p>
+
+  <hr>
+
+  <h2>1. The <code>for</code> Loop</h2>
+
+  <p>Python's <code>for</code> loop iterates over any <strong>iterable</strong> — a sequence like a list, string, or tuple. Unlike C or JavaScript, it doesn't use an index variable by default:</p>
+
+  <pre><code>fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)
+
+# apple
+# banana
+# cherry</code></pre>
+
+  <p>You can also iterate directly over a string (character by character):</p>
+
+  <pre><code>for ch in "hello":
+    print(ch, end=" ")
+# h e l l o</code></pre>
+
+  <p>Key point: the loop variable (<code>fruit</code>) takes on each value <strong>in order</strong>. The loop body runs once per element.</p>
+
+  <div class="note">
+    <strong>⚠️ Modifying a list while iterating over it is tricky.</strong> If you need to remove items, iterate over a <strong>copy</strong> instead:
+    <pre><code>for item in items.copy():
+    if condition(item):
+        items.remove(item)</code></pre>
+    Or build a new list with a comprehension (see Lesson 13).
+  </div>
+
+  <h2>2. <code>range()</code> — Generating Number Sequences</h2>
+
+  <p><code>range()</code> produces an arithmetic progression of numbers. It's lazy (memory-efficient) — it yields values one at a time, not a whole list:</p>
+
+  <pre><code>for i in range(5):
+    print(i, end=" ")
+# 0 1 2 3 4</code></pre>
+
+  <p>Common forms:</p>
+  <pre><code>range(stop)        # 0 to stop-1
+range(start, stop) # start to stop-1
+range(start, stop, step) # step can be negative</code></pre>
+
+  <pre><code>list(range(5, 10))       # [5, 6, 7, 8, 9]
+list(range(0, 10, 3))    # [0, 3, 6, 9]
+list(range(-10, -100, -30))  # [-10, -40, -70]</code></pre>
+
+  <p><code>range()</code> is often used when you <strong>need an index</strong> — but prefer <code>enumerate()</code> (see section 6) for cleaner code:</p>
+
+  <pre><code>words = ["cat", "window", "defenestrate"]
+for i in range(len(words)):
+    print(i, words[i])
+
+# 0 cat
+# 1 window
+# 2 defenestrate</code></pre>
+
+  <h2>3. The <code>while</code> Loop</h2>
+
+  <p>A <code>while</code> loop repeats as long as its condition is truthy. Use it when you don't know the number of iterations in advance:</p>
+
+  <pre><code>count = 0
+while count < 3:
+    print(f"Count is {count}")
+    count += 1
+
+# Count is 0
+# Count is 1
+# Count is 2</code></pre>
+
+  <p>Classic use case: keep prompting until valid input:</p>
+
+  <pre><code>while True:
+    reply = input("Type 'quit' to exit: ")
+    if reply == "quit":
+        break
+    print(f"You said: {reply}")</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Infinite loop risk!</strong> If the condition never becomes false, the loop runs forever. Use <code>break</code> or ensure the condition eventually changes.
+  </div>
+
+  <h2>4. <code>break</code> and <code>continue</code></h2>
+
+  <p><code>break</code> exits the innermost loop immediately:</p>
+
+  <pre><code>for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            print(f"{n} = {x} * {n//x}")
+            break
+
+# 4 = 2 * 2
+# 6 = 2 * 3
+# 8 = 2 * 4
+# 9 = 3 * 3</code></pre>
+
+  <p><code>continue</code> skips the rest of the current iteration and moves to the next one:</p>
+
+  <pre><code>for num in range(2, 10):
+    if num % 2 == 0:
+        print(f"Even: {num}")
+        continue
+    print(f"Odd: {num}")
+
+# Even: 2
+# Odd: 3
+# Even: 4
+# Odd: 5
+# Even: 6
+# Odd: 7
+# Even: 8
+# Odd: 9</code></pre>
+
+  <h2>5. <code>else</code> Clause on Loops</h2>
+
+  <p>This is unique to Python, and many newcomers find it surprising. A loop's <code>else</code> clause runs when the loop <strong>finishes normally</strong> — i.e., it was <strong>not</strong> terminated by <code>break</code>:</p>
+
+  <pre><code>for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            print(f"{n} equals {x} * {n//x}")
+            break
+    else:
+        # no factor found — n is prime
+        print(f"{n} is a prime number")
+
+# 2 is a prime number
+# 3 is a prime number
+# 4 equals 2 * 2
+# 5 is a prime number
+# 6 equals 2 * 3
+# 7 is a prime number
+# 8 equals 2 * 4
+# 9 equals 3 * 3</code></pre>
+
+  <p>The <code>else</code> belongs to the <code>for</code> (or <code>while</code>), <strong>not</strong> the <code>if</code>. Think of it as: "run this if no <code>break</code> happened."</p>
+
+  <p>Same pattern works with <code>while</code>:</p>
+
+  <pre><code>n = 0
+while n < 5:
+    n += 1
+    if n == 3:
+        break
+else:
+    print("Completed without break")  # won't run — break at 3</code></pre>
+
+  <h2>6. <code>enumerate()</code> — Index + Value</h2>
+
+  <p><code>enumerate()</code> adds a counter to an iterable. It yields <code>(index, value)</code> tuples:</p>
+
+  <pre><code>seasons = ["Spring", "Summer", "Fall", "Winter"]
+for i, season in enumerate(seasons):
+    print(f"{i}: {season}")
+
+# 0: Spring
+# 1: Summer
+# 2: Fall
+# 3: Winter</code></pre>
+
+  <p>You can specify a starting value:</p>
+
+  <pre><code>for i, season in enumerate(seasons, start=1):
+    print(f"{i}: {season}")
+
+# 1: Spring
+# 2: Summer
+# 3: Fall
+# 4: Winter</code></pre>
+
+  <p>This is <strong>always preferred</strong> over <code>range(len(seq))</code> when you need both index and value.</p>
+
+  <h2>7. <code>zip()</code> — Iterating Multiple Sequences</h2>
+
+  <p><code>zip()</code> pairs elements from two or more iterables, stopping at the shortest one:</p>
+
+  <pre><code>names = ["Alice", "Bob", "Charlie"]
+scores = [85, 92, 78]
+
+for name, score in zip(names, scores):
+    print(f"{name}: {score}")
+
+# Alice: 85
+# Bob: 92
+# Charlie: 78</code></pre>
+
+  <p>You can zip three or more:</p>
+
+  <pre><code>questions = ["name", "quest", "color"]
+answers = ["lancelot", "holy grail", "blue"]
+for q, a in zip(questions, answers):
+    print(f"What is your {q}? {a}")</code></pre>
+
+  <p>With unequal lengths, <code>zip()</code> stops at the shortest. To keep all values, use <code>itertools.zip_longest()</code> (covered later).</p>
+
+  <h2>8. Nested Loops</h2>
+
+  <p>Loops inside loops are common for working with 2D data:</p>
+
+  <pre><code>for row in range(3):
+    for col in range(3):
+        print(f"({row},{col})", end=" ")
+    print()  # newline after each row
+
+# (0,0) (0,1) (0,2)
+# (1,0) (1,1) (1,2)
+# (2,0) (2,1) (2,2)</code></pre>
+
+  <p>Multiplication table:</p>
+
+  <pre><code>for i in range(1, 4):
+    for j in range(1, 4):
+        print(f"{i}×{j}={i*j}", end="\t")
+    print()
+
+# 1×1=1   1×2=2   1×3=3
+# 2×1=2   2×2=4   2×3=6
+# 3×1=3   3×2=6   3×3=9</code></pre>
+
+  <h2>9. <code>pass</code> — Placeholder in Loops</h2>
+
+  <p><code>pass</code> does nothing. Useful as a placeholder when you need a loop body but haven't written the logic yet:</p>
+
+  <pre><code>for item in items:
+    pass  # TODO: process item later
+
+while True:
+    pass  # busy-wait for interrupt</code></pre>
+
+  <hr>
+
+  <h2>Exercises</h2>
+  <p>Create each in <code>exercises/06-loops/</code>.</p>
+
+  <div class="exercise">
+    <h3>Exercise 1: Sum and Average</h3>
+    <p>Ask the user for numbers one at a time. Keep asking until they enter "done". Then print the sum, count, and average of all numbers entered. Skip non-numeric input with a warning (use <code>try</code>/<code>except</code>).</p>
+    <pre><code>Enter a number (or 'done'): 10
+Enter a number (or 'done'): 20
+Enter a number (or 'done'): 30
+Enter a number (or 'done'): done
+Sum: 60, Count: 3, Average: 20.0
+
+Enter a number (or 'done'): abc
+Invalid input, try again.
+Enter a number (or 'done'): 5
+Enter a number (or 'done'): done
+Sum: 5, Count: 1, Average: 5.0</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Multiplication Table</h3>
+    <p>Ask the user for a number <code>n</code>. Use nested <code>for</code> loops to print an <code>n×n</code> multiplication table. Align columns with tabs (<code>\t</code>).</p>
+    <pre><code>Enter n: 4
+1	2	3	4
+2	4	6	8
+3	6	9	12
+4	8	12	16</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Prime Number Finder</h3>
+    <p>Ask the user for a number <code>n</code>. Use a <code>for</code>/<code>else</code> loop to find all prime numbers between 2 and <code>n</code> (inclusive). Print the total count at the end.</p>
+    <pre><code>Enter n: 20
+Primes: 2, 3, 5, 7, 11, 13, 17, 19
+Count: 8</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Parallel Lists with <code>zip()</code></h3>
+    <p>Given these two lists (hardcoded at the top of your script), use <code>zip()</code> to print each student's name and grade:</p>
+    <pre><code>students = ["Alice", "Bob", "Charlie", "Diana"]
+grades = [85, 92, 78, 95]</code></pre>
+    <p>Then extend it: ask the user for a student name and print their grade (or "Not found").</p>
+    <pre><code>Alice: 85
+Bob: 92
+Charlie: 78
+Diana: 95
+
+Search for a student: Bob
+Bob scored 92.
+
+Search for a student: Eve
+Eve not found.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Countdown with <code>while</code> and <code>break</code></h3>
+    <p>Ask the user for a starting number. Count down to 0, printing each number. Use <code>break</code> to exit early if the user types "stop" during the countdown (use <code>input()</code> inside the loop with a timeout prompt).</p>
+    <pre><code>Start: 5
+5 (press Enter to continue, or type 'stop')
+4 (press Enter to continue, or type 'stop')
+3 (press Enter to continue, or type 'stop')
+stop
+Stopped at 3.</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Enumerate — To-Do List</h3>
+    <p>Hardcode a list of tasks. Use <code>enumerate()</code> to display them numbered starting from 1. Then ask the user for a task number to mark as complete (remove it from the list). Keep showing the list until it's empty.</p>
+    <pre><code>Your tasks:
+1. Buy groceries
+2. Finish homework
+3. Call mom
+
+Which task is complete? (0 to quit): 2
+Removed: Finish homework
+
+Your tasks:
+1. Buy groceries
+2. Call mom
+
+Which task is complete? (0 to quit): 0
+Goodbye!</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What's the difference between <code>for</code> and <code>while</code>? When would you use each?</li>
+    <li>How does <code>range()</code> work? What are its three forms?</li>
+    <li>What does <code>break</code> do? What does <code>continue</code> do?</li>
+    <li>When does a loop's <code>else</code> clause run? When does it <strong>not</strong> run?</li>
+    <li>Why is <code>enumerate()</code> better than <code>range(len(seq))</code>?</li>
+    <li>What does <code>zip()</code> do when given sequences of different lengths?</li>
+    <li>How do you avoid modifying a list while iterating over it?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0005-conditionals.html">← Previous: Conditionals</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0007-strings-in-depth.html">Next: Strings in Depth →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

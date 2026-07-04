@@ -182,12 +182,51 @@
     <dt><strong>Guard</strong></dt>
     <dd>An extra condition in a <code>match</code>/<code>case</code> pattern: <code>case (x, y) if x == y:</code>. Must be true for the case to match.</dd>
 
-    <dt><strong><code>pass</code></strong></dt>
-    <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 5: Conditionals.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a></p>
+  <h2>Loops</h2>
+
+  <dl>
+    <dt><strong><code>for</code> Loop</strong></dt>
+    <dd>Iterates over an iterable (list, string, tuple, etc.) one element at a time. Unlike C/JavaScript, does not use an index by default: <code>for fruit in fruits: print(fruit)</code>.</dd>
+
+    <dt><strong><code>while</code> Loop</strong></dt>
+    <dd>Repeats as long as a condition is truthy: <code>while count &lt; 5: count += 1</code>. Use when number of iterations is unknown.</dd>
+
+    <dt><strong><code>range()</code></strong></dt>
+    <dd>Built-in function that generates an arithmetic progression of numbers. Lazy (memory-efficient). Forms: <code>range(stop)</code>, <code>range(start, stop)</code>, <code>range(start, stop, step)</code>. The stop value is exclusive.</dd>
+
+    <dt><strong><code>break</code></strong></dt>
+    <dd>Exits the innermost enclosing <code>for</code> or <code>while</code> loop immediately.</dd>
+
+    <dt><strong><code>continue</code></strong></dt>
+    <dd>Skips the rest of the current loop iteration and moves to the next one.</dd>
+
+    <dt><strong>Loop <code>else</code></strong></dt>
+    <dd>An optional <code>else</code> clause on <code>for</code> and <code>while</code> loops. Runs only if the loop completed without hitting a <code>break</code>. Does <strong>not</strong> run if loop was terminated by <code>break</code>, <code>return</code>, or an exception.</dd>
+
+    <dt><strong><code>enumerate()</code></strong></dt>
+    <dd>Built-in that adds a counter to an iterable. Yields <code>(index, value)</code> tuples. Preferred over <code>range(len(seq))</code>. Accepts a <code>start</code> parameter (default 0).</dd>
+
+    <dt><strong><code>zip()</code></strong></dt>
+    <dd>Built-in that pairs elements from multiple iterables, stopping at the shortest. Often used with <code>for</code>: <code>for a, b in zip(list1, list2):</code>.</dd>
+
+    <dt><strong>Nested Loop</strong></dt>
+    <dd>A loop inside another loop. The inner loop runs all its iterations for each iteration of the outer loop. Common for 2D data (matrices, grids).</dd>
+
+    <dt><strong>Iterable</strong></dt>
+    <dd>An object capable of returning its elements one at a time. Examples: list, string, tuple, dict, set, range, file handle. Can be used in a <code>for</code> loop or with <code>iter()</code>.</dd>
+  </dl>
+
+  <h2>Control Flow (continued)</h2>
+
+  <dl>
+    <dt><strong><code>pass</code></strong></dt>
+    <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement. Also useful in loop bodies you haven't implemented yet.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 6: Loops.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>
