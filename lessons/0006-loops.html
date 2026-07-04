@@ -288,7 +288,62 @@ for q, a in zip(questions, answers):
 # 2×1=2   2×2=4   2×3=6
 # 3×1=3   3×2=6   3×3=9</code></pre>
 
-  <h2>10. <code>pass</code> — Placeholder in Loops</h2>
+  <h2>10. <code>reversed()</code> and <code>sorted()</code> — Reverse and Sorted Looping</h2>
+
+  <p>The official docs recommend these two handy built-ins for common looping patterns:</p>
+
+  <h3><code>reversed()</code> — Loop in Reverse</h3>
+
+  <pre><code>for i in reversed(range(1, 6)):
+    print(i, end=" ")
+# 5 4 3 2 1</code></pre>
+
+  <pre><code>for ch in reversed("hello"):
+    print(ch, end="")
+# olleh</code></pre>
+
+  <h3><code>sorted()</code> — Loop in Sorted Order</h3>
+
+  <pre><code>for fruit in sorted(["banana", "apple", "cherry"]):
+    print(fruit)
+# apple
+# banana
+# cherry</code></pre>
+
+  <p><code>sorted()</code> returns a new list without modifying the original. Combine with <code>set()</code> to loop over unique elements in order:</p>
+
+  <pre><code>basket = ["apple", "orange", "apple", "pear", "orange"]
+for f in sorted(set(basket)):
+    print(f, end=" ")
+# apple orange pear</code></pre>
+
+  <h2>11. Loop Variable Scoping — A Python Gotcha</h2>
+
+  <p>In most languages (C, Java, JavaScript), a <code>for</code> loop variable is <strong>local to the loop</strong>. In Python, it <strong>leaks</strong> into the enclosing scope:</p>
+
+  <pre><code>for i in range(5):
+    pass
+
+print(i)  # 4 — 'i' still exists after the loop!</code></pre>
+
+  <p>This also means the loop variable keeps its <strong>last value</strong> from the final iteration:</p>
+
+  <pre><code>for fruit in ["apple", "banana", "cherry"]:
+    if fruit == "banana":
+        break
+
+print(fruit)  # "banana" — value when break happened</code></pre>
+
+  <p>This is rarely a problem in practice, but be aware of it — especially if the loop doesn't run at all:</p>
+
+  <pre><code>for x in []:
+    pass
+
+# print(x)  # NameError if x wasn't defined before the loop</code></pre>
+
+  <p>For safety, <strong>don't reuse loop variable names</strong> for important data outside the loop.</p>
+
+  <h2>12. <code>pass</code> — Placeholder in Loops</h2>
 
   <p><code>pass</code> does nothing. Useful as a placeholder when you need a loop body but haven't written the logic yet:</p>
 
@@ -420,6 +475,8 @@ All unique numbers (sorted): 1, 2, 3, 5, 7, 8, 9</code></pre>
     <li>How do you avoid modifying a list while iterating over it?</li>
     <li>What does looping over a <code>dict</code> yield by default? How do you get key-value pairs?</li>
     <li>Why is loop order unpredictable for a <code>set</code>? How do you force sorted iteration?</li>
+    <li>What does <code>reversed()</code> do? What does <code>sorted()</code> do in a loop?</li>
+    <li>What happens to a loop variable after the loop ends? How is Python different from C/Java?</li>
   </ul>
 
   <hr>
