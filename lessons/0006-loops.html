@@ -47,7 +47,58 @@ for fruit in fruits:
     Or build a new list with a comprehension (see Lesson 13).
   </div>
 
-  <h2>2. <code>range()</code> — Generating Number Sequences</h2>
+  <h2>2. Looping Over Different Data Types</h2>
+
+  <p>The <code>for</code> loop works on <strong>any iterable</strong>, but each data type yields its elements differently. Understanding this is key to writing correct loops.</p>
+
+  <h3>Lists and Tuples → Elements Directly</h3>
+
+  <pre><code>for fruit in ["apple", "banana", "cherry"]:
+    print(fruit)
+
+for point in (10, 20, 30):
+    print(point)</code></pre>
+
+  <h3>Strings → Characters</h3>
+
+  <pre><code>for ch in "Python":
+    print(ch, end=" ")
+# P y t h o n</code></pre>
+
+  <h3>Dictionaries → Keys by Default</h3>
+
+  <p>Iterating over a <code>dict</code> directly gives you <strong>keys</strong>. Use <code>.values()</code> for values and <code>.items()</code> for both:</p>
+
+  <pre><code>person = {"name": "Alice", "age": 30, "city": "NYC"}
+
+for key in person:              # same as person.keys()
+    print(key, end=" ")          # name age city
+
+print()
+
+for val in person.values():
+    print(val, end=" ")          # Alice 30 NYC
+
+print()
+
+for key, val in person.items():
+    print(f"{key} → {val}")     # name → Alice  etc.</code></pre>
+
+  <p>Dict iteration order is <strong>insertion order</strong> (guaranteed since Python 3.7).</p>
+
+  <h3>Sets → Elements (No Guaranteed Order)</h3>
+
+  <p>Sets are unordered, so loop order is <strong>arbitrary</strong> and may vary between runs:</p>
+
+  <pre><code>unique = {5, 1, 3, 2, 4}
+for num in unique:
+    print(num, end=" ")    # 1 2 3 4 5 (but order not guaranteed!)</code></pre>
+
+  <div class="note">
+    <strong>🔑 Key insight:</strong> If you need ordered iteration over unique elements, use <code>sorted(set(...))</code>.
+  </div>
+
+  <h2>3. <code>range()</code> — Generating Number Sequences</h2>
 
   <p><code>range()</code> produces an arithmetic progression of numbers. It's lazy (memory-efficient) — it yields values one at a time, not a whole list:</p>
 
@@ -64,7 +115,7 @@ range(start, stop, step) # step can be negative</code></pre>
 list(range(0, 10, 3))    # [0, 3, 6, 9]
 list(range(-10, -100, -30))  # [-10, -40, -70]</code></pre>
 
-  <p><code>range()</code> is often used when you <strong>need an index</strong> — but prefer <code>enumerate()</code> (see section 6) for cleaner code:</p>
+  <p><code>range()</code> is often used when you <strong>need an index</strong> — but prefer <code>enumerate()</code> (see section 7) for cleaner code:</p>
 
   <pre><code>words = ["cat", "window", "defenestrate"]
 for i in range(len(words)):
@@ -74,7 +125,7 @@ for i in range(len(words)):
 # 1 window
 # 2 defenestrate</code></pre>
 
-  <h2>3. The <code>while</code> Loop</h2>
+  <h2>4. The <code>while</code> Loop</h2>
 
   <p>A <code>while</code> loop repeats as long as its condition is truthy. Use it when you don't know the number of iterations in advance:</p>
 
@@ -99,7 +150,7 @@ while count < 3:
     <strong>⚠️ Infinite loop risk!</strong> If the condition never becomes false, the loop runs forever. Use <code>break</code> or ensure the condition eventually changes.
   </div>
 
-  <h2>4. <code>break</code> and <code>continue</code></h2>
+  <h2>5. <code>break</code> and <code>continue</code></h2>
 
   <p><code>break</code> exits the innermost loop immediately:</p>
 
@@ -131,7 +182,7 @@ while count < 3:
 # Even: 8
 # Odd: 9</code></pre>
 
-  <h2>5. <code>else</code> Clause on Loops</h2>
+  <h2>6. <code>else</code> Clause on Loops</h2>
 
   <p>This is unique to Python, and many newcomers find it surprising. A loop's <code>else</code> clause runs when the loop <strong>finishes normally</strong> — i.e., it was <strong>not</strong> terminated by <code>break</code>:</p>
 
@@ -165,7 +216,7 @@ while n < 5:
 else:
     print("Completed without break")  # won't run — break at 3</code></pre>
 
-  <h2>6. <code>enumerate()</code> — Index + Value</h2>
+  <h2>7. <code>enumerate()</code> — Index + Value</h2>
 
   <p><code>enumerate()</code> adds a counter to an iterable. It yields <code>(index, value)</code> tuples:</p>
 
@@ -190,7 +241,7 @@ for i, season in enumerate(seasons):
 
   <p>This is <strong>always preferred</strong> over <code>range(len(seq))</code> when you need both index and value.</p>
 
-  <h2>7. <code>zip()</code> — Iterating Multiple Sequences</h2>
+  <h2>8. <code>zip()</code> — Iterating Multiple Sequences</h2>
 
   <p><code>zip()</code> pairs elements from two or more iterables, stopping at the shortest one:</p>
 
@@ -213,7 +264,7 @@ for q, a in zip(questions, answers):
 
   <p>With unequal lengths, <code>zip()</code> stops at the shortest. To keep all values, use <code>itertools.zip_longest()</code> (covered later).</p>
 
-  <h2>8. Nested Loops</h2>
+  <h2>9. Nested Loops</h2>
 
   <p>Loops inside loops are common for working with 2D data:</p>
 
@@ -237,7 +288,7 @@ for q, a in zip(questions, answers):
 # 2×1=2   2×2=4   2×3=6
 # 3×1=3   3×2=6   3×3=9</code></pre>
 
-  <h2>9. <code>pass</code> — Placeholder in Loops</h2>
+  <h2>10. <code>pass</code> — Placeholder in Loops</h2>
 
   <p><code>pass</code> does nothing. Useful as a placeholder when you need a loop body but haven't written the logic yet:</p>
 
@@ -334,6 +385,27 @@ Which task is complete? (0 to quit): 0
 Goodbye!</code></pre>
   </div>
 
+  <div class="exercise">
+    <h3>Exercise 7: Word Frequency Counter (Dict Loop)</h3>
+    <p>Given a hardcoded sentence, split it into words and count how many times each word appears. Use a <code>dict</code> to store counts, then loop over <code>.items()</code> to display the results. Ignore case and punctuation (strip <code>.,!?</code>).</p>
+    <pre><code>Sentence: "The cat and the dog and the bird"
+cat: 1
+and: 2
+the: 3
+dog: 1
+bird: 1</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Set Intersection Game</h3>
+    <p>Hardcode two lists of numbers. Use <code>set()</code> to find their intersection (common numbers) and union (all unique numbers). Loop over <code>sorted()</code> versions of both sets to display them in order.</p>
+    <pre><code>List A: [3, 7, 2, 9, 5, 7, 3]
+List B: [5, 8, 2, 1, 9]
+
+Common numbers (sorted): 2, 5, 9
+All unique numbers (sorted): 1, 2, 3, 5, 7, 8, 9</code></pre>
+  </div>
+
   <hr>
 
   <h2>Mastery Check</h2>
@@ -346,6 +418,8 @@ Goodbye!</code></pre>
     <li>Why is <code>enumerate()</code> better than <code>range(len(seq))</code>?</li>
     <li>What does <code>zip()</code> do when given sequences of different lengths?</li>
     <li>How do you avoid modifying a list while iterating over it?</li>
+    <li>What does looping over a <code>dict</code> yield by default? How do you get key-value pairs?</li>
+    <li>Why is loop order unpredictable for a <code>set</code>? How do you force sorted iteration?</li>
   </ul>
 
   <hr>

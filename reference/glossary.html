@@ -211,6 +211,15 @@
     <dt><strong><code>zip()</code></strong></dt>
     <dd>Built-in that pairs elements from multiple iterables, stopping at the shortest. Often used with <code>for</code>: <code>for a, b in zip(list1, list2):</code>.</dd>
 
+    <dt><strong><code>dict.items()</code></strong></dt>
+    <dd>Returns a view of key-value pairs. Used in loops: <code>for k, v in person.items():</code>. The preferred way to iterate over both keys and values.</dd>
+
+    <dt><strong><code>dict.values()</code></strong></dt>
+    <dd>Returns a view of values only. Used in loops: <code>for v in person.values():</code>. Preserves insertion order (Python 3.7+).</dd>
+
+    <dt><strong>Set iteration</strong></dt>
+    <dd>Looping over a set yields elements in arbitrary (unpredictable) order. Use <code>sorted(set)</code> for ordered iteration: <code>for x in sorted(myset):</code>.</dd>
+
     <dt><strong>Nested Loop</strong></dt>
     <dd>A loop inside another loop. The inner loop runs all its iterations for each iteration of the outer loop. Common for 2D data (matrices, grids).</dd>
 
