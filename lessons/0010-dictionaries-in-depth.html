@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 10: Dictionaries in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 10: Dictionaries in Depth — Python's Mapping Type</h1>
+
+  <p><span class="tag">concept</span> Dictionaries</p>
+
+  <p>Dictionaries (<code>dict</code>) are Python's built-in mapping type — they store key-value pairs with O(1) average access time. Python's dict is one of the most versatile and optimized data structures in the language. This lesson covers everything from the official <a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">Python docs on dict</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/library/stdtypes.html#mapping-types-dict">Python Docs — Mapping Types</a>, <a href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries">Data Structures Tutorial</a>, <a href="https://docs.python.org/3/library/collections.html">collections module</a>.</p>
+
+  <hr>
+
+  <h2>1. Dict Basics</h2>
+
+  <p>Dictionaries are built with <code>{}</code> literal syntax or the <code>dict()</code> constructor. Keys must be <strong>hashable</strong> (immutable types like <code>str</code>, <code>int</code>, <code>tuple</code>). As of Python 3.7+, dicts preserve <strong>insertion order</strong>:</p>
+
+  <pre><code># Literal syntax
+  d = {"name": "Alice", "age": 30, "city": "London"}
+  print(d)        # {'name': 'Alice', 'age': 30, 'city': 'London'}
+
+  # dict() constructor — from keyword arguments
+  d2 = dict(name="Bob", age=25, city="Paris")
+  print(d2)       # {'name': 'Bob', 'age': 25, 'city': 'Paris'}
+
+  # dict() from a sequence of key-value pairs
+  pairs = [("a", 1), ("b", 2), ("c", 3)]
+  d3 = dict(pairs)
+  print(d3)       # {'a': 1, 'b': 2, 'c': 3}
+
+  # dict() from zip()
+  keys = ["x", "y", "z"]
+  vals = [10, 20, 30]
+  d4 = dict(zip(keys, vals))
+  print(d4)       # {'x': 10, 'y': 20, 'z': 30}
+
+  # Dict comprehension
+  squares = {x: x**2 for x in range(1, 6)}
+  print(squares)  # {1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+  # Keys must be hashable
+  # d_bad = {[1, 2]: "value"}  # TypeError: unhashable type: 'list'
+  d_good = {(1, 2): "value"}   # tuple is hashable
+  print(d_good)   # {(1, 2): 'value'}
+
+  # Insertion order is preserved (3.7+)
+  ordered = {"first": 1, "second": 2, "third": 3}
+  print(list(ordered.items()))  # [('first', 1), ('second', 2), ('third', 3)]
+
+  # Equality ignores order
+  d5 = {"a": 1, "b": 2}
+  d6 = {"b": 2, "a": 1}
+  print(d5 == d6)  # True
+
+  # Dicts cannot be ordered with < or > (raises TypeError)
+  # print(d5 < d6)  # TypeError: '<' not supported between instances of 'dict' and 'dict'</code></pre>
+
+  <h2>2. Basic Operations</h2>
+
+  <p>Standard dict operations: access, assign, delete, membership, and iteration:</p>
+
+  <pre><code>d = {"name": "Alice", "age": 30, "city": "London"}
+
+  # Access — raises KeyError if missing
+  print(d["name"])          # Alice
+  # print(d["country"])     # KeyError: 'country'
+
+  # Assign (insert or update)
+  d["country"] = "UK"       # new key
+  d["age"] = 31             # update existing key
+  print(d)                  # {'name': 'Alice', 'age': 31, 'city': 'London', 'country': 'UK'}
+
+  # Delete
+  del d["country"]
+  print(d)                  # {'name': 'Alice', 'age': 31, 'city': 'London'}
+
+  # Membership — check if key exists (O(1))
+  print("name" in d)        # True
+  print("country" in d)     # False
+
+  # Length
+  print(len(d))             # 3
+
+  # Convert keys to a list
+  print(list(d))            # ['name', 'age', 'city']
+
+  # Iteration (iterates over keys by default)
+  for k in d:
+      print(k, d[k])        # name Alice  /  age 31  /  city London
+
+  # reversed() — Python 3.8+
+  print(list(reversed(d)))  # ['city', 'age', 'name']
+
+  # Truthiness — empty dict is falsy
+  print(bool({}))           # False
+  print(bool({"key": 1}))   # True</code></pre>
+
+  <h2>3. The <code>get()</code> Method</h2>
+
+  <p>Unlike direct bracket access, <code>.get()</code> never raises <code>KeyError</code>. It returns <code>None</code> (or a default of your choice) for missing keys:</p>
+
+  <pre><code>d = {"name": "Alice", "age": 30}
+
+  # Safe access with get()
+  print(d.get("name"))           # Alice
+  print(d.get("country"))        # None
+  print(d.get("country", "N/A")) # N/A — custom default
+
+  # Contrast with direct access
+  # d["country"]  # KeyError!
+
+  # Safe access pattern — avoids branching
+  name = d.get("name", "Unknown")
+  country = d.get("country", "Unknown")
+  print(f"{name} from {country}")  # Alice from Unknown
+
+  # get() does NOT insert the default into the dict
+  print(d)                         # {'name': 'Alice', 'age': 30} — unchanged
+
+  # See also: setdefault() inserts the default if missing</code></pre>
+
+  <h2>4. Dict Methods</h2>
+
+  <p>Beyond <code>get()</code>, dicts offer a rich set of methods for manipulation:</p>
+
+  <pre><code>d = {"a": 1, "b": 2, "c": 3}
+
+  # pop(key[, default]) — remove and return value
+  val = d.pop("a")
+  print(val)      # 1
+  print(d)        # {'b': 2, 'c': 3}
+
+  val2 = d.pop("x", "not found")
+  print(val2)     # 'not found' — no KeyError with default
+
+  # d.pop("x")    # KeyError: 'x' — without default
+
+  # popitem() — remove and return (key, value) in LIFO order (3.7+)
+  d2 = {"a": 1, "b": 2, "c": 3}
+  print(d2.popitem())  # ('c', 3) — last inserted
+  print(d2.popitem())  # ('b', 2)
+  print(d2.popitem())  # ('a', 1)
+  # d2.popitem()       # KeyError: 'popitem(): dictionary is empty'
+
+  # setdefault(key[, default]) — insert if missing, return value either way
+  d3 = {"x": 10}
+  print(d3.setdefault("x", 99))   # 10 — already exists, returns 10
+  print(d3.setdefault("y", 99))   # 99 — inserted, returns 99
+  print(d3)                       # {'x': 10, 'y': 99}
+
+  # update([other]) — merge in key-value pairs
+  d4 = {"a": 1, "b": 2}
+  d4.update({"b": 99, "c": 3})
+  print(d4)                       # {'a': 1, 'b': 99, 'c': 3}
+
+  # update can take keyword args, an iterable of pairs, or zipped keys
+  d4.update(d=4, e=5)
+  print(d4)                       # {'a': 1, 'b': 99, 'c': 3, 'd': 4, 'e': 5}
+
+  # clear() — remove all items
+  d5 = {"a": 1, "b": 2}
+  d5.clear()
+  print(d5)                       # {}
+
+  # copy() — shallow copy
+  d6 = {"a": [1, 2]}
+  d7 = d6.copy()
+  d7["a"].append(3)
+  print(d6)                       # {'a': [1, 2, 3]} — shared reference!
+  print(d7)                       # {'a': [1, 2, 3]}
+
+  # fromkeys(iterable, value) — class method, creates new dict
+  keys = ["a", "b", "c"]
+  d8 = dict.fromkeys(keys, 0)
+  print(d8)                       # {'a': 0, 'b': 0, 'c': 0}
+
+  # Mutable default trap — all values share the SAME list
+  d9 = dict.fromkeys(keys, [])
+  d9["a"].append(99)
+  print(d9)                       # {'a': [99], 'b': [99], 'c': [99]}
+
+  # Fix: use a dict comprehension
+  d10 = {k: [] for k in keys}
+  d10["a"].append(99)
+  print(d10)                      # {'a': [99], 'b': [], 'c': []}</code></pre>
+
+  <div class="note">
+    <strong>⚠️ <code>popitem()</code> order:</strong> In Python 3.6 and earlier, <code>popitem()</code> removed an arbitrary key-value pair. As of Python 3.7, it removes the <strong>most recently inserted</strong> item (LIFO). This is guaranteed behavior.
+  </div>
+
+  <h2>5. Dict Views</h2>
+
+  <p><code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> return <strong>dynamic view objects</strong> — they reflect changes to the dict in real time:</p>
+
+  <pre><code>d = {"a": 1, "b": 2, "c": 3}
+
+  keys = d.keys()
+  values = d.values()
+  items = d.items()
+
+  print(keys)      # dict_keys(['a', 'b', 'c'])
+  print(values)    # dict_values([1, 2, 3])
+  print(items)     # dict_items([('a', 1), ('b', 2), ('c', 3)])
+
+  # Views are dynamic — they update when the dict changes
+  d["d"] = 4
+  print(keys)      # dict_keys(['a', 'b', 'c', 'd']) — automatically updated!
+  print(items)     # dict_items([('a', 1), ('b', 2), ('c', 3), ('d', 4)])
+
+  # Views support iteration (insertion order)
+  for k in keys:
+      print(k)     # a  b  c  d
+
+  for k, v in items:
+      print(k, v)  # a 1  /  b 2  /  c 3  /  d 4
+
+  # Set-like operations on keys() — union, intersection, difference
+  d1 = {"a": 1, "b": 2, "c": 3}
+  d2 = {"b": 4, "c": 5, "d": 6}
+
+  print(d1.keys() & d2.keys())   # {'b', 'c'} — intersection
+  print(d1.keys() | d2.keys())   # {'a', 'b', 'c', 'd'} — union
+  print(d1.keys() - d2.keys())   # {'a'} — difference
+  print(d1.keys() ^ d2.keys())   # {'a', 'd'} — symmetric difference
+
+  # .mapping attribute (3.10+) — get the underlying dict from a view
+  print(keys.mapping is d)       # True
+
+  # values() have set-like equality caveat
+  print(d1.values() == d2.values())  # False — always False (by design)
+
+  # Convert views to lists when you need a static copy
+  keys_list = list(d1.keys())
+  print(keys_list)               # ['a', 'b', 'c']</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Mutation during iteration:</strong> Modifying a dict while iterating over its views raises <code>RuntimeError: dictionary changed size during iteration</code>. Iterate over a <strong>copy</strong> of the keys when modifying: <code>for k in list(d):</code> or <code>for k in d.copy():</code>.
+  </div>
+
+  <h2>6. Iterating Dictionaries</h2>
+
+  <p>Python provides several idiomatic patterns for dict iteration:</p>
+
+  <pre><code>d = {"name": "Alice", "age": 30, "city": "London"}
+
+  # Iterating over keys (default)
+  for k in d:
+      print(k)        # name  age  city
+
+  # Iterating over key-value pairs
+  for k, v in d.items():
+      print(f"{k} = {v}")   # name = Alice  /  age = 30  /  city = London
+
+  # Iterating over values
+  for v in d.values():
+      print(v)        # Alice  30  London
+
+  # Sorted iteration
+  for k in sorted(d):
+      print(k, d[k])  # age 30  /  city London  /  name Alice
+
+  # Reversed iteration (Python 3.8+)
+  for k in reversed(d):
+      print(k, d[k])  # city London  /  age 30  /  name Alice
+
+  # enumerate over items
+  for i, (k, v) in enumerate(d.items(), start=1):
+      print(f"{i}. {k} = {v}")   # 1. name = Alice  /  2. age = 30  /  3. city = London
+
+  # Unpacking items tuple explicitly
+  for item in d.items():
+      k, v = item
+      print(k, v)
+
+  # Modifying during iteration — always use list() wrapper!
+  d2 = {"a": 1, "b": 2, "c": 3, "d": 4}
+  # Remove items with value < 3
+  for k in list(d2):      # iterate over a COPY of the keys
+      if d2[k] < 3:
+          del d2[k]
+  print(d2)               # {'c': 3, 'd': 4}</code></pre>
+
+  <h2>7. Dict Comprehensions</h2>
+
+  <p>Dict comprehensions build dicts concisely, with full support for filtering and transformation:</p>
+
+  <pre><code># Basic dict comprehension
+  squares = {x: x**2 for x in range(1, 11)}
+  print(squares)  # {1: 1, 2: 4, 3: 9, 4: 16, 5: 25, 6: 36, 7: 49, 8: 64, 9: 81, 10: 100}
+
+  # With condition filter
+  even_squares = {x: x**2 for x in range(1, 11) if x % 2 == 0}
+  print(even_squares)  # {2: 4, 4: 16, 6: 36, 8: 64, 10: 100}
+
+  # Building from two lists with zip()
+  names = ["Alice", "Bob", "Charlie"]
+  scores = [95, 87, 92]
+  gradebook = {name: score for name, score in zip(names, scores)}
+  print(gradebook)  # {'Alice': 95, 'Bob': 87, 'Charlie': 92}
+
+  # Swapping keys and values
+  original = {"a": 1, "b": 2, "c": 3}
+  swapped = {v: k for k, v in original.items()}
+  print(swapped)  # {1: 'a', 2: 'b', 3: 'c'}
+
+  # Transforming values
+  upper = {k: k.upper() for k in ["alice", "bob", "charlie"]}
+  print(upper)  # {'alice': 'ALICE', 'bob': 'BOB', 'charlie': 'CHARLIE'}
+
+  # Filtering a dict
+  temperatures = {"London": 15, "Paris": 22, "Moscow": -2, "Sydney": 30}
+  warm = {city: temp for city, temp in temperatures.items() if temp > 20}
+  print(warm)  # {'Paris': 22, 'Sydney': 30}
+
+  # Using enumerate with dict comprehension
+  indexed = {i: val for i, val in enumerate(["a", "b", "c"])}
+  print(indexed)  # {0: 'a', 1: 'b', 2: 'c'}</code></pre>
+
+  <h2>8. Merge & Update Operators (Python 3.9+)</h2>
+
+  <p>The <code>|</code> operator merges two dicts into a new one. The <code>|=</code> operator updates a dict in place. Right-hand dict wins on duplicate keys:</p>
+
+  <pre><code>defaults = {"theme": "light", "font_size": 12, "show_sidebar": True}
+  user_prefs = {"theme": "dark", "font_size": 14}
+
+  # Merge — create a new dict (right wins)
+  config = defaults | user_prefs
+  print(config)  # {'theme': 'dark', 'font_size': 14, 'show_sidebar': True}
+
+  # The original dicts are unchanged
+  print(defaults)  # {'theme': 'light', 'font_size': 12, 'show_sidebar': True}
+
+  # Multiple merge — chain with |
+  env_overrides = {"font_size": 16}
+  final = defaults | user_prefs | env_overrides
+  print(final)  # {'theme': 'dark', 'font_size': 16, 'show_sidebar': True}
+
+  # In-place update (like .update() but more readable)
+  settings = {"a": 1, "b": 2}
+  settings |= {"b": 99, "c": 3}
+  print(settings)  # {'a': 1, 'b': 99, 'c': 3}
+
+  # Contrast with .update()
+  settings2 = {"a": 1, "b": 2}
+  settings2.update({"b": 99, "c": 3})
+  print(settings2)  # {'a': 1, 'b': 99, 'c': 3} — same result
+
+  # | creates a new dict; |= modifies in place
+  original_id = id(settings2)
+  settings2 |= {"d": 4}
+  print(id(settings2) == original_id)  # True — in-place mutation
+
+  # Merge with non-dict mappings also works
+  print({"a": 1} | [("b", 2)])  # {'a': 1, 'b': 2}</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>|</code> vs <code>update()</code>:</strong> Use <code>|</code> when you want a new merged dict without modifying the originals. Use <code>|=</code> or <code>.update()</code> when you want to modify a dict in place. The <code>|</code> operator is more readable for merging and works great in functional-style code or one-liners.
+  </div>
+
+  <h2>9. Nested Dictionaries</h2>
+
+  <p>Dicts can contain other dicts, creating hierarchical data structures:</p>
+
+  <pre><code># Nested dict — dict of dicts
+  grades = {
+      "Alice": {"Math": 95, "Science": 88, "English": 91},
+      "Bob": {"Math": 87, "Science": 92, "English": 85},
+      "Charlie": {"Math": 93, "Science": 90, "English": 89},
+  }
+
+  # Accessing nested values
+  print(grades["Alice"]["Math"])      # 95
+
+  # Adding a grade
+  grades["Alice"]["History"] = 90
+  print(grades["Alice"])              # {'Math': 95, 'Science': 88, 'English': 91, 'History': 90}
+
+  # Iterating over nested dicts
+  for student, subjects in grades.items():
+      total = sum(subjects.values())
+      count = len(subjects)
+      print(f"{student}: {total/count:.1f} avg ({total} pts across {count} subjects)")
+
+  # Deep nesting
+  school = {
+      "Math Dept": {
+          "AL101": {"name": "Algebra I", "teacher": "Smith", "students": 30},
+          "GE201": {"name": "Geometry", "teacher": "Jones", "students": 25},
+      },
+      "Science Dept": {
+          "PH101": {"name": "Physics I", "teacher": "Brown", "students": 28},
+      },
+  }
+  print(school["Math Dept"]["AL101"]["teacher"])  # Smith
+
+  # Safe access with .get() on nested dicts
+  course = school.get("History Dept", {})
+  print(course.get("HI101", {}).get("name", "N/A"))  # N/A</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Deep <code>.get()</code> chaining:</strong> Chaining <code>.get()</code> on deeply nested dicts is verbose. For complex nested data, consider <code>collections.defaultdict</code> with nested patterns or library utilities.
+  </div>
+
+  <h2>10. <code>__missing__</code> Hook & <code>collections.defaultdict</code></h2>
+
+  <p>Python's <code>__missing__</code> hook is called when a key is not found via bracket access. The <code>collections.defaultdict</code> class implements this hook to provide automatic default values:</p>
+
+  <pre><code>from collections import defaultdict
+
+  # defaultdict(list) — auto-initialize missing keys with empty list
+  fruits_by_color = defaultdict(list)
+
+  fruits_by_color["red"].append("apple")
+  fruits_by_color["red"].append("cherry")
+  fruits_by_color["yellow"].append("banana")
+  fruits_by_color["green"].append("apple")
+
+  print(dict(fruits_by_color))
+  # {'red': ['apple', 'cherry'], 'yellow': ['banana'], 'green': ['apple']}
+
+  # defaultdict(int) — auto-initialize missing keys with 0
+  word_counts = defaultdict(int)
+  text = "the quick brown fox jumps over the lazy dog"
+  for word in text.split():
+      word_counts[word] += 1
+
+  print(dict(word_counts))
+  # {'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}
+
+  # defaultdict(set) — auto-initialize with empty set (for unique grouping)
+  categories = defaultdict(set)
+  data = [("fruit", "apple"), ("fruit", "apple"), ("fruit", "banana"), ("color", "red")]
+  for category, item in data:
+      categories[category].add(item)
+
+  print(dict(categories))  # {'fruit': {'banana', 'apple'}, 'color': {'red'}}
+
+  # defaultdict with custom factory
+  counter = defaultdict(lambda: 0)
+  for ch in "hello world":
+      counter[ch] += 1
+  print(dict(counter))  # {'h': 1, 'e': 1, 'l': 3, 'o': 2, ' ': 1, 'w': 1, 'r': 1, 'd': 1}
+
+  # Nested defaultdict — defaultdict of defaultdict
+  nested = defaultdict(lambda: defaultdict(int))
+  nested["Alice"]["Math"] += 95
+  nested["Alice"]["Science"] += 88
+  nested["Bob"]["Math"] += 92
+  print(dict(nested))
+  # {'Alice': defaultdict(<class 'int'>, {'Math': 95, 'Science': 88}), ...}
+
+  # Comparison with setdefault() — more verbose
+  plain = {}
+  for word in text.split():
+      plain[word] = plain.get(word, 0) + 1
+  print(plain == dict(word_counts))  # True — but defaultdict is cleaner
+
+  # setdefault() for list grouping
+  grouped = {}
+  for color, fruit in [("red", "apple"), ("red", "cherry"), ("yellow", "banana")]:
+      grouped.setdefault(color, []).append(fruit)
+  print(grouped)  # {'red': ['apple', 'cherry'], 'yellow': ['banana']}
+
+  # Caveat: defaultdict's default_factory applies to __getitem__ only
+  # .get() still returns None for missing keys
+  dd = defaultdict(int)
+  dd["a"] += 1
+  print(dd.get("b"))  # None — NOT 0!</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>defaultdict</code> vs <code>setdefault()</code>:</strong> <code>defaultdict</code> is cleaner when you want <strong>all</strong> missing keys to get the same default. Use <code>setdefault()</code> when only specific accesses should create defaults, or when you need different defaults per key.
+  </div>
+
+  <h2>11. <code>collections.Counter</code></h2>
+
+  <p><code>Counter</code> is a specialized dict subclass for counting hashable objects. It's one of the most useful tools in the <code>collections</code> module:</p>
+
+  <pre><code>from collections import Counter
+
+  # Creating a Counter
+  c = Counter("abracadabra")
+  print(c)  # Counter({'a': 5, 'b': 2, 'r': 2, 'c': 1, 'd': 1})
+
+  # Counter from a list
+  colors = ["red", "blue", "red", "green", "blue", "red"]
+  c2 = Counter(colors)
+  print(c2)  # Counter({'red': 3, 'blue': 2, 'green': 1})
+
+  # most_common(n) — the n most frequent elements
+  print(c.most_common(3))  # [('a', 5), ('b', 2), ('r', 2)]
+
+  # Accessing counts (returns 0 for missing — no KeyError!)
+  print(c["z"])            # 0
+
+  # elements() — iterator over elements repeating each as many times as its count
+  print(sorted(c.elements()))
+  # ['a', 'a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'r', 'r']
+
+  # total() — sum of all counts (Python 3.10+)
+  print(c.total())         # 11
+
+  # subtract() — decrement counts
+  c2 = Counter("abracadabra")
+  c2.subtract("alphabet")
+  print(c2)  # Counter({'a': 3, 'r': 2, 'b': 1, 'c': 1, 'd': 1, 'l': -1, 'p': -1, 'h': -1, 'e': -1, 't': -1})
+
+  # Counter arithmetic — returns new Counter with non-negative counts
+  c1 = Counter(a=3, b=1)
+  c2 = Counter(a=1, b=2, c=1)
+
+  # Addition
+  print(c1 + c2)  # Counter({'a': 4, 'b': 3, 'c': 1})
+
+  # Subtraction (keeps only positive counts)
+  print(c1 - c2)  # Counter({'a': 2})
+
+  # Intersection (min)
+  print(c1 & c2)  # Counter({'a': 1, 'b': 1})
+
+  # Union (max)
+  print(c1 | c2)  # Counter({'a': 3, 'b': 2, 'c': 1})
+
+  # Unary plus/minus — remove non-positive counts
+  c3 = Counter(a=3, b=-1, c=0)
+  print(+c3)      # Counter({'a': 3}) — only positive counts
+  print(-c3)      # Counter({'b': 1}) — only negative counts, made positive
+
+  # Rich comparisons — subset/superset
+  print(Counter(a=2, b=1) <= Counter(a=3, b=2, c=1))  # True
+
+  # update() adds counts (unlike regular dict update which replaces)
+  c4 = Counter(a=2, b=1)
+  c4.update(Counter(a=1, b=2, c=3))
+  print(c4)  # Counter({'a': 3, 'b': 3, 'c': 3})
+
+  # Counter supports setdefault, pop, popitem, keys, values, items — like dict</code></pre>
+
+  <div class="note">
+    <strong>💡 Counter vs defaultdict(int):</strong> Both can count, but <code>Counter</code> adds <code>most_common()</code>, <code>elements()</code>, <code>total()</code>, arithmetic operators, and rich comparisons. Use <code>Counter</code> when you need these features; use <code>defaultdict(int)</code> for simple counting in local scope.
+  </div>
+
+  <h2>12. <code>collections.OrderedDict</code></h2>
+
+  <p>Before Python 3.7 guaranteed insertion-order preservation in regular dicts, <code>OrderedDict</code> was the only ordered mapping. Today, regular dicts preserve order too, but <code>OrderedDict</code> still offers unique features:</p>
+
+  <pre><code>from collections import OrderedDict
+
+  # Creating an OrderedDict
+  od = OrderedDict([("a", 1), ("b", 2), ("c", 3)])
+  print(od)  # OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+
+  # move_to_end(key, last=True) — move key to end (or beginning if last=False)
+  od.move_to_end("a")           # move 'a' to the end
+  print(od)  # OrderedDict([('b', 2), ('c', 3), ('a', 1)])
+
+  od.move_to_end("a", last=False)  # move 'a' to the beginning
+  print(od)  # OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+
+  # popitem(last=True) — pop from end; popitem(last=False) — pop from beginning
+  print(od.popitem())         # ('c', 3) — default last=True
+  print(od.popitem(last=False))  # ('a', 1) — from the beginning
+
+  # Order-sensitive equality
+  od1 = OrderedDict([("a", 1), ("b", 2)])
+  od2 = OrderedDict([("b", 2), ("a", 1)])
+  print(od1 == od2)  # False — order matters for OrderedDict!
+  print(dict(od1) == dict(od2))  # True — regular dict equality ignores order
+
+  # Reinserting a key moves it to the end
+  od3 = OrderedDict([("a", 1), ("b", 2), ("c", 3)])
+  od3["a"] = 99
+  print(od3)  # OrderedDict([('b', 2), ('c', 3), ('a', 99)])
+
+  # When to use OrderedDict vs regular dict
+  # 1. You need order-sensitive equality checks
+  # 2. You need move_to_end() functionality
+  # 3. You need popitem(last=False) — pop from beginning
+  # 4. You want to support older Python versions (pre-3.7)
+
+  # LRU cache pattern with move_to_end
+  lru = OrderedDict()
+  lru["a"] = 1
+  lru["b"] = 2
+  lru["c"] = 3
+
+  # Simulating an access — move to end to mark as "recently used"
+  def access(key):
+      if key in lru:
+          lru.move_to_end(key)
+          return lru[key]
+      return None
+
+  print(access("a"))   # 1 — 'a' moves to end
+  print(lru)           # OrderedDict([('b', 2), ('c', 3), ('a', 1)])
+  print(access("b"))   # — 'b' is now at the beginning (least recently used before access)</code></pre>
+
+  <div class="note">
+    <strong>💡 OrderedDict or regular dict?</strong> For most modern Python code (3.7+), use a regular dict — it preserves insertion order, has a faster C implementation, and is more idiomatic. Reach for <code>OrderedDict</code> only when you specifically need <code>move_to_end()</code>, order-sensitive equality, or pop from the beginning with <code>popitem(last=False)</code>.
+  </div>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic CRUD — Phonebook</h3>
+    <p>Create a menu-driven phonebook program using a dict. The phonebook should support:</p>
+    <ul>
+      <li>Add a contact: <code>name → phone number</code></li>
+      <li>Lookup a contact: use <code>.get()</code> to retrieve a number, handle missing names gracefully</li>
+      <li>Delete a contact: remove a name from the phonebook</li>
+      <li>List all contacts: iterate over the dict and print <code>name: number</code></li>
+      <li>Count entries: show how many contacts are stored</li>
+    </ul>
+    <pre><code>Phonebook Menu
+  =============
+  1. Add contact
+  2. Lookup contact
+  3. Delete contact
+  4. List all
+  5. Count entries
+  6. Quit
+
+  Enter choice: 1
+  Name: Alice
+  Phone: 555-0101
+  Contact added.
+
+  Enter choice: 2
+  Name: Bob
+  Bob: Not found.
+  ...</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Dict Methods Lab</h3>
+    <p>Start with <code>d = {"a": 1, "b": 2, "c": 3}</code>. Demonstrate each of the following and print the state of <code>d</code> after each operation:</p>
+    <ul>
+      <li>Use <code>pop("b")</code> — print the popped value and the dict</li>
+      <li>Use <code>popitem()</code> — show it removes the last item (LIFO)</li>
+      <li>Use <code>setdefault("x", 99)</code> — then <code>setdefault("a", 0)</code> (key exists)</li>
+      <li>Use <code>update({"y": 10, "z": 20})</code> — show the merged dict</li>
+      <li>Use <code>dict.fromkeys(["p", "q", "r"], [])</code> — demonstrate the <strong>mutable default trap</strong> (all values share the same list), then fix it with a dict comprehension</li>
+    </ul>
+    <pre><code>After pop('b'): 2, dict={'a': 1, 'c': 3}
+  After popitem(): ('c', 3), dict={'a': 1}
+  After setdefault('x', 99): 99, dict={'a': 1, 'x': 99}
+  After setdefault('a', 0): 1 (key exists, unchanged)
+  After update: {'a': 1, 'x': 99, 'y': 10, 'z': 20}
+
+  fromkeys trap: {'p': [99], 'q': [99], 'r': [99]}
+  Comprehension fix: {'p': [99], 'q': [], 'r': []}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Word Frequency</h3>
+    <p>Given the text <code>"the quick brown fox jumps over the lazy dog"</code>, count word frequencies using three approaches:</p>
+    <ul>
+      <li>A plain dict with a manual check</li>
+      <li><code>defaultdict(int)</code></li>
+      <li><code>Counter</code></li>
+    </ul>
+    <p>For the <code>Counter</code> version, also show <code>.most_common(3)</code> and <code>.total()</code>. Verify all three produce the same result.</p>
+    <pre><code>Plain dict: {'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}
+  defaultdict: {'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1}
+  Counter:     Counter({'the': 2, 'quick': 1, 'brown': 1, 'fox': 1, 'jumps': 1, 'over': 1, 'lazy': 1, 'dog': 1})
+  Most common 3: [('the', 2), ('quick', 1), ('brown', 1)]
+  Total words: 9</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Dict Views & Set Operations</h3>
+    <p>Create two dicts of student → grade: <code>class_a = {"Alice": 90, "Bob": 85, "Charlie": 88}</code> and <code>class_b = {"Bob": 92, "Diana": 95, "Eve": 87}</code>. Use view methods to find:</p>
+    <ul>
+      <li>Students in both classes (intersection of <code>.keys()</code>)</li>
+      <li>Students in class_a only (difference)</li>
+      <li>All unique students (union)</li>
+      <li>Students in exactly one class (symmetric difference)</li>
+    </ul>
+    <p>Also demonstrate the <strong>dynamic nature</strong> of views: add a new student to one dict and show the view updates automatically.</p>
+    <pre><code>Both classes: {'Bob'}
+  Class A only: {'Alice', 'Charlie'}
+  Class B only: {'Diana', 'Eve'}
+  All students: {'Alice', 'Bob', 'Charlie', 'Diana', 'Eve'}
+  Exactly one: {'Alice', 'Charlie', 'Diana', 'Eve'}
+
+  After adding Frank to class_a, 'Frank' appears in the keys view automatically!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Nested Gradebook</h3>
+    <p>Create a nested dict <code>grades</code> mapping student names to dicts of subjects → scores:</p>
+    <pre><code>grades = {
+      "Alice": {"Math": 95, "Science": 88, "English": 91},
+      "Bob": {"Math": 87, "Science": 92, "English": 85},
+      "Charlie": {"Math": 93, "Science": 90, "English": 89},
+  }</code></pre>
+    <ul>
+      <li>Print Alice's Math score</li>
+      <li>Compute and print each student's average</li>
+      <li>Compute the class average per subject</li>
+      <li>Add a new subject "History" to each student with a score</li>
+      <li>Add a new student "Diana" with scores in all subjects</li>
+    </ul>
+    <pre><code>Alice's Math: 95
+
+  Student averages:
+  Alice: 91.3
+  Bob: 88.0
+  Charlie: 90.7
+
+  Subject averages:
+  Math: 91.7
+  Science: 90.0
+  English: 88.3</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Dict Comprehensions</h3>
+    <p>Use dict comprehensions to solve each of the following:</p>
+    <ul>
+      <li>Create a dict of <code>{x: x**2 for x in range(1, 11)}</code> — squares</li>
+      <li>Create a dict of even numbers only: <code>{x: x**2 for x in range(1, 21) if x % 2 == 0}</code></li>
+      <li>Swap keys and values of <code>{"a": 1, "b": 2, "c": 3}</code></li>
+      <li>Build a dict from <code>["Alice", "Bob", "Charlie"]</code> and <code>[95, 87, 92]</code> using <code>zip()</code></li>
+      <li>Filter a dict: given <code>{"London": 15, "Paris": 22, "Moscow": -2, "Sydney": 30}</code>, create a new dict with only cities > 20°C</li>
+    </ul>
+    <pre><code>Squares: {1: 1, 2: 4, 3: 9, ..., 10: 100}
+  Even squares: {2: 4, 4: 16, ..., 20: 400}
+  Swapped: {1: 'a', 2: 'b', 3: 'c'}
+  From zip: {'Alice': 95, 'Bob': 87, 'Charlie': 92}
+  Warm cities: {'Paris': 22, 'Sydney': 30}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Config Merge</h3>
+    <p>Given three configuration dictionaries with increasing priority:</p>
+    <pre><code>default_config = {"theme": "light", "font_size": 12, "show_sidebar": True, "language": "en"}
+  user_config = {"theme": "dark", "font_size": 14, "language": "fr"}
+  env_config = {"font_size": 16}</code></pre>
+    <ul>
+      <li>Merge them using <code>|</code> with correct precedence (env > user > default)</li>
+      <li>Show the final merged config</li>
+      <li>Use <code>|=</code> to update a running config dict step by step</li>
+      <li>Compare the result with <code>.update()</code> chaining to ensure they match</li>
+    </ul>
+    <pre><code>Merged: {'theme': 'dark', 'font_size': 16, 'show_sidebar': True, 'language': 'fr'}
+
+  Step by step with |=
+  After defaults: {'theme': 'light', 'font_size': 12, 'show_sidebar': True, 'language': 'en'}
+  After user: {'theme': 'dark', 'font_size': 14, 'show_sidebar': True, 'language': 'fr'}
+  After env: {'theme': 'dark', 'font_size': 16, 'show_sidebar': True, 'language': 'fr'}
+
+  update() produces the same result: True</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Grouping with defaultdict</h3>
+    <p>Given a list of <code>(category, item)</code> tuples:</p>
+    <pre><code>data = [
+      ("fruit", "apple"), ("fruit", "banana"), ("fruit", "cherry"),
+      ("vegetable", "carrot"), ("vegetable", "broccoli"),
+      ("fruit", "date"), ("dairy", "milk"), ("dairy", "cheese"),
+      ("vegetable", "spinach"),
+  ]</code></pre>
+    <ul>
+      <li>Group items by category using <code>defaultdict(list)</code></li>
+      <li>Print each category and its items</li>
+      <li>Re-implement the same logic with a plain dict + <code>setdefault()</code></li>
+      <li>Compare the two approaches — which is cleaner?</li>
+      <li>Bonus: use <code>defaultdict(set)</code> to deduplicate items within each category</li>
+    </ul>
+    <pre><code>With defaultdict(list):
+  fruit: ['apple', 'banana', 'cherry', 'date']
+  vegetable: ['carrot', 'broccoli', 'spinach']
+  dairy: ['milk', 'cheese']
+
+  With setdefault():
+  fruit: ['apple', 'banana', 'cherry', 'date']
+  vegetable: ['carrot', 'broccoli', 'spinach']
+  dairy: ['milk', 'cheese']
+
+  Bonus — deduplicated with defaultdict(set):
+  fruit: {'banana', 'apple', 'date', 'cherry'}
+  vegetable: {'spinach', 'carrot', 'broccoli'}
+  dairy: {'cheese', 'milk'}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Counter Deep Dive</h3>
+    <p>Given the text <code>"abracadabra"</code>:</p>
+    <ul>
+      <li>Count all letters using <code>Counter</code></li>
+      <li>Show the 3 most common letters using <code>.most_common(3)</code></li>
+      <li>Use <code>.elements()</code> to list all letters in order of frequency</li>
+      <li>Use <code>.total()</code> to show total letter count</li>
+      <li>Create another <code>Counter("abracadabra")</code> and use <code>.subtract("alphabet")</code> to show negative counts</li>
+      <li>Demonstrate <code>+</code>, <code>-</code>, <code>&amp;</code>, and <code>|</code> between two Counters</li>
+      <li>Use unary <code>+</code> to remove non-positive counts after subtraction</li>
+    </ul>
+    <pre><code>Counter: Counter({'a': 5, 'b': 2, 'r': 2, 'c': 1, 'd': 1})
+  Most common 3: [('a', 5), ('b', 2), ('r', 2)]
+  Elements: ['a', 'a', 'a', 'a', 'a', 'b', 'b', 'c', 'd', 'r', 'r']
+  Total: 11
+  After subtract: Counter({'r': 2, 'a': 3, 'b': 1, 'c': 1, 'd': 1, ... with negatives})
+  After unary +: Counter({'a': 3, 'r': 2, 'b': 1, 'c': 1, 'd': 1})
+  c1 + c2: Counter({'a': 4, 'b': 3, 'c': 1})
+  c1 & c2: Counter({'a': 1, 'b': 1})
+  c1 | c2: Counter({'a': 3, 'b': 2, 'c': 1})</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Mixed Review — CSV Parsing with Dictionaries</h3>
+    <p>Parse a list of CSV-formatted strings representing student records:</p>
+    <pre><code>data = [
+      "Alice,Math,95,20",
+      "Bob,Science,87,19",
+      "Charlie,Math,92,21",
+      "Alice,Science,88,20",
+      "Bob,Math,90,19",
+      "Charlie,English,85,21",
+      "Diana,Math,98,20",
+      "Diana,Science,94,20",
+    ]</code></pre>
+    <p>Parse each line and build a nested dict: <code>{name: {subject: (score, age)}}</code>. Then:</p>
+    <ul>
+      <li>Print the nested dict</li>
+      <li>Use a <code>Counter</code> to find the most popular subject (most entries)</li>
+      <li>Use <code>defaultdict(list)</code> to group all scores by subject</li>
+      <li>Compute the average score for each subject</li>
+      <li>Find the student with the highest total score across all subjects</li>
+    </ul>
+    <pre><code>Nested dict:
+  Alice: {'Math': (95, 20), 'Science': (88, 20)}
+  Bob: {'Science': (87, 19), 'Math': (90, 19)}
+  Charlie: {'Math': (92, 21), 'English': (85, 21)}
+  Diana: {'Math': (98, 20), 'Science': (94, 20)}
+
+  Most popular subject: Math (4 entries)
+
+  Subject averages:
+  Math: 93.75
+  Science: 89.67
+  English: 85.00
+
+  Highest total score: Diana (192)</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What is the requirement for a dictionary key?</li>
+    <li>What order do dicts preserve (since Python 3.7)?</li>
+    <li>What is the difference between <code>d[key]</code> and <code>d.get(key)</code>?</li>
+    <li>What does <code>popitem()</code> return? In what order?</li>
+    <li>What is the mutable default trap with <code>fromkeys()</code>?</li>
+    <li>How are dict views different from lists? What operations support set-like behavior?</li>
+    <li>How do you safely modify a dict while iterating over it?</li>
+    <li>What does the <code>|</code> operator do on dicts (Python 3.9+)?</li>
+    <li>What is <code>defaultdict(list)</code> useful for?</li>
+    <li>How does <code>Counter.most_common(n)</code> work?</li>
+    <li>What features does <code>OrderedDict</code> offer beyond regular dicts?</li>
+    <li>When would you use <code>defaultdict</code> vs <code>setdefault()</code> vs <code>Counter</code>?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0009-tuples.html">← Previous: Tuples</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0011-sets.html">Next: Sets →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

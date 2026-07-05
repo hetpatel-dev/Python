@@ -136,13 +136,20 @@
     <li>Tuple vs List cheat sheet — mutable, hashable, methods, memory, use cases</li>
   </ul>
 
-  <h3>10. Dictionaries in Depth</h3>
+  <h3>10. <a href="lessons/0010-dictionaries-in-depth.html">Dictionaries in Depth</a></h3>
   <ul>
-    <li>Dict methods</li>
-    <li>Dict iteration</li>
-    <li><code>defaultdict</code>, <code>Counter</code>, <code>OrderedDict</code></li>
-    <li>Dict comprehensions</li>
-    <li>Insertion ordering</li>
+    <li>Dict basics — <code>{}</code> literal, <code>dict()</code> constructor, dict comprehensions, hashable keys, insertion order guarantee (3.7+), equality ignores order</li>
+    <li>Basic operations — <code>d[key]</code>, assignment, <code>del</code>, <code>key in d</code>, <code>len()</code>, <code>list(d)</code>, <code>reversed(d)</code>, truthiness</li>
+    <li><code>get()</code> method — safe access with optional default, contrast with bracket access</li>
+    <li>Dict methods — <code>pop()</code>, <code>popitem()</code> (LIFO, 3.7+), <code>setdefault()</code>, <code>update()</code>, <code>clear()</code>, <code>copy()</code>, <code>fromkeys()</code> (mutable default trap)</li>
+    <li>Dict views — <code>keys()</code>, <code>values()</code>, <code>items()</code> — dynamic, set-like operations on <code>keys()</code> (<code>&amp;</code>, <code>|</code>, <code>-</code>, <code>^</code>), <code>.mapping</code> attribute (3.10+)</li>
+    <li>Iterating dictionaries — <code>for k in d</code>, <code>d.items()</code>, <code>d.values()</code>, <code>sorted(d)</code>, <code>reversed(d)</code>, <code>enumerate(d.items())</code>, mutation during iteration</li>
+    <li>Dict comprehensions — basic, with <code>if</code>, from <code>zip()</code>, swapping keys/values, filtering</li>
+    <li>Merge &amp; update operators (<code>|</code>, <code>|=</code>) — Python 3.9+, contrast with <code>update()</code></li>
+    <li>Nested dictionaries — dict of dicts, safe traversal with <code>.get()</code></li>
+    <li><code>__missing__</code> hook &amp; <code>collections.defaultdict</code> — <code>defaultdict(list)</code>, <code>defaultdict(int)</code>, <code>defaultdict(set)</code>, nested defaultdict, vs <code>setdefault()</code></li>
+    <li><code>collections.Counter</code> — <code>most_common()</code>, <code>elements()</code>, <code>total()</code>, <code>subtract()</code>, arithmetic (<code>+</code>, <code>-</code>, <code>&amp;</code>, <code>|</code>), unary <code>+</code>/<code>-</code></li>
+    <li><code>collections.OrderedDict</code> — <code>move_to_end()</code>, <code>popitem(last=False)</code>, order-sensitive equality, LRU cache pattern</li>
   </ul>
 
   <h3>11. Sets</h3>

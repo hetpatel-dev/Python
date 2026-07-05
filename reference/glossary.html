@@ -486,8 +486,126 @@
     <dd>Class attribute — a dict mapping field names to their default values. Defaults are applied to the rightmost fields. <code>Account._field_defaults</code> → <code>{'balance': 0}</code>.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 9: Tuples.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a> | <a href="../lessons/0009-tuples.html">Lesson 9</a></p>
+  <h2>Dictionaries</h2>
+
+  <dl>
+    <dt><strong>Dictionary (<code>dict</code>)</strong></dt>
+    <dd>A mutable mapping from keys to values. Keys must be hashable (immutable). Values can be any type. Preserves insertion order (Python 3.7+). Provides O(1) average access time.</dd>
+
+    <dt><strong>Dict literal (<code>{}</code>)</strong></dt>
+    <dd>Creating a dict with curly braces: <code>{"a": 1, "b": 2}</code>. Empty braces <code>{}</code> create an empty dict (not a set).</dd>
+
+    <dt><strong><code>dict()</code> constructor</strong></dt>
+    <dd>Creates a dict from keyword arguments: <code>dict(a=1, b=2)</code>, from a sequence of pairs: <code>dict([("a", 1), ("b", 2)])</code>, or from zip: <code>dict(zip(keys, vals))</code>.</dd>
+
+    <dt><strong>Insertion order</strong></dt>
+    <dd>Python 3.7+ guarantees that dicts preserve the order in which keys were first inserted. Iterating, <code>.keys()</code>, <code>.values()</code>, and <code>.items()</code> all follow insertion order. <code>popitem()</code> removes the most recently inserted item (LIFO).</dd>
+
+    <dt><strong><code>d[key]</code> — bracket access</strong></dt>
+    <dd>Returns the value for <code>key</code>. Raises <code>KeyError</code> if the key does not exist. For safe access, use <code>d.get(key)</code>.</dd>
+
+    <dt><strong><code>d[key] = value</code></strong></dt>
+    <dd>Assigns a value to a key. If the key exists, its value is updated. If the key is new, it is inserted (at the end of the insertion order).</dd>
+
+    <dt><strong><code>del d[key]</code></strong></dt>
+    <dd>Removes a key-value pair from the dict. Raises <code>KeyError</code> if the key does not exist.</dd>
+
+    <dt><strong><code>key in d</code></strong></dt>
+    <dd>Membership test — returns <code>True</code> if the key exists in the dict. O(1) average time. Use <code>not in</code> for the inverse.</dd>
+
+    <dt><strong><code>.get(key[, default])</code></strong></dt>
+    <dd>Returns the value for <code>key</code> if it exists, otherwise returns <code>default</code> (or <code>None</code> if no default is given). Never raises <code>KeyError</code>. Does NOT insert the default into the dict.</dd>
+
+    <dt><strong><code>.pop(key[, default])</code></strong></dt>
+    <dd>Removes the key and returns its value. If the key is missing, returns <code>default</code> if provided, otherwise raises <code>KeyError</code>.</dd>
+
+    <dt><strong><code>.popitem()</code></strong></dt>
+    <dd>Removes and returns a <code>(key, value)</code> pair. In Python 3.7+, removes the most recently inserted item (LIFO). Raises <code>KeyError</code> on an empty dict.</dd>
+
+    <dt><strong><code>.setdefault(key[, default])</code></strong></dt>
+    <dd>If <code>key</code> is in the dict, returns its value (without modifying). If <code>key</code> is not in the dict, inserts <code>key</code> with <code>default</code> and returns <code>default</code>. Unlike <code>.get()</code>, this DOES modify the dict when the key is missing.</dd>
+
+    <dt><strong><code>.update([other])</code></strong></dt>
+    <dd>Merges key-value pairs from another dict, iterable of pairs, or keyword arguments. Overwrites existing keys. Returns <code>None</code>. Similar to <code>|=</code> operator (Python 3.9+).</dd>
+
+    <dt><strong><code>.clear()</code></strong></dt>
+    <dd>Removes all items from the dict. The dict object still exists (unlike <code>del d</code> which deletes the variable).</dd>
+
+    <dt><strong><code>.copy()</code></strong></dt>
+    <dd>Returns a shallow copy of the dict. The new dict references the same objects as the original. For nested dicts, use <code>copy.deepcopy()</code>.</dd>
+
+    <dt><strong><code>fromkeys(iterable, value)</code></strong></dt>
+    <dd>Class method that creates a new dict with keys from <code>iterable</code> and all values set to <code>value</code>. ⚠️ If <code>value</code> is mutable (e.g., <code>[]</code>), all keys share the <strong>same</strong> object. Fix: use a dict comprehension.</dd>
+
+    <dt><strong>Dict view (<code>.keys()</code>, <code>.values()</code>, <code>.items()</code>)</strong></dt>
+    <dd>Dynamic view objects that reflect changes to the dict in real time. <code>.keys()</code> and <code>.items()</code> support set-like operations (<code>&amp;</code>, <code>|</code>, <code>-</code>, <code>^</code>). <code>.values()</code> does not (values may not be hashable).</dd>
+
+    <dt><strong><code>dict.keys()</code></strong></dt>
+    <dd>A view of all keys in insertion order. Supports set operations: intersection (<code>&amp;</code>), union (<code>|</code>), difference (<code>-</code>), symmetric difference (<code>^</code>). Dynamic — updates when the dict changes.</dd>
+
+    <dt><strong><code>dict.values()</code></strong></dt>
+    <dd>A view of all values in insertion order. Does NOT support set operations (values are not guaranteed to be hashable, and equality comparison between value views is always <code>False</code> by design).</dd>
+
+    <dt><strong><code>dict.items()</code></strong></dt>
+    <dd>A view of all <code>(key, value)</code> pairs in insertion order. Supports set operations (if values are hashable). This is the preferred way to iterate over both keys and values: <code>for k, v in d.items():</code>.</dd>
+
+    <dt><strong>Dict view <code>.mapping</code> attribute</strong></dt>
+    <dd>Python 3.10+. Returns the underlying dict from a dict view. <code>d.keys().mapping is d</code> → <code>True</code>. Useful for passing the actual dict through when only a view is available.</dd>
+
+    <dt><strong>Dict comprehension</strong></dt>
+    <dd>Concise syntax for creating dicts: <code>{k: v for k, v in iterable}</code>. Supports filtering with <code>if</code>, transformation, and nested loops. Examples: <code>{x: x**2 for x in range(10)}</code>, <code>{v: k for k, v in original.items()}</code>.</dd>
+
+    <dt><strong>Merge operator (<code>|</code>)</strong></dt>
+    <dd>Python 3.9+. Creates a <strong>new</strong> dict by merging two dicts. Right-hand dict wins on duplicate keys: <code>merged = d1 | d2</code>. The original dicts are unchanged.</dd>
+
+    <dt><strong>Update operator (<code>|=</code>)</strong></dt>
+    <dd>Python 3.9+. Updates a dict in place (mutation): <code>d1 |= d2</code>. Equivalent to <code>d1.update(d2)</code> but more readable.</dd>
+
+    <dt><strong>Nested dict</strong></dt>
+    <dd>A dict where values are themselves dicts: <code>{"Alice": {"Math": 95}}</code>. Accessed with chained brackets: <code>d["Alice"]["Math"]</code>. Common for hierarchical data like gradebooks, configs, or JSON-like structures.</dd>
+
+    <dt><strong><code>__missing__(self, key)</code></strong></dt>
+    <dd>A special method on dict subclasses. Called by <code>__getitem__</code> (bracket access) when a key is not found. <code>defaultdict</code> implements this hook. Regular dicts do NOT support <code>__missing__</code>.</dd>
+
+    <dt><strong><code>collections.defaultdict</code></strong></dt>
+    <dd>A dict subclass that calls a factory function to supply missing values. Common factories: <code>list</code> (grouping), <code>int</code> (counting), <code>set</code> (unique grouping), <code>lambda: value</code> (custom default). Only applies to <code>__getitem__</code> — <code>.get()</code> still returns <code>None</code> for missing keys.</dd>
+
+    <dt><strong><code>defaultdict(list)</code></strong></dt>
+    <dd>Auto-creates an empty list for each missing key. Pattern: <code>dd[key].append(value)</code>. The idiomatic way to group items by category. More concise than <code>setdefault(key, []).append(value)</code>.</dd>
+
+    <dt><strong><code>defaultdict(int)</code></strong></dt>
+    <dd>Auto-creates <code>0</code> for each missing key. Pattern: <code>dd[key] += 1</code>. The easiest way to count occurrences.</dd>
+
+    <dt><strong><code>collections.Counter</code></strong></dt>
+    <dd>A dict subclass for counting hashable objects. Returns <code>0</code> for missing keys (no <code>KeyError</code>). Key methods: <code>.most_common(n)</code>, <code>.elements()</code>, <code>.total()</code> (3.10+), <code>.subtract()</code>. Supports arithmetic: <code>+</code>, <code>-</code>, <code>&amp;</code>, <code>|</code>, unary <code>+</code>/<code>-</code>. <code>.update()</code> adds counts (unlike regular dict which replaces).</dd>
+
+    <dt><strong><code>Counter.most_common([n])</code></strong></dt>
+    <dd>Returns a list of the <code>n</code> most common elements and their counts, sorted from most to least. If <code>n</code> is omitted, returns all elements. <code>c.most_common(1)[0][0]</code> gets the single most common element.</dd>
+
+    <dt><strong><code>Counter.elements()</code></strong></dt>
+    <dd>An iterator over elements repeating each as many times as its count. Elements are returned in arbitrary order. Use <code>sorted(c.elements())</code> for ordered output.</dd>
+
+    <dt><strong><code>Counter.total()</code></strong></dt>
+    <dd>Python 3.10+. Returns the sum of all counts. Equivalent to <code>sum(c.values())</code>.</dd>
+
+    <dt><strong>Counter arithmetic</strong></dt>
+    <dd><code>+</code> adds counts (union of multiset sums). <code>-</code> subtracts counts (keeps only positive results). <code>&amp;</code> takes the minimum (intersection). <code>|</code> takes the maximum (union). Unary <code>+</code> removes non-positive counts. Unary <code>-</code> returns only negative counts as positives.</dd>
+
+    <dt><strong><code>collections.OrderedDict</code></strong></dt>
+    <dd>A dict subclass that remembers insertion order (now mostly redundant with Python 3.7+ dicts). Unique features: <code>move_to_end(key, last=True)</code>, order-sensitive equality (regular dicts ignore order), <code>popitem(last=False)</code> (pop from beginning), reinserting a key moves it to the end.</dd>
+
+    <dt><strong><code>OrderedDict.move_to_end(key, last=True)</strong></dt>
+    <dd>Moves an existing key to the end (if <code>last=True</code>) or to the beginning (if <code>last=False</code>). Raises <code>KeyError</code> if the key is missing. Useful for implementing LRU caches.</dd>
+
+    <dt><strong><code>OrderedDict.popitem(last=True)</strong></dt>
+    <dd>Removes and returns a <code>(key, value)</code> pair. With <code>last=True</code> (default), pops from the end (LIFO). With <code>last=False</code>, pops from the beginning (FIFO). On a regular dict, <code>popitem()</code> always pops from the end.</dd>
+
+    <dt><strong>Mutating during dict iteration</strong></dt>
+    <dd>Adding or removing keys while iterating over a dict raises <code>RuntimeError: dictionary changed size during iteration</code>. Fix: iterate over a copy: <code>for k in list(d):</code> or <code>for k in d.copy():</code>.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 10: Dictionaries in Depth.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a> | <a href="../lessons/0009-tuples.html">Lesson 9</a> | <a href="../lessons/0010-dictionaries-in-depth.html">Lesson 10</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>
