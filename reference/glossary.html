@@ -425,8 +425,69 @@
     <dd>A memory-efficient array of typed values. Type codes: <code>'i'</code> (int), <code>'f'</code> (float), <code>'d'</code> (double), etc. Supports most list operations but stores values compactly. Best for large numeric datasets. Not for heterogeneous data.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 8: Lists in Depth.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a></p>
+  <h2>Tuples</h2>
+
+  <dl>
+    <dt><strong>Tuple (<code>tuple</code>)</strong></dt>
+    <dd>An immutable ordered sequence. Tuples are created by commas, not parentheses: <code>t = 1, 2, 3</code>. Used for heterogeneous fixed records, dict keys, and multiple return values.</dd>
+
+    <dt><strong>Tuple packing</strong></dt>
+    <dd>The automatic creation of a tuple when values are separated by commas: <code>packed = 1, 2, 3</code> creates <code>(1, 2, 3)</code>. The comma is the tuple operator, not the parentheses.</dd>
+
+    <dt><strong>Sequence unpacking</strong></dt>
+    <dd>Assigning multiple variables from any sequence: <code>a, b, c = (1, 2, 3)</code> or <code>a, b, c = [1, 2, 3]</code> or <code>x, y = "hi"</code>. Works on any iterable, not just tuples.</dd>
+
+    <dt><strong>Starred unpacking</strong></dt>
+    <dd>Using <code>*</code> to capture remaining elements during unpacking: <code>first, *rest, last = range(10)</code>. <code>rest</code> becomes a list of middle elements. Can be empty.</dd>
+
+    <dt><strong>Single-element tuple</strong></dt>
+    <dd>A tuple with one element requires a trailing comma: <code>(1,)</code>. Without the comma, <code>(1)</code> is just the integer 1 grouped by parentheses. The comma disambiguates.</dd>
+
+    <dt><strong>Tuple immutability</strong></dt>
+    <dd>Tuples cannot be modified after creation: no item assignment, no appending, no deletion of items. However, if a tuple contains a mutable object (like a list), that object's contents <strong>can</strong> change: <code>t[0].append(99)</code> works if <code>t[0]</code> is a list.</dd>
+
+    <dt><strong><code>.count(x)</code></strong></dt>
+    <dd>Tuple method that returns the number of occurrences of <code>x</code>: <code>(1, 2, 2, 3).count(2)</code> → <code>2</code>.</dd>
+
+    <dt><strong><code>.index(x[, start[, end]])</code></strong></dt>
+    <dd>Tuple method that returns the index of the first occurrence of <code>x</code>. Raises <code>ValueError</code> if not found. Optional <code>start</code> and <code>end</code> limit the search range.</dd>
+
+    <dt><strong>Tuple concatenation (<code>+</code>)</strong></dt>
+    <dd>Creates a new tuple by combining two tuples. Each <code>+</code> creates a new object. Building a large tuple with repeated <code>+</code> in a loop has <strong>quadratic</strong> cost — build a list first, then convert with <code>tuple()</code>.</dd>
+
+    <dt><strong>Tuple repetition (<code>*</code>)</strong></dt>
+    <dd>Creates a new tuple by repeating the contents <code>n</code> times: <code>(1, 2) * 3</code> → <code>(1, 2, 1, 2, 1, 2)</code>. Mutable elements are referenced, not copied — same trap as <code>[[]] * n</code> for lists.</dd>
+
+    <dt><strong>Lexicographic comparison</strong></dt>
+    <dd>Tuple comparison works element by element from left to right. <code>(1, 2, 3) < (1, 2, 4)</code> → <code>True</code> (first difference at index 2). Shorter sequences are considered smaller if all elements match: <code>(1, 2) < (1, 2, 3)</code> → <code>True</code>. This enables natural multi-key sorting with tuples as sort keys.</dd>
+
+    <dt><strong>Tuple hashability</strong></dt>
+    <dd>A tuple is hashable (can be used as a dict key or set member) only if <strong>all</strong> of its elements are hashable. A tuple containing a list is not hashable. This property follows from tuple immutability — because the tuple can't change, its hash is stable.</dd>
+
+    <dt><strong>Composite key</strong></dt>
+    <dd>A dictionary key made from multiple values, combined into a tuple: <code>grades[("Alice", "Math")] = 95</code>. Useful when no single value uniquely identifies a record.</dd>
+
+    <dt><strong>Named tuple (<code>namedtuple</code>)</strong></dt>
+    <dd>A factory function from <code>collections</code> that creates tuple subclasses with named fields. Instances are indexable (like regular tuples) <strong>and</strong> support attribute access: <code>p.x</code> instead of <code>p[0]</code>. Lightweight — no per-instance dict, same memory as regular tuples.</dd>
+
+    <dt><strong><code>namedtuple._make(iterable)</code></strong></dt>
+    <dd>Class method on a named tuple that creates an instance from an iterable: <code>Point._make([3, 4])</code> → <code>Point(x=3, y=4)</code>.</dd>
+
+    <dt><strong><code>namedtuple._asdict()</code></strong></dt>
+    <dd>Instance method that returns an <code>OrderedDict</code> mapping field names to values: <code>p._asdict()</code> → <code>{'x': 3, 'y': 4}</code>.</dd>
+
+    <dt><strong><code>namedtuple._replace(**kwargs)</code></strong></dt>
+    <dd>Instance method that returns a <strong>new</strong> named tuple instance with specified fields replaced: <code>p._replace(x=99)</code> → <code>Point(x=99, y=4)</code>. The original is unchanged (tuples are immutable).</dd>
+
+    <dt><strong><code>namedtuple._fields</code></strong></dt>
+    <dd>Class attribute — a tuple of strings listing the field names: <code>Point._fields</code> → <code>('x', 'y')</code>. Useful for introspection and creating new named tuple types by combining fields.</dd>
+
+    <dt><strong><code>namedtuple._field_defaults</code></strong></dt>
+    <dd>Class attribute — a dict mapping field names to their default values. Defaults are applied to the rightmost fields. <code>Account._field_defaults</code> → <code>{'balance': 0}</code>.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 9: Tuples.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a> | <a href="../lessons/0009-tuples.html">Lesson 9</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>

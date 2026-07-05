@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 9: Tuples</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 9: Tuples — Python's Immutable Sequences</h1>
+
+  <p><span class="tag">concept</span> Tuples</p>
+
+  <p>Tuples are Python's immutable ordered sequence type. They are used for heterogeneous data that shouldn't change, for unpacking, as dictionary keys, and for function return values. This lesson covers everything from the official <a href="https://docs.python.org/3/library/stdtypes.html#tuple">Python docs on tuples</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/library/stdtypes.html#tuple">Python Docs — Tuples</a>, <a href="https://docs.python.org/3/tutorial/datastructures.html#tuples-and-sequences">Data Structures Tutorial</a>, <a href="https://docs.python.org/3/library/collections.html#collections.namedtuple">collections.namedtuple</a>.</p>
+
+  <hr>
+
+  <h2>1. Tuple Basics</h2>
+
+  <p>Tuples are ordered, heterogeneous sequences. The key thing to know: <strong>commas create tuples, not parentheses</strong>. Parentheses are often necessary for clarity, but the comma is what makes it a tuple:</p>
+
+  <pre><code># Commas create tuples
+t = 1, 2, 3
+print(t)          # (1, 2, 3)
+print(type(t))    # <class 'tuple'>
+
+# Parentheses are common but optional (except in ambiguity)
+t2 = (1, 2, 3)    # same thing
+print(t2)         # (1, 2, 3)
+
+# Heterogeneous
+mixed = (1, "hello", 3.14, True)
+print(mixed)      # (1, 'hello', 3.14, True)
+
+# Construction from any iterable
+print(tuple("abc"))       # ('a', 'b', 'c')
+print(tuple([1, 2, 3]))   # (1, 2, 3)
+print(tuple(range(5)))    # (0, 1, 2, 3, 4)
+
+# Nested tuples
+nested = (1, (2, 3), (4, (5, 6)))
+print(nested)             # (1, (2, 3), (4, (5, 6)))
+print(nested[1])          # (2, 3)
+print(nested[1][1])       # 3</code></pre>
+
+  <h2>2. Tuple Packing and Unpacking</h2>
+
+  <p>The comma syntax is called <strong>tuple packing</strong> — multiple values are packed into a single tuple. The reverse is <strong>sequence unpacking</strong> (works on any sequence, not just tuples):</p>
+
+  <pre><code># Tuple packing: values → tuple
+packed = 1, 2, 3
+print(packed)  # (1, 2, 3)
+
+# Tuple unpacking: tuple → values
+a, b, c = packed
+print(a, b, c)  # 1 2 3
+
+# Swapping without a temp variable — the Pythonic way
+x, y = 10, 20
+x, y = y, x
+print(x, y)     # 20 10
+
+# Unpacking works on ANY sequence
+a, b, c = [1, 2, 3]    # list
+x, y = "hi"              # string
+p, q, r = range(3)      # range
+print(a, b, c)           # 1 2 3
+print(x, y)              # h i
+print(p, q, r)           # 0 1 2
+
+# Starred unpacking — capture "rest" with *
+first, *middle, last = range(10)
+print(first)    # 0
+print(middle)   # [1, 2, 3, 4, 5, 6, 7, 8]
+print(last)     # 9
+
+# Ignoring values with _
+_, _, third = (10, 20, 30)
+print(third)    # 30</code></pre>
+
+  <div class="note">
+    <strong>💡 Multiple return values:</strong> When a function returns multiple values like <code>return min_val, max_val</code>, it's actually returning a single tuple that gets packed automatically. The caller can unpack it: <code>lo, hi = find_min_max(data)</code>.
+  </div>
+
+  <h2>3. Single-Element and Empty Tuples</h2>
+
+  <p>The trailing comma is <strong>required</strong> for a single-element tuple. Without it, parentheses are just for grouping:</p>
+
+  <pre><code># Empty tuple
+empty = ()
+print(type(empty))  # <class 'tuple'>
+print(len(empty))   # 0
+
+# Single-element tuple — trailing comma is MANDATORY
+singleton = (1,)
+print(type(singleton))  # <class 'tuple'>
+print(singleton)        # (1,)
+
+# Without comma — NOT a tuple, just the value
+not_a_tuple = (1)
+print(type(not_a_tuple))  # <class 'int'>
+
+# Even without parentheses, the comma matters
+another = 1,
+print(type(another))  # <class 'tuple'>
+
+# Common mistake: missing comma in a list of tuples
+points = [(1, 2), (3, 4)]  # correct — list of two tuples
+# points = [(1, 2), (3, 4)]  # wrong if you meant three items</code></pre>
+
+  <h2>4. Tuple Immutability (with nuance)</h2>
+
+  <p>Tuples are immutable — you cannot change, add, or remove elements. However, if a tuple <strong>contains</strong> a mutable object (like a list), that object's contents CAN change:</p>
+
+  <pre><code># Tuples cannot be modified in place
+t = (1, 2, 3)
+# t[0] = 99      # TypeError: 'tuple' object does not support item assignment
+# t.append(4)    # AttributeError: 'tuple' object has no attribute 'append'
+# del t[0]       # TypeError: 'tuple' object doesn't support item deletion
+
+# BUT: tuples can contain mutable objects
+t = ([1, 2], [3, 4])
+print(t)              # ([1, 2], [3, 4])
+t[0].append(99)       # modify the list INSIDE the tuple
+print(t)              # ([1, 2, 99], [3, 4]) — the tuple itself is unchanged!
+
+# What does "immutable" mean for tuples?
+# The TUPLE REFERENCE cannot change — it always points to the same objects.
+# But those objects themselves might be mutable.
+
+# Identity vs value
+t1 = (1, 2, 3)
+t2 = (1, 2, 3)
+print(t1 == t2)   # True — same value
+print(t1 is t2)   # False — different objects (usually)
+
+# Concatenation creates a NEW tuple (immutable!)
+t = (1, 2)
+t = t + (3, 4)    # rebinds t to a new tuple object
+print(t)          # (1, 2, 3, 4)
+</code></pre>
+
+  <div class="note">
+    <strong>⚠️ The <code>+=</code> illusion:</strong> <code>t += (4,)</code> looks like mutation but actually creates a new tuple and rebinds the variable. Unlike lists, <code>+=</code> on tuples never operates in-place:
+    <pre><code>t = (1, 2, 3)
+id_before = id(t)
+t += (4,)
+print(id(t) == id_before)  # False — new object!</code></pre>
+  </div>
+
+  <h2>5. Tuple Methods — <code>.count()</code> and <code>.index()</code></h2>
+
+  <p>Tuples have only two methods (inherited from the immutable sequence protocol):</p>
+
+  <pre><code>t = (1, 2, 3, 2, 4, 2, 5)
+
+# .count() — how many times a value appears
+print(t.count(2))       # 3
+print(t.count(99))      # 0
+
+# .index() — find first occurrence (raises ValueError if not found)
+print(t.index(3))       # 2
+print(t.index(2))       # 1 — first occurrence
+
+# .index() with start/stop — search within a slice
+print(t.index(2, 2))        # 3 — search starting at index 2
+print(t.index(2, 2, 5))     # 3 — search between index 2 and 5
+
+# Handle ValueError gracefully
+try:
+    idx = t.index(99)
+except ValueError:
+    print("99 not found in tuple")</code></pre>
+
+  <h2>6. Tuple Operations — <code>+</code>, <code>*</code>, <code>in</code>, <code>len()</code>, etc.</h2>
+
+  <p>Tuples support all the common sequence operations, just like lists:</p>
+
+  <pre><code>a = (1, 2, 3)
+b = (4, 5, 6)
+
+# Concatenation
+print(a + b)        # (1, 2, 3, 4, 5, 6)
+
+# Repetition
+print(a * 3)        # (1, 2, 3, 1, 2, 3, 1, 2, 3)
+
+# Membership
+print(2 in a)       # True
+print(99 not in a)  # True
+
+# Length
+print(len(a))       # 3
+
+# Min / Max / Sum (works on homogeneous numeric tuples)
+numbers = (3, 1, 4, 1, 5, 9)
+print(min(numbers))     # 1
+print(max(numbers))     # 9
+print(sum(numbers))     # 23
+
+# sorted() returns a list (not a tuple)
+print(sorted(numbers))  # [1, 1, 3, 4, 5, 9]
+
+# Indexing and slicing (same as strings/lists)
+print(a[0])          # 1
+print(a[-1])         # 3
+print(a[1:3])        # (2, 3)
+print(a[::-1])       # (3, 2, 1)</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Concatenation performance:</strong> Building up a tuple with repeated <code>+</code> in a loop has <strong>quadratic runtime cost</strong> (each iteration creates a new tuple). If you need to build a tuple incrementally, build a list first and convert at the end:
+    <pre><code># BAD — O(n²)
+result = ()
+for x in range(1000):
+    result += (x,)
+
+# GOOD — O(n)
+result = []
+for x in range(1000):
+    result.append(x)
+result = tuple(result)</code></pre>
+  </div>
+
+  <h2>7. Lexicographic Comparison</h2>
+
+  <p>Tuples (and lists) are compared <strong>lexicographically</strong> — element by element from left to right. This is extremely useful for sorting:</p>
+
+  <pre><code># Element-by-element comparison
+print((1, 2, 3) < (1, 2, 4))      # True — first difference at index 2
+print((1, 2, 3) < (1, 2, 3, 0))   # True — shorter sequence < longer (if all equal)
+print((1, 2) < (1, 2, 3))         # True
+print((1, 2, 3) == (1.0, 2.0, 3.0))  # True — values compared, not types
+
+# Nested tuples are compared recursively
+print((1, (2, 3)) < (1, (2, 4)))  # True
+
+# Sorting a list of tuples sorts by first element, then second, etc.
+coordinates = [(3, 1), (1, 4), (1, 2), (2, 3)]
+coordinates.sort()
+print(coordinates)  # [(1, 2), (1, 4), (2, 3), (3, 1)]
+
+# You can sort by any element using key=
+points = [(4, 2), (1, 5), (3, 3)]
+points.sort(key=lambda p: p[1])  # sort by second element
+print(points)  # [(4, 2), (3, 3), (1, 5)]
+
+# Comparing different types raises TypeError (usually)
+# print((1, 2) < (1, "hello"))  # TypeError: '&lt;' not supported between str and int</code></pre>
+
+  <div class="note">
+    <strong>💡 Multiple criteria sorting:</strong> Because tuples compare element by element, you can create composite sort keys. For example, <code>sorted(people, key=lambda p: (p.age, p.name))</code> sorts by age first, then by name for equal ages.
+  </div>
+
+  <h2>8. Hashability — Tuples as Dict Keys and Set Members</h2>
+
+  <p>Tuples are <strong>hashable</strong> if (and only if) all their elements are hashable. This makes them usable as dictionary keys and set members — something lists cannot do:</p>
+
+  <pre><code># Tuples as dictionary keys — composite keys
+grades = {
+    ("Alice", "Math"): 95,
+    ("Alice", "Science"): 88,
+    ("Bob", "Math"): 92,
+}
+
+print(grades[("Alice", "Math")])          # 95
+
+# Iterate over composite-key dict
+for (student, subject), score in grades.items():
+    print(f"{student} got {score} in {subject}")
+
+# Tuples as set members
+valid_codes = {(200, "OK"), (404, "Not Found"), (500, "Server Error")}
+print((404, "Not Found") in valid_codes)  # True
+
+# TUPLES with mutable elements are NOT hashable
+# t = ([1, 2], 3)  # unhashable type: 'list'
+# d = {t: "value"}  # TypeError!
+
+# LISTS cannot be dict keys at all
+# d = {[1, 2]: "value"}  # TypeError: unhashable type: 'list'</code></pre>
+
+  <div class="note">
+    <strong>💡 Why can tuples be dict keys but not lists?</strong> Dictionary keys must be hashable, which requires the object's hash value to never change. Lists are mutable — their contents can change, so their hash would too. Tuples are immutable, so their hash is stable (provided all elements are hashable). This is the <strong>same reason</strong> tuples are immutable in the first place.
+  </div>
+
+  <h2>9. Named Tuples — <code>collections.namedtuple</code></h2>
+
+  <p>Named tuples assign meaning to each position. They are regular tuples (indexable, iterable, unpackable) <strong>plus</strong> attribute access by field name:</p>
+
+  <pre><code>from collections import namedtuple
+
+# Define a named tuple type
+Point = namedtuple("Point", ["x", "y"])
+
+# Create instances — positional or keyword args
+p1 = Point(3, 4)
+p2 = Point(x=1, y=2)
+
+# Access by index (like a regular tuple)
+print(p1[0])            # 3
+print(p1[1])            # 4
+
+# Access by attribute name
+print(p1.x)             # 3
+print(p1.y)             # 4
+
+# Unpack like a regular tuple
+x, y = p1
+print(x, y)             # 3 4
+
+# Nice repr
+print(p1)               # Point(x=3, y=4)
+
+# _make(iterable) — create from a sequence
+data = [5, 6]
+p3 = Point._make(data)
+print(p3)               # Point(x=5, y=6)
+
+# _asdict() — convert to an ordered dict
+d = p1._asdict()
+print(d)                # {'x': 3, 'y': 4}
+
+# _replace(**kwargs) — create a NEW tuple with changed fields
+p4 = p1._replace(x=99)
+print(p1)               # Point(x=3, y=4) — original unchanged
+print(p4)               # Point(x=99, y=4)
+
+# _fields — introspect field names
+print(Point._fields)    # ('x', 'y')
+
+# Default values — applied to rightmost fields
+Student = namedtuple("Student", ["name", "grade", "age"], defaults=["", 0])
+s = Student("Alice")    # name="Alice", grade="", age=0
+print(s)                # Student(name='Alice', grade='', age=0)
+
+# Rename invalid field names
+Node = namedtuple("Node", ["id", "class", "def"], rename=True)
+print(Node._fields)     # ('id', '_1', '_2') — reserved words renamed
+n = Node(1, 2, 3)
+print(n._1)             # 2</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use namedtuple:</strong> Use named tuples when you want lightweight, immutable data containers with named fields — they take no more memory than regular tuples. For type safety with type hints, see <code>typing.NamedTuple</code>. For mutable data containers, consider <code>dataclasses</code>.
+  </div>
+
+  <h2>10. When to Use Tuples</h2>
+
+  <p>Tuples and lists serve different purposes in idiomatic Python:</p>
+
+  <pre><code># 1. Multiple return values (always a tuple)
+def min_max(numbers):
+    return min(numbers), max(numbers)
+
+lo, hi = min_max([3, 1, 4, 1, 5, 9])
+print(lo, hi)           # 1 9
+
+# 2. Function argument packing/unpacking
+def print_point(x, y):
+    print(f"({x}, {y})")
+
+coords = (3, 4)
+print_point(*coords)     # (3, 4)
+
+# 3. Data integrity — record shouldn't change
+person = ("Alice", "alice@email.com", 30)
+# Tuples signal "this data is a fixed record" to readers
+
+# 4. Heterogeneous data (different types, related values)
+city_data = ("London", 8_982_000, 51.5, -0.1)
+
+# 5. Unpacking-heavy code — zip, enumerate, dict.items()
+names = ["Alice", "Bob", "Charlie"]
+scores = [95, 87, 92]
+for i, (name, score) in enumerate(zip(names, scores)):
+    print(f"{i}: {name} = {score}")
+
+# 6. Memory efficiency (slightly smaller than lists)
+from sys import getsizeof
+print(getsizeof((1, 2, 3)))    # typically 64 bytes
+print(getsizeof([1, 2, 3]))    # typically 88 bytes (or more)</code></pre>
+
+  <h2>11. Tuples vs Lists — Cheat Sheet</h2>
+
+  <table>
+    <tr><th>Feature</th><th>Tuple</th><th>List</th></tr>
+    <tr><td>Mutable?</td><td>No</td><td>Yes</td></tr>
+    <tr><td>Hashable?</td><td>Yes (if all elements are)</td><td>No</td></tr>
+    <tr><td>Dict key?</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Set member?</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Typical data</td><td>Heterogeneous (records)</td><td>Homogeneous (collections)</td></tr>
+    <tr><td>Methods</td><td><code>.count()</code>, <code>.index()</code></td><td>11 methods</td></tr>
+    <tr><td>Memory</td><td>~24 bytes overhead</td><td>~40 bytes overhead + overallocation</td></tr>
+    <tr><td>Syntax</td><td><code>(1, 2, 3)</code> or <code>1, 2, 3</code></td><td><code>[1, 2, 3]</code></td></tr>
+    <tr><td>Use case</td><td>Fixed records, dict keys, unpacking</td><td>Variable-length collections, modifications</td></tr>
+  </table>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Variable Swap and Basic Unpacking</h3>
+    <p>Hardcode two variables <code>a = 5</code> and <code>b = 10</code>. Swap them using tuple unpacking (no temp variable). Then unpack the tuple <code>("Python", 3.14, 1991)</code> into three variables and print each. Finally, demonstrate unpacking a list <code>[100, 200, 300]</code> and a string <code>"XYZ"</code> into individual variables to show that unpacking works on any sequence.</p>
+    <pre><code>Before swap: a=5, b=10
+After swap: a=10, b=5
+language=Python, version=3.14, year=1991
+From list: x=100, y=200, z=300
+From string: c1=X, c2=Y, c3=Z</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Starred Unpacking</h3>
+    <p>Hardcode <code>numbers = list(range(1, 11))</code>. Use starred unpacking to extract: the first element, the last element, and everything in between. Then split a list of 7 items as <code>first, second, *rest, last</code>. Also try <code>first, *middle, last</code> with just 2 items and see what <code>middle</code> becomes (an empty list).</p>
+    <pre><code>Numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+first=1, rest=[2, 3, 4, 5, 6, 7, 8, 9], last=10
+first=1, second=2, rest=[3, 4, 5, 6], last=7
+With 2 items: first=1, middle=[], last=2</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Single-Element Pitfalls</h3>
+    <p>Hardcode the following expressions and determine which are tuples and which are not. Print the type of each:</p>
+    <pre><code>a = (1)
+b = (1,)
+c = 1,
+d = ()
+e = ("hello")
+f = ("hello",)
+g = "hello",
+
+# Bonus: fix this list of tuples (missing comma)
+# points = [(1, 2), (3, 4)]  → should be 3 points, not 2
+# Can you spot and fix the bug?</code></pre>
+    <p>Print each variable with <code>type()</code> and <code>repr()</code> to see the difference.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Immutability and Mutable Contents</h3>
+    <p>Hardcode <code>t = ([1, 2], "hello", 3)</code>. Predict which of the following lines will work and which will raise errors. Wrap each in a try/except and print the result:</p>
+    <pre><code># Which of these will work? Predict, then test.
+t[0] = [99, 100]
+t[1] = "world"
+t[2] = 99
+t[0].append(99)
+t[0][0] = 99
+del t[0]
+del t[0][0]
+t += (4,)</code></pre>
+    <p>Print the tuple and its <code>id()</code> before and after <code>t += (4,)</code> to show that a new object is created.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Tuple Methods</h3>
+    <p>Hardcode <code>t = (5, 2, 5, 8, 2, 5, 1, 2, 9, 5)</code>. Use <code>.count()</code> to find how many times each unique value appears. Use <code>.index()</code> to find the first occurrence of <code>5</code>, then find the next <code>5</code> after position 3. Handle a <code>ValueError</code> gracefully when searching for <code>99</code>.</p>
+    <pre><code>Tuple: (5, 2, 5, 8, 2, 5, 1, 2, 9, 5)
+Count of 5: 4
+Count of 2: 3
+Count of 9: 1
+First 5 at index: 0
+Next 5 after index 3 at index: 2
+Wait — that's wrong! (Because .index(5, 4) was used)</pre></code>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Tuple Operations</h3>
+    <p>Hardcode two tuples <code>t1 = (1, 2, 3)</code> and <code>t2 = (4, 5, 6)</code>. Demonstrate: concatenation, repetition (repeat t1 4 times), membership check, length, min, max, sum, slicing (first 2, last 2, reversed). Then demonstrate the <strong>quadratic concatenation problem</strong>: build a tuple by appending in a loop vs building a list and converting.</p>
+    <pre><code>t1 + t2 = (1, 2, 3, 4, 5, 6)
+t1 * 4 = (1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3)
+3 in t1 = True
+len(t1) = 3
+min(t1)=1, max(t1)=3, sum(t1)=6
+First 2: (1, 2), Last 2: (2, 3), Reversed: (3, 2, 1)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Lexicographic Comparison</h3>
+    <p>Hardcode a list of (x, y) coordinate tuples and sort them using default tuple comparison — notice they sort by x first, then y. Then sort the same list by y-coordinate only (using <code>key=lambda p: p[1]</code>). Then create a list of (name, age, score) tuples and sort by score descending, then by name ascending (use a tuple key with negative for descending).</p>
+    <pre><code>Coordinates: [(4, 1), (2, 3), (2, 2), (1, 5), (3, 4)]
+Sorted (default): [(1, 5), (2, 2), (2, 3), (3, 4), (4, 1)]
+Sorted by y: [(4, 1), (2, 2), (2, 3), (3, 4), (1, 5)]
+
+Students: [("Bob", 20, 88), ("Alice", 22, 95), ("Charlie", 20, 88)]
+Sorted by score desc, name asc: [("Alice", 22, 95), ("Bob", 20, 88), ("Charlie", 20, 88)]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Composite Dict Keys</h3>
+    <p>Create a gradebook dictionary using <code>(student, subject)</code> tuples as keys. Add at least 5 entries. Then:</p>
+    <ul>
+      <li>Print Alice's Math score</li>
+      <li>Print all entries formatted as "Student | Subject | Score"</li>
+      <li>Calculate and print each student's average score across subjects</li>
+      <li>Try using a list <code>[student, subject]</code> as a key and handle the error</li>
+    </ul>
+    <pre><code>Alice's Math score: 95
+
+All grades:
+Alice | Math    | 95
+Alice | Science | 88
+Bob   | Math    | 92
+Bob   | English | 85
+Charlie | Science | 90
+
+Averages:
+Alice: 91.5
+Bob: 88.5
+Charlie: 90.0
+
+Trying list as key...
+TypeError: unhashable type: 'list'</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Named Tuples</h3>
+    <p>Define a <code>Point</code> named tuple with fields <code>x</code> and <code>y</code>. Create a few points.</p>
+    <ul>
+      <li>Compute the Euclidean distance between two points</li>
+      <li>Use <code>._asdict()</code> to convert a point to a dict</li>
+      <li>Use <code>._replace()</code> to move a point by offset</li>
+      <li>Create a <code>Circle</code> named tuple with <code>center</code> (a Point) and <code>radius</code></li>
+      <li>Create a <code>_make()</code> instance from a list</li>
+    </ul>
+    <pre><code>p1 = Point(x=3, y=4)
+p2 = Point(x=0, y=0)
+Distance p1 to p2: 5.0
+p1 as dict: {'x': 3, 'y': 4}
+p1 moved by (1, -1): Point(x=4, y=3)
+
+c = Circle(center=Point(x=1, y=1), radius=5)
+Circle area: 78.54
+
+From list: Point(x=7, y=8)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Mixed Review — CSV Parsing and Data Analysis</h3>
+    <p>Given a list of CSV-formatted strings representing student records:</p>
+    <pre><code>data = [
+    "Alice,Math,95,20",
+    "Bob,Science,87,19",
+    "Charlie,Math,92,21",
+    "Alice,Science,88,20",
+    "Bob,Math,90,19",
+    "Charlie,English,85,21",
+]</code></pre>
+    <p>Parse each string into a <code>(name, subject, score, age)</code> tuple (convert score and age to int). Then:</p>
+    <ul>
+      <li>Print all parsed tuples</li>
+      <li>Find the highest score overall</li>
+      <li>Create a dictionary with <code>(name, subject)</code> tuples as keys</li>
+      <li>Define a <code>StudentRecord</code> named tuple and convert each tuple to it</li>
+      <li>Sort by score descending and print</li>
+    </ul>
+    <pre><code>Parsed records:
+('Alice', 'Math', 95, 20)
+('Bob', 'Science', 87, 19)
+('Charlie', 'Math', 92, 21)
+('Alice', 'Science', 88, 20)
+('Bob', 'Math', 90, 19)
+('Charlie', 'English', 85, 21)
+
+Highest score: 95 (Alice, Math)
+
+As named tuples:
+StudentRecord(name='Alice', subject='Math', score=95, age=20)
+...
+
+Sorted by score (desc):
+Charlie | Math | 92
+Bob | Math | 90
+Alice | Science | 88
+...</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What creates a tuple — parentheses or commas?</li>
+    <li>How do you write a single-element tuple? What happens without the trailing comma?</li>
+    <li>What is tuple unpacking? Can you unpack a list the same way?</li>
+    <li>What two methods does a tuple support?</li>
+    <li>Why can tuples be used as dictionary keys but lists cannot?</li>
+    <li>What does it mean that tuples are "immutable"? Can a tuple contain a list that changes?</li>
+    <li>How does lexicographic comparison work for tuples?</li>
+    <li>What are named tuples? What methods do they add beyond regular tuples?</li>
+    <li>When should you prefer a tuple over a list?</li>
+    <li>What happens with <code>t += (4,)</code> — does it modify the tuple in place?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0008-lists-in-depth.html">← Previous: Lists in Depth</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0010-dictionaries-in-depth.html">Next: Dictionaries in Depth →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>
