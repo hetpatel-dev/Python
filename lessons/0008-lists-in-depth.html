@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 8: Lists in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 8: Lists in Depth — Python's Swiss-Army Knife</h1>
+
+  <p><span class="tag">concept</span> Lists</p>
+
+  <p>You've used lists since Lesson 1 — but Python's <code>list</code> type is far more than a simple array. Lists are mutable sequences with powerful methods, slicing, sorting, comprehensions, and the ability to serve as stacks, queues, and multidimensional structures. This lesson covers everything from the official <a href="https://docs.python.org/3/library/stdtypes.html#lists">Python docs on lists</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/library/stdtypes.html#lists">Python Docs — Lists</a>, <a href="https://docs.python.org/3/tutorial/datastructures.html">Data Structures Tutorial</a>, <a href="https://docs.python.org/3/howto/sorting.html">Sorting HOWTO</a>, <a href="https://docs.python.org/3/library/collections.html#deque">collections.deque</a>, <a href="https://docs.python.org/3/library/array.html">array module</a>.</p>
+
+  <hr>
+
+  <h2>1. List Construction and Basics</h2>
+
+  <p>Lists can be constructed in several ways:</p>
+
+  <pre><code># Square brackets
+empty = []
+numbers = [1, 2, 3, 4, 5]
+mixed = [1, "hello", 3.14, True]
+
+# The list() constructor
+print(list("abc"))       # ['a', 'b', 'c']
+print(list((1, 2, 3)))   # [1, 2, 3]
+print(list(range(5)))    # [0, 1, 2, 3, 4]
+
+# Concatenation and repetition
+print([1, 2] + [3, 4])   # [1, 2, 3, 4]
+print(["ha"] * 3)        # ['ha', 'ha', 'ha']</code></pre>
+
+  <div class="note">
+    <strong>⚠️ The <code>[[]] * n</code> trap:</strong> Multiplying a list containing a mutable object creates <strong>multiple references</strong> to the same object, not copies:
+    <pre><code>matrix = [[]] * 3
+matrix[0].append(1)
+print(matrix)  # [[1], [1], [1]] — oops!</code></pre>
+    Use a list comprehension instead: <code>[[] for _ in range(3)]</code>.
+  </div>
+
+  <h2>2. Indexing and Slicing</h2>
+
+  <p>List indexing works exactly like string indexing — zero-based, negative indices from the end:</p>
+
+  <pre><code>fruits = ["apple", "banana", "cherry", "date", "elderberry"]
+
+print(fruits[0])    # apple
+print(fruits[-1])   # elderberry
+print(fruits[1:4])  # ['banana', 'cherry', 'date']
+print(fruits[::2])  # ['apple', 'cherry', 'elderberry']
+print(fruits[::-1]) # reversed</code></pre>
+
+  <p><strong>Slice assignment</strong> — the key difference from strings (which are immutable):</p>
+
+  <pre><code>nums = [0, 1, 2, 3, 4, 5]
+
+nums[1:3] = [10, 20]    # replace indices 1-2
+print(nums)              # [0, 10, 20, 3, 4, 5]
+
+nums[1:3] = [100]       # replace with fewer elements (shrinks)
+print(nums)              # [0, 100, 3, 4, 5]
+
+nums[1:2] = [200, 300]  # replace with more elements (grows)
+print(nums)              # [0, 200, 300, 3, 4, 5]
+
+nums[1:4] = []          # delete a slice
+print(nums)              # [0, 4, 5]</code></pre>
+
+  <div class="note">
+    <strong>💡 Slicing with step assignment:</strong> When using <code>s[i:j:k] = t</code>, the iterable <code>t</code> must have the same length as the slice. This is the one case where slice assignment requires matching lengths.
+  </div>
+
+  <h2>3. List Methods (Part 1) — Adding and Removing</h2>
+
+  <p>Lists have 11 methods. Here are the ones for adding and removing items:</p>
+
+  <pre><code>stack = []
+
+# Adding
+stack.append(1)         # [1]           add to end
+stack.append(2)         # [1, 2]
+stack.insert(0, 0)      # [0, 1, 2]     insert at position
+stack.extend([3, 4])    # [0, 1, 2, 3, 4]  extend with iterable
+print(stack)
+
+# Removing
+top = stack.pop()       # 4             pop from end (returns value)
+print(stack)            # [0, 1, 2, 3]
+
+first = stack.pop(0)    # 0             pop from position (returns value)
+print(stack)            # [1, 2, 3]
+
+stack.remove(2)         # remove first occurrence of 2
+print(stack)            # [1, 3]
+
+stack.clear()           # remove all items
+print(stack)            # []</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Methods that modify the list return <code>None</code>.</strong> This is a Python design principle — mutable object methods that alter the object return <code>None</code> to avoid confusion with methods that return a new object. <strong>Don't chain them:</strong>
+    <pre><code># Wrong:
+result = mylist.append(5)  # result is None!
+print(mylist.sort())       # prints None, list is sorted but None is returned
+
+# Correct:
+mylist.append(5)
+mylist.sort()
+print(mylist)
+</code></pre>
+  </div>
+
+  <h2>4. List Methods (Part 2) — Searching, Counting, Copying</h2>
+
+  <pre><code>fruits = ["apple", "banana", "apple", "cherry", "banana", "apple"]
+
+print(fruits.count("apple"))    # 3
+print(fruits.count("date"))     # 0
+
+print(fruits.index("banana"))   # 1
+print(fruits.index("banana", 2)) # 4 (search starting at index 2)
+# fruits.index("date")          # ValueError: not in list
+
+# Copy — shallow copy
+copy1 = fruits.copy()
+copy2 = fruits[:]               # same as .copy()
+
+# Reverse in place
+fruits.reverse()
+print(fruits)                   # ['apple', 'banana', 'cherry', 'apple', 'banana', 'apple']</code></pre>
+
+  <h2>5. Sorting</h2>
+
+  <p>Two ways to sort: <code>list.sort()</code> (in-place, returns None) and <code>sorted()</code> (returns a new list):</p>
+
+  <pre><code>numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+
+# sorted() — returns new list, original unchanged
+sorted_nums = sorted(numbers)
+print(sorted_nums)  # [1, 1, 2, 3, 4, 5, 6, 9]
+print(numbers)      # [3, 1, 4, 1, 5, 9, 2, 6] (unchanged)
+
+# .sort() — sorts in place
+numbers.sort()
+print(numbers)      # [1, 1, 2, 3, 4, 5, 6, 9]
+
+# Descending
+numbers.sort(reverse=True)
+print(numbers)      # [9, 6, 5, 4, 3, 2, 1, 1]
+
+# Key functions — sort by a derived value
+words = ["apple", "Banana", "cherry", "Date"]
+words.sort(key=str.lower)
+print(words)        # ['apple', 'Banana', 'cherry', 'Date'] (case-insensitive)
+
+# Sort by length
+words.sort(key=len)
+print(words)        # ['Date', 'apple', 'Banana', 'cherry']
+
+# Sort by last character using lambda
+words.sort(key=lambda w: w[-1])
+print(words)        # ['Banana', 'Date', 'apple', 'cherry'] (by last letter)</code></pre>
+
+  <p><strong>Sort stability:</strong> Python's sort is <strong>stable</strong> — items with equal keys keep their original relative order. This lets you sort by multiple criteria in successive passes:</p>
+
+  <pre><code>data = [("Alice", "B"), ("Bob", "A"), ("Charlie", "B")]
+data.sort(key=lambda x: x[1])   # sort by grade first
+data.sort(key=lambda x: x[0])   # then sort by name (stable → grade is tiebreaker)
+print(data)  # [('Alice', 'B'), ('Bob', 'A'), ('Charlie', 'B')]</code></pre>
+
+  <h2>6. Advanced Sorting</h2>
+
+  <p>For complex sorting, the <code>operator</code> module provides <code>itemgetter()</code> and <code>attrgetter()</code>:</p>
+
+  <pre><code>from operator import itemgetter
+
+students = [
+    ("Alice", "Math", 95),
+    ("Bob", "Science", 87),
+    ("Charlie", "Math", 92),
+]
+
+# Sort by subject, then by score (descending)
+students.sort(key=itemgetter(1, 2), reverse=True)
+print(students)
+# [('Bob', 'Science', 87), ('Alice', 'Math', 95), ('Charlie', 'Math', 92)]
+
+# Sort by a specific field
+by_score = sorted(students, key=itemgetter(2), reverse=True)
+print(by_score)
+# [('Alice', 'Math', 95), ('Charlie', 'Math', 92), ('Bob', 'Science', 87)]
+
+# Partial sorts — min, max, heapq.nsmallest, heapq.nlargest
+from heapq import nsmallest
+print(nsmallest(2, [3, 1, 4, 1, 5, 9]))  # [1, 1]</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 1: Shopping List Builder</h3>
+    <p>Start with an empty list. Keep asking the user to add items (append), insert at a specific position (insert), remove items (remove), and pop the last item. Show the list after each operation. Type "done" to finish.</p>
+    <pre><code>> add milk
+['milk']
+> add eggs
+['milk', 'eggs']
+> insert 0 bread
+['bread', 'milk', 'eggs']
+> pop
+popped: eggs
+['bread', 'milk']
+> remove milk
+['bread']
+> done</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Number Sorter</h3>
+    <p>Hardcode a list of numbers. Sort them with <code>.sort()</code> and <code>sorted()</code> to see the difference. Then sort a list of strings by length using <code>key=len</code>. Finally, sort a list of tuples by the second element using <code>key=lambda x: x[1]</code>.</p>
+    <pre><code>Original: [3, 1, 4, 1, 5, 9, 2, 6]
+sorted(): [1, 1, 2, 3, 4, 5, 6, 9]
+.sort():  [1, 1, 2, 3, 4, 5, 6, 9]
+
+Strings by length: ['hi', 'hello', 'python', 'programming']
+Tuples by second: [(1, 'apple'), (2, 'banana'), (3, 'cherry')]</code></pre>
+  </div>
+
+  <h2>7. List Comprehensions</h2>
+
+  <p>List comprehensions provide a concise way to create lists from any iterable:</p>
+
+  <pre><code># Basic — expression followed by for clause
+squares = [x**2 for x in range(10)]
+print(squares)  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+
+# With condition
+evens = [x for x in range(20) if x % 2 == 0]
+print(evens)    # [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+# Apply a function
+words = ["  hello", "world  ", "  python  "]
+cleaned = [w.strip() for w in words]
+print(cleaned)  # ['hello', 'world', 'python']
+
+# Transform and filter
+nums = [-4, -2, 0, 2, 4]
+positive_doubled = [x*2 for x in nums if x > 0]
+print(positive_doubled)  # [4, 8]
+
+# Nested loops — flatten a matrix
+matrix = [[1, 2], [3, 4], [5, 6]]
+flat = [num for row in matrix for num in row]
+print(flat)     # [1, 2, 3, 4, 5, 6]
+
+# Cartesian product
+pairs = [(x, y) for x in [1, 2, 3] for y in [3, 1, 4] if x != y]
+print(pairs)    # [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]</code></pre>
+
+  <div class="note">
+    <strong>⚠️ List comprehension scoping:</strong> The loop variable in a list comprehension leaks into the enclosing scope (like a normal <code>for</code> loop). In Python 3.12+, this is finally fixed — comprehensions use a separate scope for the loop variable.
+  </div>
+
+  <h2>8. Nested List Comprehensions</h2>
+
+  <p>The expression in a list comprehension can itself be another comprehension:</p>
+
+  <pre><code># A 3x4 matrix as a list of lists
+matrix = [
+    [1,  2,  3,  4],
+    [5,  6,  7,  8],
+    [9, 10, 11, 12],
+]
+
+# Transpose rows ↔ columns using nested comprehension
+transposed = [[row[i] for row in matrix] for i in range(4)]
+print(transposed)
+# [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
+
+# Same result using zip(*matrix)
+print(list(zip(*matrix)))
+# [(1, 5, 9), (2, 6, 10), (3, 7, 11), (4, 8, 12)]
+
+# Create a 3x3 identity matrix using a nested comprehension
+identity = [[1 if i == j else 0 for j in range(3)] for i in range(3)]
+print(identity)
+# [[1, 0, 0], [0, 1, 0], [0, 0, 1]]</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 3: List Slicer</h3>
+    <p>Hardcode a list of 10 items (e.g., numbers 0-9 or ten random words). Demonstrate: first 3, last 3, middle 4, every 2nd element, reversed list, and slice assignment (replace a slice with new values). Print the list after each operation.</p>
+    <pre><code>Original: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+First 3: [0, 1, 2]
+Last 3: [7, 8, 9]
+Middle 4: [3, 4, 5, 6]
+Every 2nd: [0, 2, 4, 6, 8]
+Reversed: [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+After slice assign [1:4]=[99,99]: [0, 99, 99, 4, 5, 6, 7, 8, 9]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: List Comprehension Lab</h3>
+    <p>Use list comprehensions to: generate squares of 1-10, even numbers from a list, convert temperatures C→F, extract names longer than 5 chars, flatten <code>[[1,2],[3,4],[5,6]]</code>, and generate all pairs (x, y) where x from [1,2,3] and y from [4,5] and x*y is even.</p>
+    <pre><code>Squares: [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+Evens from [1..10]: [2, 4, 6, 8, 10]
+C to F: [32.0, 33.8, 35.6, 37.4, 39.2, 41.0]
+Long names (>5): ['Charlie', 'Diana']
+Flattened: [1, 2, 3, 4, 5, 6]
+Pairs with even product: [(1, 4), (2, 4), (2, 5), (3, 4)]</code></pre>
+  </div>
+
+  <h2>9. List as Stack and Queue</h2>
+
+  <p>Lists naturally work as a <strong>stack</strong> (LIFO — Last In, First Out) using <code>append()</code> and <code>pop()</code>:</p>
+
+  <pre><code># Stack — LIFO
+stack = []
+stack.append("a")  # push
+stack.append("b")
+stack.append("c")
+print(stack.pop())  # c
+print(stack.pop())  # b
+print(stack)        # ['a']</code></pre>
+
+  <p>Using a list as a <strong>queue</strong> (FIFO — First In, First Out) is <strong>inefficient</strong> because <code>pop(0)</code> shifts all remaining elements (O(n)):</p>
+
+  <pre><code># Queue — FIFO (INEFFICIENT with list)
+queue = ["Alice", "Bob", "Charlie"]
+print(queue.pop(0))  # Alice — but O(n)! Every remaining element shifts
+print(queue.pop(0))  # Bob    — O(n) again
+
+# Use collections.deque instead — O(1) at both ends
+from collections import deque
+queue = deque(["Alice", "Bob", "Charlie"])
+queue.append("Diana")         # add to right — O(1)
+print(queue.popleft())        # Alice — O(1)!
+print(queue.popleft())        # Bob — O(1)!
+print(queue)                  # deque(['Charlie', 'Diana'])</code></pre>
+
+  <p>Other useful deque operations:</p>
+
+  <pre><code>dq = deque([1, 2, 3])
+dq.appendleft(0)        # [0, 1, 2, 3]
+print(dq.popleft())     # 0
+dq.rotate(1)            # [3, 1, 2] — move each item right by 1
+dq.rotate(-1)           # [1, 2, 3] — move each item left by 1</code></pre>
+
+  <h2>10. The <code>del</code> Statement</h2>
+
+  <p><code>del</code> removes items by index or slice, without returning a value (unlike <code>pop()</code>):</p>
+
+  <pre><code>a = [-1, 1, 66.25, 333, 333, 1234.5]
+
+del a[0]         # delete first element
+print(a)         # [1, 66.25, 333, 333, 1234.5]
+
+del a[2:4]       # delete a slice
+print(a)         # [1, 66.25, 1234.5]
+
+del a[:]         # clear the list (same as a.clear())
+print(a)         # []
+
+# del can also delete variables
+x = [1, 2, 3]
+del x
+# print(x)  # NameError: name 'x' is not defined</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 5: Matrix Transposer</h3>
+    <p>Hardcode a 3x4 matrix. Use a nested list comprehension to transpose it (rows become columns). Also implement the same with <code>zip(*matrix)</code>. Print both the original and transposed matrices in a grid.</p>
+    <pre><code>Original:
+  1  2  3  4
+  5  6  7  8
+  9 10 11 12
+
+Transposed:
+  1  5  9
+  2  6 10
+  3  7 11
+  4  8 12</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Undo Stack & Print Queue</h3>
+    <p>Simulate a text editor undo stack using a list (append/pop). Let the user type lines, undo the last line, and view the document. Then simulate a print queue using <code>collections.deque</code> (append/popleft) where jobs are added and processed in FIFO order.</p>
+    <pre><code>--- Undo Stack ---
+Command: add Hello
+Command: add World
+Command: add !!!
+Document: ['Hello', 'World', '!!!']
+Command: undo
+Undone: '!!!'
+Document: ['Hello', 'World']
+Command: done
+
+--- Print Queue ---
+Add job: doc1.pdf
+Add job: doc2.pdf
+Add job: doc3.pdf
+Printing: doc1.pdf
+Printing: doc2.pdf</code></pre>
+  </div>
+
+  <h2>11. List Copying — Shallow vs Deep</h2>
+
+  <p>Lists are objects — assigning a list to a new variable does <strong>not</strong> copy it:</p>
+
+  <pre><code>original = [1, 2, 3]
+ref = original          # not a copy — same object!
+ref.append(4)
+print(original)         # [1, 2, 3, 4] — original was also modified!
+
+# Shallow copy — creates a new list with references to the same elements
+copy1 = original.copy()
+copy2 = original[:]     # same thing
+copy3 = list(original)  # also works
+
+# For nested lists, shallow copy is NOT enough:
+nested = [[1, 2], [3, 4]]
+shallow = nested.copy()
+shallow[0].append(99)
+print(nested)           # [[1, 2, 99], [3, 4]] — inner lists are shared!
+
+# Deep copy — recursively copies everything
+import copy
+deep = copy.deepcopy(nested)
+deep[0].append(100)
+print(nested)           # [[1, 2, 99], [3, 4]] — unchanged!
+print(deep)             # [[1, 2, 99, 100], [3, 4]]</code></pre>
+
+  <h2>12. List Pitfalls</h2>
+
+  <p>Three common pitfalls to watch for:</p>
+
+  <p><strong>1. Modifying a list while iterating over it:</strong></p>
+
+  <pre><code># BAD — skipping items!
+numbers = [1, 2, 3, 4, 5]
+for n in numbers:
+    if n % 2 == 0:
+        numbers.remove(n)  # modifies list during iteration
+print(numbers)  # [1, 3, 5] — works here, but often buggy
+
+# GOOD — iterate over a copy
+numbers = [1, 2, 3, 4, 5]
+for n in numbers.copy():
+    if n % 2 == 0:
+        numbers.remove(n)
+print(numbers)  # [1, 3, 5]
+
+# BETTER — use a list comprehension
+numbers = [n for n in numbers if n % 2 != 0]</code></pre>
+
+  <p><strong>2. The <code>[[]] * n</code> shared reference trap:</strong></p>
+
+  <pre><code># BAD — all rows reference the same list
+board = [[""] * 3] * 3
+board[0][0] = "X"
+print(board)  # [['X', '', ''], ['X', '', ''], ['X', '', '']]
+
+# GOOD — each row is an independent list
+board = [[""] * 3 for _ in range(3)]
+board[0][0] = "X"
+print(board)  # [['X', '', ''], ['', '', ''], ['', '', '']]</code></pre>
+
+  <p><strong>3. Methods return <code>None</code> — don't chain or assign:</strong></p>
+
+  <pre><code># WRONG
+result = [3, 1, 2].sort()
+print(result)   # None (not the sorted list!)
+
+# WRONG
+sorted_list = [3, 1, 2].sort()
+
+# CORRECT
+nums = [3, 1, 2]
+nums.sort()
+print(nums)     # [1, 2, 3]
+
+# Or use sorted() if you need a new list
+new_list = sorted([3, 1, 2])
+print(new_list)  # [1, 2, 3]</code></pre>
+
+  <div class="note">
+    <strong>💡 Summary:</strong> Use <code>sorted()</code> when you need a new sorted list and keep the original. Use <code>.sort()</code> when you want to sort in place and don't need the original. Use list comprehensions instead of filter/remove during iteration. Use <code>deepcopy</code> for nested structures.
+  </div>
+
+  <h2>BONUS: The <code>array</code> Module</h2>
+
+  <p>For large collections of numbers, the <code>array</code> module provides memory-efficient arrays:</p>
+
+  <pre><code>from array import array
+
+# Type code 'i' = signed int
+nums = array('i', [1, 2, 3, 4, 5])
+nums.append(6)
+print(nums)          # array('i', [1, 2, 3, 4, 5, 6])
+print(nums[2])       # 3 (indexing works like list)
+
+# Type codes: 'f' (float), 'd' (double), 'u' (Unicode char)
+floats = array('d', [3.14, 2.71, 1.41])
+print(floats)        # array('d', [3.14, 2.71, 1.41])
+
+# Use when: you need compact storage for many numbers
+# Don't use when: you need heterogeneous types or many methods</code></pre>
+
+  <div class="exercise">
+    <h3>Exercise 7: Unique & Sort</h3>
+    <p>Hardcode a list with duplicates: <code>[5, 3, 8, 3, 1, 5, 9, 1, 7, 3]</code>. Remove duplicates (using <code>set()</code> or manual loop), sort in descending order, filter out numbers below 5, and find the index of a specific value using <code>.index()</code>. Print each step.</p>
+    <pre><code>Original: [5, 3, 8, 3, 1, 5, 9, 1, 7, 3]
+Unique: [5, 3, 8, 1, 9, 7]
+Sorted desc: [9, 8, 7, 5, 3, 1]
+Filtered (>=5): [9, 8, 7, 5]
+Index of 7: 2</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Contact Book</h3>
+    <p>Build a simple contact book as a list of <code>(name, phone)</code> tuples. Implement: add contact, remove contact, search by name (use <code>.index()</code>), list all contacts sorted by name, and show total count. Use a menu loop.</p>
+    <pre><code>1. Add  2. Remove  3. Search  4. List All  5. Count  6. Quit
+Choice: 1
+Name: Alice
+Phone: 555-0101
+Added: ('Alice', '555-0101')
+
+Choice: 1
+Name: Bob
+Phone: 555-0102
+Added: ('Bob', '555-0102')
+
+Choice: 4
+Contacts (sorted):
+  Alice: 555-0101
+  Bob: 555-0102
+
+Choice: 5
+Total contacts: 2</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>Name all 11 list methods. Which return values and which return <code>None</code>?</li>
+    <li>What's the difference between <code>.sort()</code> and <code>sorted()</code>?</li>
+    <li>What does <code>key=</code> do in sorting? Give three examples.</li>
+    <li>How do you transpose a matrix using a nested list comprehension?</li>
+    <li>Why is <code>pop(0)</code> inefficient? What should you use instead for a queue?</li>
+    <li>What's the difference between shallow copy and deep copy?</li>
+    <li>What's wrong with <code>[[]] * 5</code>? How do you fix it?</li>
+    <li>How do you safely modify a list while iterating over it?</li>
+    <li>What does <code>del mylist[2:5]</code> do? How is it different from <code>.pop()</code>?</li>
+    <li>When would you use <code>array.array</code> instead of a list?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0007-strings-in-depth.html">← Previous: Strings in Depth</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0009-tuples.html">Next: Tuples →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

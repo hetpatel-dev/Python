@@ -349,8 +349,84 @@
     <dd><code>\u00e9</code> → é (16-bit), <code>\U0001F600</code> → 😀 (32-bit), <code>\N{GREEK SMALL LETTER PI}</code> → π (named). Used in normal and raw strings to represent characters by their code point.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 7: Strings in Depth.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a></p>
+  <h2>Lists</h2>
+
+  <dl>
+    <dt><strong>List (<code>list</code>)</strong></dt>
+    <dd>A mutable ordered sequence. Lists can hold items of any type, including mixed types. Constructed with <code>[]</code>, <code>list()</code>, or list comprehensions.</dd>
+
+    <dt><strong>Slice assignment</strong></dt>
+    <dd>Assigning to a slice of a list: <code>lst[1:3] = [10, 20]</code>. Can change the length of the list (unlike string slicing). With step, the assigned iterable must match the slice length.</dd>
+
+    <dt><strong><code>.append(x)</code></strong></dt>
+    <dd>Adds <code>x</code> to the end of the list. Returns <code>None</code>. Equivalent to <code>lst[len(lst):len(lst)] = [x]</code>.</dd>
+
+    <dt><strong><code>.extend(iterable)</code></strong></dt>
+    <dd>Extends the list by appending all items from the iterable. Returns <code>None</code>. More efficient than repeated <code>append()</code>.</dd>
+
+    <dt><strong><code>.insert(i, x)</code></strong></dt>
+    <dd>Inserts <code>x</code> at index <code>i</code>. <code>a.insert(0, x)</code> inserts at the front. <code>a.insert(len(a), x)</code> is equivalent to <code>a.append(x)</code>. Returns <code>None</code>.</dd>
+
+    <dt><strong><code>.remove(x)</code></strong></dt>
+    <dd>Removes the first occurrence of <code>x</code>. Raises <code>ValueError</code> if not found. Returns <code>None</code>.</dd>
+
+    <dt><strong><code>.pop(i=-1)</code></strong></dt>
+    <dd>Removes and returns the item at index <code>i</code> (default: last item). Raises <code>IndexError</code> on empty list. The only list method that both modifies the list AND returns a value.</dd>
+
+    <dt><strong><code>.clear()</code></strong></dt>
+    <dd>Removes all items from the list. Equivalent to <code>del lst[:]</code>. Returns <code>None</code>. Added in Python 3.3.</dd>
+
+    <dt><strong><code>.index(x[, start[, end]])</code></strong></dt>
+    <dd>Returns the zero-based index of the first occurrence of <code>x</code>. Raises <code>ValueError</code> if not found. Optional <code>start</code> and <code>end</code> limit the search range.</dd>
+
+    <dt><strong><code>.count(x)</code></strong></dt>
+    <dd>Returns the number of times <code>x</code> appears in the list.</dd>
+
+    <dt><strong><code>.sort(*, key=None, reverse=False)</code></strong></dt>
+    <dd>Sorts the list in place using <code>&lt;</code> comparisons. Returns <code>None</code>. <code>key</code> is a function that extracts a comparison key. The sort is <strong>stable</strong> (equal elements keep original order). Raises <code>TypeError</code> if items can't be compared.</dd>
+
+    <dt><strong><code>sorted()</code></strong></dt>
+    <dd>Built-in function that returns a <strong>new</strong> sorted list from any iterable. Unlike <code>.sort()</code>, it works on any iterable and leaves the original unchanged. Same <code>key</code> and <code>reverse</code> parameters.</dd>
+
+    <dt><strong>Sort stability</strong></dt>
+    <dd>Python's sort (Timsort) preserves the original order of elements that compare equal. This enables multi-key sorting: sort by secondary key first, then primary key — the stable sort preserves the secondary ordering within equal primary keys.</dd>
+
+    <dt><strong>List comprehension</strong></dt>
+    <dd>A concise syntax for creating lists: <code>[expression for item in iterable if condition]</code>. Equivalent to a <code>for</code> loop with <code>append()</code>, but faster and more readable. Supports nested loops: <code>[x for row in matrix for x in row]</code>.</dd>
+
+    <dt><strong>Nested list comprehension</strong></dt>
+    <dd>A list comprehension where the expression is itself a list comprehension. Used for 2D data: <code>[[row[i] for row in matrix] for i in range(4)]</code> transposes a matrix.</dd>
+
+    <dt><strong>Stack (LIFO)</strong></dt>
+    <dd>Last-In, First-Out data structure. Python lists naturally implement stacks via <code>.append()</code> (push) and <code>.pop()</code> (pop). Both are O(1) operations at the end of the list.</dd>
+
+    <dt><strong>Queue (FIFO)</strong></dt>
+    <dd>First-In, First-Out data structure. Using a list (<code>.pop(0)</code>) is inefficient (O(n)). Use <code>collections.deque</code> with <code>.append()</code> and <code>.popleft()</code> for O(1) operations at both ends.</dd>
+
+    <dt><strong><code>collections.deque</code></strong></dt>
+    <dd>A double-ended queue with O(1) appends and pops from both ends. Supports <code>.append()</code>, <code>.appendleft()</code>, <code>.pop()</code>, <code>.popleft()</code>, <code>.rotate()</code>. Can be bounded with <code>maxlen</code>. The recommended structure for queues and sliding windows.</dd>
+
+    <dt><strong><code>del</code> on lists</strong></dt>
+    <dd><code>del lst[i]</code> removes an item by index. <code>del lst[i:j]</code> removes a slice. <code>del lst</code> deletes the variable entirely. Unlike <code>.pop()</code>, <code>del</code> does not return the removed value.</dd>
+
+    <dt><strong>Shallow copy</strong></dt>
+    <dd>A copy of a list where the new list references the <strong>same</strong> objects as the original. Created by <code>.copy()</code>, <code>[:]</code>, or <code>list(original)</code>. For nested lists, modifying an inner list affects both copies.</dd>
+
+    <dt><strong>Deep copy</strong></dt>
+    <dd>A fully recursive copy where all nested objects are also copied. Created by <code>copy.deepcopy(lst)</code>. The new list shares no references with the original. Necessary for nested/multidimensional lists.</dd>
+
+    <dt><strong><code>[[]] * n</code> trap</strong></dt>
+    <dd>Creating a list of lists by repetition: <code>[[]] * 5</code> creates a list where <strong>all elements are the same list object</strong>. Modifying one "row" modifies all. Fix: use a list comprehension: <code>[[] for _ in range(5)]</code>.</dd>
+
+    <dt><strong>Modifying during iteration</strong></dt>
+    <dd>Adding or removing items from a list while iterating over it causes items to be skipped. Fix: iterate over a copy (<code>for x in lst.copy():</code>) or use a list comprehension to build a new list.</dd>
+
+    <dt><strong><code>array.array</code></strong></dt>
+    <dd>A memory-efficient array of typed values. Type codes: <code>'i'</code> (int), <code>'f'</code> (float), <code>'d'</code> (double), etc. Supports most list operations but stores values compactly. Best for large numeric datasets. Not for heterogeneous data.</dd>
+  </dl>
+
+  <p><em>Last updated with Lesson 8: Lists in Depth.</em></p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a></p>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>

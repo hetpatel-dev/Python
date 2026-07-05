@@ -104,14 +104,21 @@
     <li>Unicode and encoding — <code>.encode()</code>, <code>.decode()</code>, <code>bytes</code> vs <code>str</code></li>
   </ul>
 
-  <h3>8. Lists in Depth</h3>
+  <h3>8. <a href="lessons/0008-lists-in-depth.html">Lists in Depth</a></h3>
   <ul>
-    <li>List methods</li>
-    <li>List indexing and slicing</li>
-    <li>Nested lists</li>
-    <li>List as stack / queue</li>
-    <li><code>sorted()</code> vs <code>.sort()</code></li>
-    <li>List pitfalls</li>
+    <li>List construction: <code>[]</code>, <code>list()</code>, <code>+</code>, <code>*</code></li>
+    <li>Indexing and slicing (including slice assignment)</li>
+    <li>List methods: <code>.append()</code>, <code>.extend()</code>, <code>.insert()</code>, <code>.remove()</code>, <code>.pop()</code>, <code>.clear()</code>, <code>.index()</code>, <code>.count()</code>, <code>.reverse()</code>, <code>.copy()</code></li>
+    <li><code>list.sort()</code> vs <code>sorted()</code> — <code>key=</code>, <code>reverse=</code>, sort stability</li>
+    <li>Advanced sorting: <code>operator.itemgetter</code>, multi-key sorts</li>
+    <li>List comprehensions: basic, with <code>if</code>, nested <code>for</code></li>
+    <li>Nested list comprehensions: matrix transposition</li>
+    <li>List as stack (LIFO) — <code>.append()</code> / <code>.pop()</code></li>
+    <li>List as queue (FIFO) — <code>collections.deque</code></li>
+    <li><code>del</code> statement — delete by index, slice, or variable</li>
+    <li>Shallow copy vs deep copy (<code>copy.deepcopy()</code>)</li>
+    <li>List pitfalls: modifying during iteration, <code>[[]]*n</code> trap, <code>None</code>-returning methods</li>
+    <li><code>array</code> module — compact numeric arrays</li>
   </ul>
 
   <h3>9. Tuples</h3>
