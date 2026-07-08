@@ -10,6 +10,7 @@ venv/
 # Agents & Skills
 skills-lock.json
 .agents
+.opencode
 
 # Personal (not for public)
 MISSION.md
