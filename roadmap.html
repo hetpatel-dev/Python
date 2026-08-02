@@ -13,7 +13,7 @@
 
   <h2>Phase 1: Python Fundamentals</h2>
 
-  <h3>1. Python Basics</h3>
+  <h3>1. <a href="lessons/0001-python-basics.html">Python Basics</a> ✅</h3>
   <ul>
     <li><code>print()</code> and <code>input()</code> functions</li>
     <li>Comments (<code>#</code>)</li>
@@ -24,7 +24,7 @@
     <li>Basic arithmetic operators (<code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>, <code>**</code>)</li>
   </ul>
 
-  <h3>2. Variables in Depth</h3>
+  <h3>2. <a href="lessons/0002-variables-in-depth.html">Variables in Depth</a> ✅</h3>
   <ul>
     <li>Python's data model: objects, identity, type, value</li>
     <li><code>id()</code> and <code>is</code> vs <code>==</code></li>
@@ -37,7 +37,7 @@
     <li>Variable scope (brief intro)</li>
   </ul>
 
-  <h3>3. Data Types Overview</h3>
+  <h3>3. <a href="lessons/0003-data-types-overview.html">Data Types Overview</a> ✅</h3>
   <ul>
     <li>Full type hierarchy: numeric, boolean, text, binary, sequence, set, mapping, None, callable</li>
     <li>Truthiness — what's False in Python</li>
@@ -49,7 +49,7 @@
     <li>Ordered vs unordered</li>
   </ul>
 
-  <h3>4. Operators in Depth</h3>
+  <h3>4. <a href="lessons/0004-operators-in-depth.html">Operators in Depth</a> ✅</h3>
   <ul>
     <li>Arithmetic operators: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>, <code>**</code></li>
     <li>Comparison operators: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></li>
@@ -62,7 +62,7 @@
     <li>Operator overloading concept (mention <code>__add__</code>, etc.)</li>
   </ul>
 
-  <h3>5. Conditionals</h3>
+  <h3>5. <a href="lessons/0005-conditionals.html">Conditionals</a> ✅</h3>
   <ul>
     <li><code>if</code>, <code>elif</code>, <code>else</code></li>
     <li>Truthiness in conditions</li>
@@ -72,7 +72,7 @@
     <li>Common patterns: <code>if x is None</code>, <code>if not x</code>, <code>if x in collection</code></li>
   </ul>
 
-  <h3>6. <a href="lessons/0006-loops.html">Loops</a></h3>
+  <h3>6. <a href="lessons/0006-loops.html">Loops</a> ✅</h3>
   <ul>
     <li><code>for</code> loop — iterating over sequences</li>
     <li>Looping over different data types: list, tuple, str, dict (<code>.items()</code>, <code>.values()</code>), set</li>
@@ -88,7 +88,7 @@
     <li><code>pass</code> as placeholder</li>
   </ul>
 
-  <h3>7. <a href="lessons/0007-strings-in-depth.html">Strings in Depth</a></h3>
+  <h3>7. <a href="lessons/0007-strings-in-depth.html">Strings in Depth</a> ✅</h3>
   <ul>
     <li>String indexing and slicing (<code>[start:stop:step]</code>, negative indices)</li>
     <li>String immutability</li>
@@ -104,7 +104,7 @@
     <li>Unicode and encoding — <code>.encode()</code>, <code>.decode()</code>, <code>bytes</code> vs <code>str</code></li>
   </ul>
 
-  <h3>8. <a href="lessons/0008-lists-in-depth.html">Lists in Depth</a></h3>
+  <h3>8. <a href="lessons/0008-lists-in-depth.html">Lists in Depth</a> ✅</h3>
   <ul>
     <li>List construction: <code>[]</code>, <code>list()</code>, <code>+</code>, <code>*</code></li>
     <li>Indexing and slicing (including slice assignment)</li>
@@ -121,7 +121,7 @@
     <li><code>array</code> module — compact numeric arrays</li>
   </ul>
 
-  <h3>9. <a href="lessons/0009-tuples.html">Tuples</a></h3>
+  <h3>9. <a href="lessons/0009-tuples.html">Tuples</a> ✅</h3>
   <ul>
     <li>Tuple basics — commas create tuples, parentheses are optional</li>
     <li>Tuple packing and unpacking (including starred unpacking on any sequence)</li>
@@ -136,7 +136,7 @@
     <li>Tuple vs List cheat sheet — mutable, hashable, methods, memory, use cases</li>
   </ul>
 
-  <h3>10. <a href="lessons/0010-dictionaries-in-depth.html">Dictionaries in Depth</a></h3>
+  <h3>10. <a href="lessons/0010-dictionaries-in-depth.html">Dictionaries in Depth</a> ✅</h3>
   <ul>
     <li>Dict basics — <code>{}</code> literal, <code>dict()</code> constructor, dict comprehensions, hashable keys, insertion order guarantee (3.7+), equality ignores order</li>
     <li>Basic operations — <code>d[key]</code>, assignment, <code>del</code>, <code>key in d</code>, <code>len()</code>, <code>list(d)</code>, <code>reversed(d)</code>, truthiness</li>
@@ -152,69 +152,179 @@
     <li><code>collections.OrderedDict</code> — <code>move_to_end()</code>, <code>popitem(last=False)</code>, order-sensitive equality, LRU cache pattern</li>
   </ul>
 
-  <h3>11. Sets</h3>
+  <h3>11. <a href="lessons/0011-sets.html">Sets</a> ✅</h3>
   <ul>
-    <li>Set methods</li>
-    <li>Set operations: union, intersection, difference, symmetric difference</li>
-    <li>Set comprehensions</li>
-    <li><code>frozenset</code></li>
+    <li>Set basics — <code>{...}</code> literal vs <code>set()</code> constructor, empty set trap (<code>{}</code> is a dict!), unordered nature, deduplication on creation, hashable element requirement</li>
+    <li>Mutating methods — <code>.add()</code>, <code>.remove()</code> (raises KeyError), <code>.discard()</code> (silent no-op), <code>.pop()</code> (arbitrary element), <code>.clear()</code>, <code>.copy()</code></li>
+    <li>Membership testing — O(1) average with <code>in</code> vs O(n) for lists, fast deduplication with <code>set(iterable)</code></li>
+    <li>Set operators — <code>|</code> union, <code>&amp;</code> intersection, <code>-</code> difference, <code>^</code> symmetric difference</li>
+    <li>Method equivalents — <code>.union()</code>, <code>.intersection()</code>, <code>.difference()</code>, <code>.symmetric_difference()</code> (accept any iterable)</li>
+    <li>Comparison operators — <code>&lt;=</code> (issubset), <code>&lt;</code> (proper subset), <code>&gt;=</code> (issuperset), <code>&gt;</code> (proper superset)</li>
+    <li>Predicate methods — <code>.isdisjoint()</code>, <code>.issubset()</code>, <code>.issuperset()</code></li>
+    <li>Update operations — <code>.update()</code> / <code>|=</code>, <code>.intersection_update()</code> / <code>&amp;=</code>, <code>.difference_update()</code> / <code>-=</code>, <code>.symmetric_difference_update()</code> / <code>^=</code></li>
+    <li>Set comprehensions — <code>{expr for x in iterable if cond}</code></li>
+    <li><code>frozenset</code> — immutable, hashable, usable as dict keys and set members, non-mutating operations only</li>
+    <li>When to use sets — deduplication, membership testing, set math, tracking seen items, excluding items</li>
+    <li>Performance — hash table implementation, O(1) average for membership/insert/delete, memory overhead vs lists</li>
   </ul>
 
-  <h3>12. Functions in Depth</h3>
+  <h3>12. <a href="lessons/0012-functions-in-depth.html">Functions in Depth</a> ✅</h3>
   <ul>
-    <li>Function definition and calling</li>
-    <li>Parameters: positional, keyword, default, <code>*args</code>, <code>**kwargs</code></li>
-    <li>Return values</li>
-    <li>Scope: <code>global</code>, <code>nonlocal</code></li>
-    <li>Lambda functions</li>
-    <li>Recursion basics</li>
+    <li>Defining functions — <code>def</code> keyword, function objects, symbol tables, <code>pass</code> placeholder</li>
+    <li>Return values — <code>return</code> statement, implicit <code>None</code>, returning multiple values as tuples</li>
+    <li>Default argument values — evaluation at definition time, the mutable default trap (list/dict defaults), <code>None</code>-and-assign fix</li>
+    <li>Keyword arguments — positional before keyword, no duplicate values, unknown keyword errors</li>
+    <li>Special parameters — positional-only (<code>/</code>), keyword-only (<code>*</code>), combined signatures</li>
+    <li>Arbitrary argument lists — <code>*args</code> (tuple of positional args), <code>**kwargs</code> (dict of keyword args), forwarding pattern</li>
+    <li>Unpacking in calls — <code>*</code> on iterables, <code>**</code> on dicts</li>
+    <li>Docstrings — PEP 257 conventions, <code>__doc__</code> attribute, <code>help()</code></li>
+    <li>Function annotations (type hints) — parameter annotations, return annotations, <code>__annotations__</code> dict, optional at runtime</li>
+    <li>Functions as first-class objects — assign to variables, pass as arguments, return from functions, store in data structures, <code>callable()</code></li>
+    <li>Lambda expressions — anonymous functions, restriction to single expression, use with <code>sorted(key=...)</code>, <code>map()</code>, <code>filter()</code>, closures</li>
+    <li>Scope: LEGB rule (Local, Enclosing, Global, Built-in), <code>global</code> statement, <code>nonlocal</code> statement in nested functions</li>
+    <li>Functional tools — <code>map()</code>, <code>filter()</code>, <code>functools.reduce()</code></li>
+    <li>Recursion — base case, recursive case, call stack, recursion limit, <code>sys.setrecursionlimit()</code></li>
   </ul>
 
-  <h3>13. Comprehensions</h3>
+  <h3>13. <a href="lessons/0013-comprehensions.html">Comprehensions</a> ✅</h3>
   <ul>
-    <li>List, dict, set comprehensions</li>
-    <li>Generator expressions</li>
-    <li>Nested comprehensions</li>
+    <li>List comprehensions — <code>[expr for x in iterable if cond]</code>, <code>if</code> filter vs ternary <code>if-else</code> in expression, multiple <code>for</code> clauses (Cartesian product)</li>
+    <li>Dict comprehensions — <code>{k: v for k, v in iterable}</code>, from <code>zip()</code>, swapping keys/values, filtering and transforming</li>
+    <li>Set comprehensions — <code>{expr for x in iterable}</code>, deduplication, empty set trap (<code>{}</code> vs <code>set()</code>)</li>
+    <li>Generator expressions — <code>(expr for x in iterable)</code>, lazy evaluation, single-use iterators, memory efficiency, <code>sum()</code>/<code>max()</code>/<code>any()</code>/<code>all()</code> with genexps</li>
+    <li>Nested comprehensions — flattening matrices, transposing (<code>zip(*matrix)</code> idiom), readability limits</li>
+    <li>Conditional logic — filter position vs expression position, chained <code>if</code> clauses</li>
+    <li>Walrus operator (<code>:=</code>) — avoid double computation, filter-on-computed-value pattern, scope leakage note</li>
+    <li>When to use vs avoid — one-comprehension guideline, side effects, <code>break</code>/<code>continue</code>, readability trade-offs</li>
   </ul>
 
-  <h3>14. Error Handling</h3>
+  <h3>14. <a href="lessons/0014-error-handling.html">Error Handling</a> ✅</h3>
   <ul>
-    <li><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code></li>
-    <li><code>raise</code> and <code>assert</code></li>
-    <li>Custom exception classes</li>
-    <li>Context managers (<code>with</code>)</li>
+    <li><code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code> — catching and handling exceptions</li>
+    <li>Traceback anatomy — reading and understanding the call stack in error output</li>
+    <li><code>raise</code> — re-raising, chaining with <code>raise ... from</code></li>
+    <li><code>assert</code> — debugging assertions with <code>__debug__</code> and <code>-O</code></li>
+    <li>Custom exception classes — inheriting from <code>Exception</code></li>
+    <li><code>ExceptionGroup</code> / <code>except*</code> (Python 3.11+) — grouping multiple unrelated exceptions</li>
+    <li><code>BaseException.add_note()</code> (Python 3.11+) — attaching extra context to exceptions</li>
+    <li>Context managers (<code>with</code>) — <code>__enter__</code>/<code>__exit__</code>, <code>@contextmanager</code>, <code>suppress</code>, parenthesized managers</li>
+    <li>Best practices — EAFP vs LBYL, bare <code>except:</code> dangers, <code>return</code> in <code>finally</code> (PEP 765, 3.14 SyntaxWarning)</li>
   </ul>
 
-  <h3>15. File I/O</h3>
+  <h3>15. <a href="lessons/0015-file-io.html">File I/O</a> ✅</h3>
   <ul>
-    <li><code>open()</code> and file modes</li>
-    <li>Reading and writing</li>
-    <li><code>pathlib.Path</code></li>
-    <li>CSV and JSON</li>
+    <li><code>open()</code> — modes: <code>r</code>, <code>w</code>, <code>a</code>, <code>x</code>, <code>b</code>, <code>+</code></li>
+    <li>Context managers (<code>with</code> statement) — automatic cleanup, <code>f.closed</code></li>
+    <li>Reading: <code>.read(size)</code>, <code>.readline()</code>, <code>.readlines()</code>, direct iteration, chunked reading</li>
+    <li>Writing: <code>.write()</code>, <code>.writelines()</code>, append mode</li>
+    <li>File position: <code>.tell()</code>, <code>.seek(offset, whence)</code></li>
+    <li>Text vs binary mode — encoding, newlines, universal newlines</li>
+    <li><code>encoding="utf-8"</code> — always specify explicitly (PEP 686)</li>
+    <li><code>pathlib.Path</code> — object-oriented paths, <code>/</code> operator, properties, <code>read_text()</code>, <code>write_text()</code>, <code>glob()</code>, <code>rglob()</code></li>
+    <li><code>os</code> module — <code>os.path</code>, <code>os.stat()</code>, <code>os.listdir()</code>, <code>os.scandir()</code>, <code>os.walk()</code></li>
+    <li><code>glob.glob()</code> — pattern matching, recursive search</li>
+    <li><code>shutil</code> — <code>copy()</code>, <code>copy2()</code>, <code>copytree()</code>, <code>move()</code>, <code>rmtree()</code></li>
+    <li><code>tempfile</code> — <code>NamedTemporaryFile()</code>, <code>TemporaryDirectory()</code></li>
+    <li><code>io.StringIO</code> / <code>io.BytesIO</code> — in-memory streams</li>
+    <li><code>csv</code> — <code>csv.reader()</code>, <code>csv.DictReader()</code>, <code>csv.writer()</code>, <code>csv.DictWriter()</code>, <code>newline=''</code></li>
+    <li><code>json</code> — <code>json.dump()</code>/<code>json.load()</code>, <code>json.dumps()</code>/<code>json.loads()</code>, type conversion, <code>indent</code>, <code>ensure_ascii</code></li>
+    <li>Binary files — <code>rb</code>/<code>wb</code> modes, <code>struct</code> module</li>
+    <li>Error handling — <code>FileNotFoundError</code>, <code>PermissionError</code>, graceful patterns</li>
+    <li>Best practices — always use <code>with</code>, always specify encoding, iterate large files, use <code>pathlib</code></li>
   </ul>
 
-  <h3>16. Modules &amp; Packages</h3>
+  <h3>16. <a href="lessons/0016-modules-and-packages.html">Modules &amp; Packages</a> ✅</h3>
   <ul>
-    <li><code>import</code> statement</li>
-    <li><code>if __name__ == "__main__"</code></li>
-    <li>Creating modules and packages</li>
-    <li>Module search path</li>
+    <li><code>import</code> statement — all forms: <code>import x</code>, <code>from x import y</code>, <code>from x import *</code>, <code>import x as y</code>, <code>from x import y as z</code>, <code>from . import y</code></li>
+    <li>Absolute vs relative imports — dot notation, <code>__package__</code> context, main module restriction</li>
+    <li><code>if __name__ == "__main__"</code> — dual-use modules, testing, CLI interface</li>
+    <li>Creating your own modules — file as module, naming conventions, private namespaces, module-level code runs once</li>
+    <li>Packages — <code>__init__.py</code> purpose, subpackages, namespace packages (no <code>__init__.py</code>)</li>
+    <li>Module search path — <code>sys.path</code>, <code>PYTHONPATH</code>, <code>site-packages</code>, full import search order</li>
+    <li><code>sys.modules</code> — import cache, caching behavior, re-import vs reload</li>
+    <li><code>dir()</code> — listing names in a module, filtering, <code>hasattr()</code></li>
+    <li><code>__all__</code> — controlling <code>from module import *</code>, shadowing warning</li>
+    <li>Module attributes — <code>__name__</code>, <code>__file__</code>, <code>__spec__</code>, <code>__path__</code>, <code>__doc__</code>, <code>__dict__</code></li>
+    <li>Re-exporting with <code>__all__</code> — clean public API, type checker hints with <code>as</code></li>
+    <li><code>importlib</code> — <code>import_module()</code>, <code>reload()</code>, <code>LazyLoader</code></li>
+    <li>Circular imports — causes, error symptoms, avoidance strategies (refactor, import inside functions, restructure)</li>
+    <li>Best practices — PEP 8 import ordering, package layout, pitfalls: <code>from x import *</code>, side effects, <code>sys.modules</code> inconsistency</li>
   </ul>
 
-  <h3>17. Iterators &amp; Generators</h3>
+  <h3>17. <a href="lessons/0017-iterators-and-generators.html">Iterators &amp; Generators</a> ✅</h3>
   <ul>
-    <li>Iteration protocol</li>
-    <li>Generator functions with <code>yield</code></li>
-    <li><code>itertools</code> module overview</li>
+    <li>Iterable vs iterator — the core distinction</li>
+    <li>The iterator protocol: <code>__iter__()</code>, <code>__next__()</code>, <code>StopIteration</code></li>
+    <li><code>iter()</code> and <code>next()</code> — manual iteration, <code>next()</code> with default</li>
+    <li>Built-in iterators: <code>map()</code>, <code>filter()</code>, <code>zip()</code>, <code>enumerate()</code>, <code>reversed()</code> — all lazy in Python 3</li>
+    <li>Custom class-based iterators with <code>__iter__</code> + <code>__next__</code></li>
+    <li>Generator functions with <code>yield</code> — automatic state preservation, <code>StopIteration</code></li>
+    <li>Generator expressions — lazy counterparts of comprehensions, memory efficiency</li>
+    <li><code>yield from</code> — delegating to sub-generators, flattening</li>
+    <li>Practical patterns: infinite sequences, data pipelines, batch processing, file chunking</li>
+    <li><code>itertools</code> infinite iterators: <code>count</code>, <code>cycle</code>, <code>repeat</code></li>
+    <li><code>itertools</code> finite iterators: <code>chain</code>, <code>islice</code>, <code>compress</code>, <code>groupby</code>, <code>takewhile</code>/<code>dropwhile</code>, <code>pairwise</code>, <code>zip_longest</code>, <code>accumulate</code>, <code>tee</code></li>
+    <li><code>itertools</code> combinatorics: <code>product</code>, <code>permutations</code>, <code>combinations</code>, <code>combinations_with_replacement</code></li>
+    <li>Iterator exhaustion — single-use vs reusable</li>
+    <li>Lazy vs eager evaluation trade-offs</li>
   </ul>
 
   <hr>
 
   <h2>Phase 2: Object-Oriented Programming</h2>
 
-  <h3>18. OOP — Classes &amp; Objects</h3>
+  <h3>18. <a href="lessons/0018-oop-classes-and-objects.html">OOP — Classes &amp; Objects</a> ✅</h3>
+  <ul>
+    <li>Class definition and instantiation</li>
+    <li><code>__init__</code> constructor and <code>self</code> parameter</li>
+    <li>Instance attributes vs class attributes</li>
+    <li>Instance methods, class methods (<code>@classmethod</code>), static methods (<code>@staticmethod</code>)</li>
+    <li><code>__str__</code> and <code>__repr__</code> methods</li>
+    <li>Public, private (<code>_</code>), and name mangling (<code>__</code>)</li>
+    <li><code>@property</code> decorator for managed attributes</li>
+    <li><code>__slots__</code> for memory optimization</li>
+    <li>Dataclasses introduction</li>
+    <li>Descriptor protocol basics</li>
+  </ul>
+
+  <h3>19. <a href="lessons/0019-oop-inheritance-and-polymorphism.html">OOP — Inheritance &amp; Polymorphism</a> ✅</h3>
+  <ul>
+    <li>Single inheritance — basic syntax, parent/child classes</li>
+    <li>Overriding parent methods</li>
+    <li><code>super()</code> — calling parent methods, <code>__init__</code> chains, non-init methods</li>
+    <li>Method Resolution Order (MRO) — C3 linearization, <code>__mro__</code> attribute</li>
+    <li>Multiple inheritance — diamond problem, left-to-right search</li>
+    <li>Mixins — reusable behavior, naming convention, design principles</li>
+    <li>Abstract base classes (<code>abc.ABC</code>, <code>@abstractmethod</code>)</li>
+    <li>Abstract properties and concrete methods in ABCs</li>
+    <li><code>abc.register()</code> — virtual subclasses, <code>__subclasshook__</code></li>
+    <li><code>collections.abc</code> — built-in ABCs (Iterable, Sequence, Mapping, etc.)</li>
+    <li>Duck typing — protocol-based polymorphism, <code>hasattr()</code>, <code>getattr()</code></li>
+    <li><code>isinstance()</code> and <code>issubclass()</code> — type checking with inheritance</li>
+    <li>Template Method pattern</li>
+    <li>Composition vs inheritance</li>
+    <li>Liskov Substitution Principle</li>
+  </ul>
   <h3>19. OOP — Inheritance &amp; Polymorphism</h3>
-  <h3>20. OOP — Magic Methods &amp; Protocols</h3>
+  <h3>20. <a href="lessons/0020-oop-magic-methods-and-protocols.html">OOP — Magic Methods &amp; Protocols</a> ✅</h3>
+  <ul>
+    <li>String representations: <code>__repr__</code>, <code>__str__</code>, <code>__format__</code> with custom format specs</li>
+    <li>Arithmetic — binary operators: <code>__add__</code>, <code>__sub__</code>, <code>__mul__</code>, <code>__truediv__</code>, <code>__floordiv__</code>, <code>__mod__</code>, <code>__pow__</code>, <code>__matmul__</code></li>
+    <li>Arithmetic — reflected operators: <code>__radd__</code>, <code>__rsub__</code>, <code>__rmul__</code>, etc. — <code>NotImplemented</code> protocol</li>
+    <li>Arithmetic — in-place operators: <code>__iadd__</code>, <code>__isub__</code>, <code>__imul__</code>, etc. — return <code>self</code></li>
+    <li>Arithmetic — unary operators: <code>__neg__</code>, <code>__pos__</code>, <code>__abs__</code>, <code>__invert__</code></li>
+    <li>Built-in math functions: <code>__round__</code>, <code>__floor__</code>, <code>__ceil__</code>, <code>__trunc__</code>, <code>__int__</code>, <code>__float__</code></li>
+    <li>Comparison &amp; hashing: <code>__eq__</code>, <code>__ne__</code>, <code>__lt__</code>/<code>__le__</code>/<code>__gt__</code>/<code>__ge__</code>, <code>__hash__</code>, <code>@functools.total_ordering</code></li>
+    <li>Container protocols: <code>__len__</code>, <code>__getitem__</code>, <code>__setitem__</code>, <code>__delitem__</code>, <code>__contains__</code></li>
+    <li>Iterator protocol: <code>__iter__</code>, <code>__next__</code>, <code>__reversed__</code>, <code>__missing__</code></li>
+    <li>Boolean protocol: <code>__bool__</code>, <code>__len__</code> fallback for truthiness</li>
+    <li>Callable protocol: <code>__call__</code> — making instances callable</li>
+    <li>Context manager protocol: <code>__enter__</code>/<code>__exit__</code>, exception suppression</li>
+    <li>Attribute access: <code>__getattr__</code>, <code>__getattribute__</code>, <code>__setattr__</code>, <code>__delattr__</code>, lookup order</li>
+    <li><code>__slots__</code> — memory optimization, limitations, inheritance rules</li>
+    <li><code>dataclasses</code> module — <code>@dataclass</code>, <code>field()</code>, <code>asdict</code>, <code>astuple</code>, <code>replace</code>, <code>fields</code>, <code>__post_init__</code>, <code>frozen</code>, <code>slots</code>, <code>kw_only</code>, <code>InitVar</code></li>
+    <li>Descriptor protocol — <code>__get__</code>, <code>__set__</code>, <code>__delete__</code>, <code>__set_name__</code>, data vs non-data descriptors</li>
+  </ul>
   <h3>21. OOP — Decorators &amp; Properties</h3>
 
   <hr>
