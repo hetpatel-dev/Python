@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 20: OOP — Magic Methods &amp; Protocols</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 20: OOP — Magic Methods &amp; Protocols</h1>
+
+  <p><span class="tag">concept</span> Magic Methods, Dunder Methods, Protocols, Operator Overloading, Dataclasses, __slots__, Descriptors</p>
+
+  <p>Magic methods (also called dunder methods because of the double underscores) are special methods that Python calls behind the scenes. When you write <code>x + y</code>, Python calls <code>x.__add__(y)</code>. When you use <code>len(obj)</code>, Python calls <code>obj.__len__()</code>. Implementing these methods lets your custom objects integrate seamlessly with Python's built-in operations — arithmetic, comparison, iteration, context management, and more.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/reference/datamodel.html#special-method-names">Data Model — Special Method Names</a>, <a href="https://docs.python.org/3/library/dataclasses.html">dataclasses module</a>, <a href="https://docs.python.org/3/howto/descriptor.html">Descriptor HowTo</a>.</p>
+
+  <hr>
+
+  <h2>1. Introduction to Magic Methods</h2>
+
+  <p>Magic methods let you define how your objects respond to built-in operations. Instead of calling them directly, Python invokes them automatically in response to syntax:</p>
+
+  <table>
+    <tr><th>When you write...</th><th>Python calls...</th></tr>
+    <tr><td><code>repr(obj)</code></td><td><code>obj.__repr__()</code></td></tr>
+    <tr><td><code>str(obj)</code></td><td><code>obj.__str__()</code></td></tr>
+    <tr><td><code>len(obj)</code></td><td><code>obj.__len__()</code></td></tr>
+    <tr><td><code>obj1 + obj2</code></td><td><code>obj1.__add__(obj2)</code></td></tr>
+    <tr><td><code>obj[key]</code></td><td><code>obj.__getitem__(key)</code></td></tr>
+    <tr><td><code>obj()</code></td><td><code>obj.__call__()</code></td></tr>
+    <tr><td><code>with obj:</code></td><td><code>obj.__enter__()</code> / <code>obj.__exit__(...)</code></td></tr>
+  </table>
+
+  <h3>Naming Convention</h3>
+  <p>All magic methods use the pattern <code>__name__</code> (double underscores on both sides). Never call them directly — let Python invoke them through normal syntax:</p>
+
+  <pre><code># WRONG — calling magic methods directly:
+result = obj.__add__(other)
+
+# RIGHT — use normal syntax:
+result = obj + other</code></pre>
+
+  <h3>The <code>NotImplemented</code> Protocol</h3>
+  <p>When a binary operator's left operand doesn't support the operation, it returns <code>NotImplemented</code> (a special singleton, not an exception). Python then tries the right operand's reflected method. If both return <code>NotImplemented</code>, Python raises <code>TypeError</code>.</p>
+
+  <pre><code>class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x + other.x, self.y + other.y)
+        return NotImplemented  # Signal: "I don't know how to add this"
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v1 = Vector(1, 2)
+v2 = Vector(3, 4)
+print(v1 + v2)         # Vector(4, 6)
+print(v1 + "hello")    # TypeError: unsupported operand type(s)</code></pre>
+
+  <div class="note">
+    <strong>💡 Protocol = duck typing formalized:</strong> A protocol is a set of magic methods that define a behavior. If your object implements <code>__len__</code> and <code>__getitem__</code>, it follows the <em>sequence protocol</em> and works with <code>len()</code>, indexing, slicing, and <code>in</code> checks — regardless of its actual type.
+  </div>
+
+  <hr>
+
+  <h2>2. String Representations</h2>
+
+  <p>Every class should define how its instances are represented as strings. Python provides three methods for this.</p>
+
+  <h3><code>__repr__</code> — Unambiguous Developer Representation</h3>
+
+  <p>Called by <code>repr()</code>, the interactive interpreter, and debugging tools. Should return a string that is, if possible, a valid Python expression that recreates the object:</p>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+p = Point(3, 4)
+print(repr(p))           # Point(3, 4)
+print(p)                 # Point(3, 4) — print() falls back to __repr__
+print(f"{p!r}")          # Point(3, 4) — !r uses __repr__</code></pre>
+
+  <h3><code>__str__</code> — Human-Readable Representation</h3>
+
+  <p>Called by <code>str()</code>, <code>print()</code>, and f-strings. Should return a user-friendly string. Falls back to <code>__repr__</code> if not defined:</p>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+p = Point(3, 4)
+print(repr(p))           # Point(3, 4)  — __repr__
+print(str(p))            # (3, 4)       — __str__
+print(f"{p}")            # (3, 4)       — __str__ (default)
+print(f"{p!r}")          # Point(3, 4)  — __repr__</code></pre>
+
+  <div class="note">
+    <strong>💡 Rule of thumb:</strong> Always define <code>__repr__</code>. Define <code>__str__</code> when you want a more readable output. If only <code>__repr__</code> is defined, <code>str()</code> uses it automatically.
+  </div>
+
+  <h3><code>__format__</code> — Custom Format Specifications</h3>
+
+  <p>Called by <code>format(obj, spec)</code> and f-strings with format specs: <code>f"{obj:spec}"</code>. Lets you define your own mini-formatting language:</p>
+
+  <pre><code>class Temperature:
+    def __init__(self, celsius):
+        self.celsius = celsius
+
+    def __format__(self, spec):
+        if spec == 'f' or spec == '':
+            return f"{self.celsius:.1f}°C"
+        elif spec == 'k':
+            return f"{self.celsius + 273.15:.2f}K"
+        elif spec == 'p':
+            return f"{self.celsius * 9/5 + 32:.1f}°F"
+        elif spec == 'e':
+            return f"{self.celsius:.2e}"
+        else:
+            raise ValueError(f"Unknown format spec: {spec!r}")
+
+    def __repr__(self):
+        return f"Temperature({self.celsius})"
+
+temp = Temperature(100)
+print(f"{temp}")         # 100.0°C
+print(f"{temp:k}")       # 373.15K
+print(f"{temp:p}")       # 212.0°F
+print(f"{temp:e}")       # 1.00e+02
+print(format(temp, 'f')) # 100.0°C</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Delegation pattern:</strong> For many classes, you can delegate to the wrapped value: <code>return format(self.value, spec)</code>. This lets your class work with all built-in format specs for free.
+  </div>
+
+  <hr>
+
+  <h2>3. Arithmetic — Binary Operators</h2>
+
+  <p>Binary operators let your objects participate in arithmetic expressions. Python's data model calls the left operand's method first, then falls back to the right operand's reflected method.</p>
+
+  <h3>Complete Binary Operator Table</h3>
+
+  <table>
+    <tr><th>Operator</th><th>Method</th><th>Reflected</th></tr>
+    <tr><td><code>+</code></td><td><code>__add__</code></td><td><code>__radd__</code></td></tr>
+    <tr><td><code>-</code></td><td><code>__sub__</code></td><td><code>__rsub__</code></td></tr>
+    <tr><td><code>*</code></td><td><code>__mul__</code></td><td><code>__rmul__</code></td></tr>
+    <tr><td><code>/</code></td><td><code>__truediv__</code></td><td><code>__rtruediv__</code></td></tr>
+    <tr><td><code>//</code></td><td><code>__floordiv__</code></td><td><code>__rfloordiv__</code></td></tr>
+    <tr><td><code>%</code></td><td><code>__mod__</code></td><td><code>__rmod__</code></td></tr>
+    <tr><td><code>**</code></td><td><code>__pow__</code></td><td><code>__rpow__</code></td></tr>
+    <tr><td><code>@</code></td><td><code>__matmul__</code></td><td><code>__rmatmul__</code></td></tr>
+    <tr><td><code>&lt;&lt;</code></td><td><code>__lshift__</code></td><td><code>__rlshift__</code></td></tr>
+    <tr><td><code>&gt;&gt;</code></td><td><code>__rshift__</code></td><td><code>__rrshift__</code></td></tr>
+    <tr><td><code>&amp;</code></td><td><code>__and__</code></td><td><code>__rand__</code></td></tr>
+    <tr><td><code>^</code></td><td><code>__xor__</code></td><td><code>__rxor__</code></td></tr>
+    <tr><td><code>|</code></td><td><code>__or__</code></td><td><code>__ror__</code></td></tr>
+    <tr><td><code>divmod()</code></td><td><code>__divmod__</code></td><td><code>__rdivmod__</code></td></tr>
+  </table>
+
+  <h3>Practical Example: Vector Class</h3>
+
+  <pre><code>class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x + other.x, self.y + other.y)
+        return NotImplemented
+
+    def __sub__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x - other.x, self.y - other.y)
+        return NotImplemented
+
+    def __mul__(self, scalar):
+        if isinstance(scalar, (int, float)):
+            return Vector(self.x * scalar, self.y * scalar)
+        return NotImplemented
+
+    def __rmul__(self, scalar):
+        return self.__mul__(scalar)  # Commutative: 2 * v = v * 2
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v1 = Vector(1, 2)
+v2 = Vector(3, 4)
+
+print(v1 + v2)          # Vector(4, 6)
+print(v1 - v2)          # Vector(-2, -2)
+print(v1 * 3)           # Vector(3, 6)
+print(3 * v1)           # Vector(3, 6)  — uses __rmul__
+print(v1 + 5)           # TypeError — int.__add__ returns NotImplemented,
+                        # then Vector.__radd__ also returns NotImplemented</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Return <code>NotImplemented</code>, not raise:</strong> If your method doesn't know how to handle an operand, return <code>NotImplemented</code>. This lets Python try the other operand's reflected method. Raising <code>TypeError</code> immediately prevents this fallback.
+  </div>
+
+  <hr>
+
+  <h2>4. Arithmetic — Reflected Operators</h2>
+
+  <p>Reflected (right-hand) operators are called when the <strong>left</strong> operand doesn't support the operation. Python calls <code>x.__add__(y)</code> first; if it returns <code>NotImplemented</code>, Python tries <code>y.__radd__(x)</code>.</p>
+
+  <h3>When Reflected Methods Are Called</h3>
+
+  <pre><code>class MyInt:
+    def __init__(self, value):
+        self.value = value
+
+    def __add__(self, other):
+        print(f"MyInt.__add__ called with {other!r}")
+        if isinstance(other, MyInt):
+            return MyInt(self.value + other.value)
+        return NotImplemented
+
+    def __radd__(self, other):
+        print(f"MyInt.__radd__ called with {other!r}")
+        if isinstance(other, (int, float)):
+            return MyInt(other + self.value)
+        return NotImplemented
+
+    def __repr__(self):
+        return f"MyInt({self.value})"
+
+a = MyInt(10)
+b = MyInt(20)
+
+# Case 1: MyInt + MyInt — __add__ handles it
+result = a + b           # MyInt.__add__ called with MyInt(20)
+print(result)            # MyInt(30)
+
+# Case 2: int + MyInt — int.__add__ returns NotImplemented, then __radd__
+result = 5 + a           # MyInt.__radd__ called with 5
+print(result)            # MyInt(15)
+
+# Case 3: MyInt + str — neither knows how
+# result = a + "hello"   # TypeError</code></pre>
+
+  <h3>Use Case: Summation with <code>sum()</code></h3>
+
+  <p>The <code>sum()</code> function starts with <code>0</code> and calls <code>+</code> repeatedly. To make <code>sum()</code> work with your objects, implement <code>__radd__</code>:</p>
+
+  <pre><code>class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):
+        if isinstance(other, Vector):
+            return Vector(self.x + other.x, self.y + other.y)
+        return NotImplemented
+
+    def __radd__(self, other):
+        # sum() starts with 0, so first call is 0 + vector
+        if isinstance(other, (int, float)):
+            return Vector(self.x + other, self.y + other)
+        return self.__add__(other)
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+vectors = [Vector(1, 2), Vector(3, 4), Vector(5, 6)]
+total = sum(vectors)     # Calls __radd__ starting with 0
+print(total)             # Vector(9, 12)</code></pre>
+
+  <hr>
+
+  <h2>5. Arithmetic — In-place &amp; Unary Operators</h2>
+
+  <h3>In-place Operators</h3>
+
+  <p>In-place operators (<code>+=</code>, <code>-=</code>, etc.) modify the object if possible. They should return <code>self</code> for in-place modification, or return a new object if in-place isn't feasible:</p>
+
+  <pre><code>class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __iadd__(self, other):
+        if isinstance(other, Vector):
+            self.x += other.x
+            self.y += other.y
+            return self  # Must return self for in-place
+        return NotImplemented
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v = Vector(1, 2)
+v += Vector(3, 4)    # Calls v.__iadd__(Vector(3, 4))
+print(v)              # Vector(4, 6)</code></pre>
+
+  <table>
+    <tr><th>In-place</th><th>Method</th><th>Reflected In-place</th></tr>
+    <tr><td><code>+=</code></td><td><code>__iadd__</code></td><td><code>__radd__</code></td></tr>
+    <tr><td><code>-=</code></td><td><code>__isub__</code></td><td><code>__rsub__</code></td></tr>
+    <tr><td><code>*=</code></td><td><code>__imul__</code></td><td><code>__rmul__</code></td></tr>
+    <tr><td><code>/=</code></td><td><code>__itruediv__</code></td><td><code>__rtruediv__</code></td></tr>
+    <tr><td><code>//=</code></td><td><code>__ifloordiv__</code></td><td><code>__rfloordiv__</code></td></tr>
+    <tr><td><code>%=</code></td><td><code>__imod__</code></td><td><code>__rmod__</code></td></tr>
+    <tr><td><code>**=</code></td><td><code>__ipow__</code></td><td><code>__rpow__</code></td></tr>
+    <tr><td><code>@=</code></td><td><code>__imatmul__</code></td><td><code>__rmatmul__</code></td></tr>
+    <tr><td><code>&lt;&lt;=</code></td><td><code>__ilshift__</code></td><td><code>__rlshift__</code></td></tr>
+    <tr><td><code>&gt;&gt;=</code></td><td><code>__irshift__</code></td><td><code>__rrshift__</code></td></tr>
+    <tr><td><code>&amp;=</code></td><td><code>__iand__</code></td><td><code>__rand__</code></td></tr>
+    <tr><td><code>^=</code></td><td><code>__ixor__</code></td><td><code>__rxor__</code></td></tr>
+    <tr><td><code>|=</code></td><td><code>__ior__</code></td><td><code>__ror__</code></td></tr>
+  </table>
+
+  <div class="note">
+    <strong>💡 Fallback behavior:</strong> If <code>__iadd__</code> is not defined, Python falls back to <code>x = x + y</code> (using <code>__add__</code>). This means in-place operators don't strictly require in-place implementation.
+  </div>
+
+  <h3>Unary Operators</h3>
+
+  <table>
+    <tr><th>Operation</th><th>Method</th><th>Called by</th></tr>
+    <tr><td><code>-x</code></td><td><code>__neg__</code></td><td>Negation</td></tr>
+    <tr><td><code>+x</code></td><td><code>__pos__</code></td><td>Positive (often a no-op)</td></tr>
+    <tr><td><code>abs(x)</code></td><td><code>__abs__</code></td><td>Absolute value</td></tr>
+    <tr><td><code>~x</code></td><td><code>__invert__</code></td><td>Bitwise inversion</td></tr>
+  </table>
+
+  <pre><code>class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __neg__(self):
+        return Vector(-self.x, -self.y)
+
+    def __abs__(self):
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v = Vector(3, 4)
+print(-v)           # Vector(-3, -4)
+print(abs(v))       # 5.0</code></pre>
+
+  <h3>Built-in Math Functions</h3>
+
+  <table>
+    <tr><th>Function</th><th>Method</th><th>Example</th></tr>
+    <tr><td><code>round(x)</code></td><td><code>__round__([ndigits])</code></td><td><code>round(obj)</code> or <code>round(obj, 2)</code></td></tr>
+    <tr><td><code>math.floor(x)</code></td><td><code>__floor__</code></td><td>Floor to nearest int</td></tr>
+    <tr><td><code>math.ceil(x)</code></td><td><code>__ceil__</code></td><td>Ceil to nearest int</td></tr>
+    <tr><td><code>math.trunc(x)</code></td><td><code>__trunc__</code></td><td>Truncate toward zero</td></tr>
+    <tr><td><code>int(x)</code></td><td><code>__int__</code></td><td>Convert to int</td></tr>
+    <tr><td><code>float(x)</code></td><td><code>__float__</code></td><td>Convert to float</td></tr>
+    <tr><td><code>complex(x)</code></td><td><code>__complex__</code></td><td>Convert to complex</td></tr>
+    <tr><td><code>bool(x)</code></td><td><code>__bool__</code></td><td>Convert to bool</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>6. Comparison &amp; Hashing</h2>
+
+  <h3>Rich Comparison Methods</h3>
+
+  <table>
+    <tr><th>Operator</th><th>Method</th></tr>
+    <tr><td><code>x == y</code></td><td><code>__eq__</code></td></tr>
+    <tr><td><code>x != y</code></td><td><code>__ne__</code></td></tr>
+    <tr><td><code>x &lt; y</code></td><td><code>__lt__</code></td></tr>
+    <tr><td><code>x &lt;= y</code></td><td><code>__le__</code></td></tr>
+    <tr><td><code>x &gt; y</code></td><td><code>__gt__</code></td></tr>
+    <tr><td><code>x &gt;= y</code></td><td><code>__ge__</code></td></tr>
+  </table>
+
+  <p>If <code>__ne__</code> is not defined, Python automatically returns the negation of <code>__eq__</code>.</p>
+
+  <h3><code>@functools.total_ordering</code></h3>
+
+  <p>A class decorator that generates the missing comparison methods from just <code>__eq__</code> and one of (<code>__lt__</code>, <code>__le__</code>, <code>__gt__</code>, <code>__ge__</code>):</p>
+
+  <pre><code>from functools import total_ordering
+
+@total_ordering
+class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade
+
+    def __eq__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+        return self.grade == other.grade
+
+    def __lt__(self, other):
+        if not isinstance(other, Student):
+            return NotImplemented
+        return self.grade &lt; other.grade
+
+    def __repr__(self):
+        return f"Student({self.name!r}, grade={self.grade})"
+
+alice = Student("Alice", 95)
+bob = Student("Bob", 87)
+
+print(alice &gt; bob)            # True — generated by @total_ordering
+print(alice &gt;= bob)           # True — generated
+print(sorted([bob, alice]))   # [Student('Bob', grade=87), Student('Alice', grade=95)]</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Always define <code>__eq__</code>:</strong> If you define <code>__eq__</code> without <code>__hash__</code>, Python sets <code>__hash__</code> to <code>None</code>, making your objects unhashable (can't be dict keys or set members). See below.
+  </div>
+
+  <h3><code>__hash__</code> — Making Objects Hashable</h3>
+
+  <p>The hash value must be consistent: if <code>x == y</code>, then <code>hash(x) == hash(y)</code>. Hash is used for dict keys, set membership, and caching:</p>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return NotImplemented
+        return self.x == other.x and self.y == other.y
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __repr__(self):
+        return f"Point({self.x}, {self.y})"
+
+p1 = Point(1, 2)
+p2 = Point(1, 2)
+p3 = Point(3, 4)
+
+print(p1 == p2)          # True
+print(hash(p1) == hash(p2))  # True (must be equal!)
+
+# Can use as dict keys
+d = {p1: "first", p3: "second"}
+print(d[Point(1, 2)])    # "first" — works because hash matches
+
+# Can use in sets
+s = {p1, p2, p3}
+print(len(s))            # 2 — p1 and p2 are equal, so only one in set</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Mutable objects should not be hashed:</strong> If your object's hash could change after creation (because a field it depends on is mutable), don't implement <code>__hash__</code>. Hashable objects must have an unchanging identity-based hash.
+  </div>
+
+  <hr>
+
+  <h2>7. Container Protocols</h2>
+
+  <p>Container protocols let your objects behave like sequences, mappings, or other containers — supporting <code>len()</code>, indexing, slicing, membership testing, and iteration.</p>
+
+  <h3><code>__len__</code> and <code>__getitem__</code></h3>
+
+  <pre><code>class Playlist:
+    def __init__(self, songs):
+        self._songs = list(songs)
+
+    def __len__(self):
+        return len(self._songs)
+
+    def __getitem__(self, index):
+        return self._songs[index]
+
+    def __repr__(self):
+        return f"Playlist({self._songs!r})"
+
+playlist = Playlist(["Song A", "Song B", "Song C"])
+print(len(playlist))        # 3
+print(playlist[0])          # "Song A"
+print(playlist[-1])         # "Song C"
+print(playlist[0:2])        # ["Song A", "Song B"] — slicing works!
+
+# Membership testing (works via __getitem__ fallback if __contains__ not defined)
+print("Song A" in playlist) # True</code></pre>
+
+  <div class="note">
+    <strong>💡 Inheritance bonus:</strong> If you implement <code>__getitem__</code> with integer indexing starting from 0, your class is automatically iterable even without <code>__iter__</code>. Python will call <code>__getitem__(0)</code>, <code>__getitem__(1)</code>, etc. until <code>IndexError</code>. This is the legacy iteration protocol.
+  </div>
+
+  <h3><code>__setitem__</code> and <code>__delitem__</code></h3>
+
+  <pre><code>class SparseArray:
+    def __init__(self):
+        self._data = {}
+
+    def __setitem__(self, index, value):
+        if value != 0:  # Only store non-zero values
+            self._data[index] = value
+        elif index in self._data:
+            del self._data[index]
+
+    def __getitem__(self, index):
+        return self._data.get(index, 0)
+
+    def __delitem__(self, index):
+        del self._data[index]
+
+    def __len__(self):
+        return len(self._data)
+
+arr = SparseArray()
+arr[0] = 10
+arr[5] = 20
+print(arr[0])      # 10
+print(arr[3])      # 0 (default)
+print(arr[5])      # 20
+del arr[5]
+print(arr[5])      # 0 (deleted)</code></pre>
+
+  <h3><code>__contains__</code> — Membership Testing</h3>
+
+  <pre><code>class WordBank:
+    def __init__(self, words):
+        self._words = set(words)
+
+    def __contains__(self, word):
+        return word.lower() in self._words
+
+    def __iter__(self):
+        return iter(self._words)
+
+bank = WordBank({"Hello", "World", "Python"})
+print("hello" in bank)    # True — case-insensitive via __contains__
+print("JAVA" in bank)     # False</code></pre>
+
+  <h3><code>__iter__</code> and <code>__next__</code> — Iteration Protocol</h3>
+
+  <pre><code>class CountDown:
+    def __init__(self, start):
+        self.current = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current &lt;= 0:
+            raise StopIteration
+        self.current -= 1
+        return self.current + 1
+
+for num in CountDown(5):
+    print(num, end=" ")    # 5 4 3 2 1</code></pre>
+
+  <h3><code>__reversed__</code></h3>
+
+  <pre><code>class Fibonacci:
+    def __init__(self, max_val):
+        self.max_val = max_val
+
+    def __iter__(self):
+        a, b = 0, 1
+        while a &lt; self.max_val:
+            yield a
+            a, b = b, a + b
+
+    def __reversed__(self):
+        return reversed(list(self))
+
+fib = Fibonacci(20)
+print(list(fib))              # [0, 1, 1, 2, 3, 5, 8, 13]
+print(list(reversed(fib)))    # [13, 8, 5, 3, 2, 1, 1, 0]</code></pre>
+
+  <h3><code>__missing__</code> — Custom Missing Keys for Dicts</h3>
+
+  <pre><code>class AutoDict(dict):
+    """Dict that auto-creates entries with a default value on access."""
+    def __missing__(self, key):
+        self[key] = key  # Store the key as its own value
+        return key
+
+d = AutoDict()
+print(d["hello"])     # "hello" — calls __missing__, stores it
+print(d["hello"])     # "hello" — now exists normally
+print(d)              # {'hello': 'hello'}</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>__missing__</code> vs <code>__getitem__</code>:</strong> <code>__missing__</code> is only called by <code>__getitem__</code> when the key is not found. If you define <code>__getitem__</code> yourself, you handle missing keys in it directly (like the <code>SparseArray</code> example above).
+  </div>
+
+  <hr>
+
+  <h2>8. Boolean &amp; Callable Protocols</h2>
+
+  <h3><code>__bool__</code> — Truthiness</h3>
+
+  <p>Python evaluates truthiness in this order:</p>
+  <ol>
+    <li>Call <code>__bool__()</code> if defined</li>
+    <li>Else call <code>__len__()</code>; truthy if nonzero</li>
+    <li>Else all instances are truthy</li>
+  </ol>
+
+  <pre><code>class PositiveInt:
+    def __init__(self, value):
+        self.value = value
+
+    def __bool__(self):
+        return self.value &gt; 0
+
+print(bool(PositiveInt(5)))    # True
+print(bool(PositiveInt(-3)))   # False
+print(bool(PositiveInt(0)))    # False
+
+if PositiveInt(10):
+    print("Positive!")
+
+# __len__ fallback (no __bool__ defined)
+class NonEmptyList:
+    def __init__(self, items):
+        self.items = items
+
+    def __len__(self):
+        return len(self.items)
+
+print(bool(NonEmptyList([1])))   # True (len=1, nonzero)
+print(bool(NonEmptyList([])))    # False (len=0)</code></pre>
+
+  <h3><code>__call__</code> — Callable Objects</h3>
+
+  <p>Makes instances callable like functions. Useful for stateful functions, strategy patterns, and decorators:</p>
+
+  <pre><code>class Multiplier:
+    def __init__(self, factor):
+        self.factor = factor
+        self.call_count = 0
+
+    def __call__(self, x):
+        self.call_count += 1
+        return x * self.factor
+
+double = Multiplier(2)
+triple = Multiplier(3)
+
+print(double(5))           # 10
+print(triple(5))           # 15
+print(double(10))          # 20
+print(double.call_count)   # 2 — tracks usage
+
+# Callable check
+from collections.abc import Callable
+print(isinstance(double, Callable))  # True
+
+# Use with map/filter
+numbers = [1, 2, 3, 4]
+doubled = list(map(double, numbers))
+print(doubled)             # [2, 4, 6, 8]</code></pre>
+
+  <pre><code>class Retry:
+    """Callable decorator that retries on failure."""
+    def __init__(self, func, max_attempts=3):
+        self.func = func
+        self.max_attempts = max_attempts
+
+    def __call__(self, *args, **kwargs):
+        for attempt in range(1, self.max_attempts + 1):
+            try:
+                return self.func(*args, **kwargs)
+            except Exception as e:
+                if attempt == self.max_attempts:
+                    raise
+                print(f"Attempt {attempt} failed: {e}. Retrying...")
+
+@Retry
+def unreliable():
+    import random
+    if random.random() &lt; 0.7:
+        raise ValueError("Random failure")
+    return "Success!"
+
+print(unreliable())  # May print retry messages, then "Success!"</code></pre>
+
+  <hr>
+
+  <h2>9. Context Manager Protocol</h2>
+
+  <p>Context managers set up and tear down resources using the <code>with</code> statement. They implement <code>__enter__</code> (setup) and <code>__exit__</code> (cleanup):</p>
+
+  <pre><code>class Timer:
+    """Context manager that measures execution time."""
+    def __enter__(self):
+        import time
+        self.start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        import time
+        self.elapsed = time.perf_counter() - self.start
+        print(f"Elapsed: {self.elapsed:.4f}s")
+        return False  # Don't suppress exceptions
+
+with Timer() as t:
+    sum(range(1_000_000))
+print(f"Recorded: {t.elapsed:.4f}s")</code></pre>
+
+  <h3><code>__exit__</code> Parameters and Exception Handling</h3>
+
+  <p>The three parameters are <code>exc_type</code> (exception class), <code>exc_val</code> (exception instance), <code>exc_tb</code> (traceback). If no exception occurred, all three are <code>None</code>:</p>
+
+  <pre><code>class DatabaseConnection:
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.conn = None
+
+    def __enter__(self):
+        print(f"Connecting to {self.db_name}...")
+        self.conn = f"Connection({self.db_name})"  # Simulated
+        return self.conn
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            print(f"Error occurred: {exc_val}")
+            # Don't suppress — return False or None
+        print(f"Disconnecting from {self.db_name}...")
+        self.conn = None
+        return False  # Let exceptions propagate
+
+with DatabaseConnection("mydb") as conn:
+    print(f"Using {conn}")
+    # Simulate an error:
+    # raise ValueError("query failed")
+
+# Output:
+# Connecting to mydb...
+# Using Connection(mydb)
+# Disconnecting from mydb...</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ <code>__exit__</code> return value matters:</strong> Return <code>True</code> to suppress the exception (swallow it). Return <code>False</code> or <code>None</code> to let it propagate. Most context managers return <code>False</code>.
+  </div>
+
+  <h3>Practical Example: Temporary File</h3>
+
+  <pre><code>import os
+import tempfile
+
+class TempFile:
+    def __init__(self, content=""):
+        self.content = content
+        self.path = None
+
+    def __enter__(self):
+        fd, self.path = tempfile.mkstemp()
+        with os.fdopen(fd, 'w') as f:
+            f.write(self.content)
+        return self.path
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.path and os.path.exists(self.path):
+            os.remove(self.path)
+        return False
+
+with TempFile("Hello, World!") as path:
+    with open(path) as f:
+        print(f.read())    # "Hello, World!"
+# File is automatically deleted here</code></pre>
+
+  <hr>
+
+  <h2>10. Attribute Access</h2>
+
+  <p>Python provides hooks for customizing attribute access on objects.</p>
+
+  <h3>Lookup Order for <code>obj.name</code></h3>
+
+  <ol>
+    <li>Data descriptors (classes with <code>__get__</code> + <code>__set__</code> or <code>__delete__</code>)</li>
+    <li>Instance <code>__dict__</code></li>
+    <li>Non-data descriptors (classes with only <code>__get__</code>)</li>
+    <li>Class variables (via MRO)</li>
+    <li><code>__getattr__()</code> as final fallback</li>
+  </ol>
+
+  <h3><code>__getattr__</code> vs <code>__getattribute__</code></h3>
+
+  <pre><code>class DynamicObject:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def __getattr__(self, name):
+        """Called ONLY when normal lookup fails with AttributeError."""
+        return f"Attribute '{name}' not found"
+
+    def __getattribute__(self, name):
+        """Called for EVERY attribute access (use with care!)."""
+        return object.__getattribute__(self, name)  # Avoid recursion
+
+obj = DynamicObject(x=10, y=20)
+print(obj.x)           # 10 — found in __dict__
+print(obj.z)           # "Attribute 'z' not found" — __getattr__ fallback</code></pre>
+
+  <h3><code>__setattr__</code> and <code>__delattr__</code></h3>
+
+  <pre><code>class Validated:
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)  # Uses __setattr__
+
+    def __setattr__(self, name, value):
+        if name.startswith('_'):
+            object.__setattr__(self, name, value)
+        elif not isinstance(value, (int, float)):
+            raise TypeError(f"{name} must be numeric, got {type(value).__name__}")
+        object.__setattr__(self, name, value)
+
+    def __delattr__(self, name):
+        if name.startswith('_'):
+            raise AttributeError("Cannot delete private attributes")
+        object.__delattr__(self, name)
+
+v = Validated(x=10, y=20)
+print(v.x)             # 10
+v.x = 30               # OK
+# v.x = "hello"        # TypeError: x must be numeric, got str</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>object.__setattr__</code>:</strong> Inside <code>__setattr__</code>, use <code>object.__setattr__(self, name, value)</code> to actually set the attribute. Using <code>self.name = value</code> would call <code>__setattr__</code> recursively, causing infinite recursion.
+  </div>
+
+  <hr>
+
+  <h2>11. <code>__slots__</code> for Memory Optimization</h2>
+
+  <p><code>__slots__</code> eliminates the per-instance <code>__dict__</code>, saving memory and improving attribute access speed:</p>
+
+  <pre><code>class Point:
+    __slots__ = ('x', 'y')
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+print(p.x, p.y)       # 1 2
+
+# p.z = 3             # AttributeError: 'Point' object has no attribute 'z'
+# print(p.__dict__)   # AttributeError: 'Point' object has no attribute '__dict__'</code></pre>
+
+  <h3>Memory Savings</h3>
+
+  <table>
+    <tr><th>Class</th><th>Per-instance memory (64-bit CPython)</th></tr>
+    <tr><td>Without <code>__slots__</code></td><td>~152 bytes (includes <code>__dict__</code>)</td></tr>
+    <tr><td>With <code>__slots__</code></td><td>~48 bytes</td></tr>
+  </table>
+
+  <h3>Limitations and Rules</h3>
+
+  <pre><code># Rule 1: Inheriting from non-slotted class adds __dict__ back
+class Base:
+    pass
+
+class Child(Base):
+    __slots__ = ('x',)  # __dict__ still exists from Base!
+
+c = Child()
+c.x = 1
+c.y = 2  # Works! __dict__ inherited from Base
+
+# Rule 2: Allow both slots AND dynamic attributes
+class Flexible:
+    __slots__ = ('x', 'y', '__dict__')
+
+f = Flexible()
+f.x = 1
+f.z = 3  # Works — __dict__ allows dynamic attributes
+
+# Rule 3: Default values must be set in __init__
+class NoDefaults:
+    __slots__ = ('x', 'y')
+    # x = 5  # WRONG — overwrites the slot descriptor!
+
+    def __init__(self):
+        self.x = 5  # Correct way
+        self.y = 10</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Inheritance with <code>__slots__</code>:</strong> Multiple inheritance works only if at most one parent has non-empty <code>__slots__</code>. Others must have empty slots or no slots. Variable-length builtins (<code>int</code>, <code>str</code>, <code>tuple</code>) cannot be mixed with non-empty slots.
+  </div>
+
+  <h3><code>__slots__</code> Cheat Sheet</h3>
+
+  <table>
+    <tr><th>Feature</th><th>Without <code>__slots__</code></th><th>With <code>__slots__</code></th></tr>
+    <tr><td>Memory</td><td>Higher (~152 bytes)</td><td>Lower (~48 bytes)</td></tr>
+    <tr><td>Attribute speed</td><td>Normal</td><td>~35% faster</td></tr>
+    <tr><td>Dynamic attributes</td><td>Allowed</td><td>Blocked (unless <code>__dict__</code> in slots)</td></tr>
+    <tr><td><code>__dict__</code></td><td>Present</td><td>Absent</td></tr>
+    <tr><td>Pickling</td><td>Works</td><td>Requires <code>__getstate__</code>/<code>__setstate__</code></td></tr>
+    <tr><td><code>weakref</code></td><td>Supported</td><td>Only if <code>'__weakref__'</code> in slots</td></tr>
+    <tr><td>Inheritance</td><td>Always works</td><td>Complex rules</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>12. The <code>dataclasses</code> Module</h2>
+
+  <p>The <code>dataclasses</code> module auto-generates magic methods for data container classes, reducing boilerplate:</p>
+
+  <pre><code>from dataclasses import dataclass, field, asdict, astuple, replace, fields
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+p = Point(1.0, 2.0)
+print(p)               # Point(x=1.0, y=2.0) — auto __repr__
+print(p == Point(1.0, 2.0))  # True — auto __eq__
+print(p.x)             # 1.0 — auto __init__</code></pre>
+
+  <h3><code>@dataclass</code> Parameters</h3>
+
+  <table>
+    <tr><th>Parameter</th><th>Default</th><th>Effect</th></tr>
+    <tr><td><code>init</code></td><td><code>True</code></td><td>Generate <code>__init__()</code></td></tr>
+    <tr><td><code>repr</code></td><td><code>True</code></td><td>Generate <code>__repr__()</code></td></tr>
+    <tr><td><code>eq</code></td><td><code>True</code></td><td>Generate <code>__eq__()</code></td></tr>
+    <tr><td><code>order</code></td><td><code>False</code></td><td>Generate <code>__lt__</code>, <code>__le__</code>, <code>__gt__</code>, <code>__ge__</code></td></tr>
+    <tr><td><code>unsafe_hash</code></td><td><code>False</code></td><td>Force <code>__hash__</code> generation</td></tr>
+    <tr><td><code>frozen</code></td><td><code>False</code></td><td>Instances are immutable (<code>__setattr__</code>/<code>__delattr__</code> raise)</td></tr>
+    <tr><td><code>slots</code></td><td><code>False</code></td><td>Generate <code>__slots__</code> (3.10+)</td></tr>
+    <tr><td><code>kw_only</code></td><td><code>False</code></td><td>All fields keyword-only (3.10+)</td></tr>
+    <tr><td><code>match_args</code></td><td><code>True</code></td><td>Generate <code>__match_args__</code> (3.10+)</td></tr>
+  </table>
+
+  <h3><code>field()</code> — Fine-Grained Control</h3>
+
+  <pre><code>@dataclass
+class Config:
+    name: str
+    tags: list = field(default_factory=list)     # Mutable default
+    priority: int = field(default=0, compare=False)  # Excluded from __eq__
+    _id: int = field(init=False, repr=False)     # Not in __init__ or __repr__
+
+    def __post_init__(self):
+        self._id = hash(self.name)               # Computed after __init__
+
+config = Config("server", tags=["prod", "urgent"])
+print(config)         # Config(name='server', tags=['prod', 'urgent'])
+print(config == Config("server", tags=["other"]))  # True — priority excluded
+
+# Hash generation rules:
+# eq=True + frozen=True  → __hash__ generated
+# eq=True + frozen=False → __hash__ = None (unhashable)
+# eq=False               → __hash__ inherited</code></pre>
+
+  <h3>Module-Level Helper Functions</h3>
+
+  <pre><code>from dataclasses import dataclass, asdict, astuple, fields, replace
+
+@dataclass(frozen=True, order=True)
+class Point:
+    x: float
+    y: float
+
+p = Point(1.0, 2.0)
+
+# Convert to dict/tuple
+print(asdict(p))          # {'x': 1.0, 'y': 2.0}
+print(astuple(p))         # (1.0, 2.0)
+
+# Create modified copy
+q = replace(p, x=3.0)
+print(q)                  # Point(x=3.0, y=2.0)
+print(p)                  # Point(x=1.0, y=2.0) — original unchanged
+
+# Introspect fields
+for f in fields(p):
+    print(f.name, f.type)  # x float, y float</code></pre>
+
+  <h3>Advanced Features</h3>
+
+  <pre><code>from dataclasses import dataclass, field, InitVar
+
+@dataclass
+class Node:
+    name: str
+    value: str = ''
+    children: list = field(default_factory=list)
+    database: InitVar[object] = None  # Passed to __init__ and __post_init__ only
+
+    def __post_init__(self, database):
+        if database is not None:
+            # Could load from database here
+            pass
+
+# Frozen dataclass (immutable)
+@dataclass(frozen=True)
+class Vector:
+    x: float
+    y: float
+
+v = Vector(1, 2)
+# v.x = 3  # FrozenInstanceError: cannot assign to field 'x'
+
+# Dataclass with __slots__ (3.10+)
+@dataclass(slots=True)
+class Slotted:
+    x: int
+    y: int
+
+s = Slotted(1, 2)
+# s.z = 3  # AttributeError</code></pre>
+
+  <h3>Dataclass vs Manual Class</h3>
+
+  <table>
+    <tr><th>Feature</th><th>Manual Class</th><th>Dataclass</th></tr>
+    <tr><td><code>__init__</code></td><td>Write by hand</td><td>Auto-generated</td></tr>
+    <tr><td><code>__repr__</code></td><td>Write by hand</td><td>Auto-generated</td></tr>
+    <tr><td><code>__eq__</code></td><td>Write by hand</td><td>Auto-generated</td></tr>
+    <tr><td><code>__hash__</code></td><td>Write by hand</td><td>Conditional (see rules)</td></tr>
+    <tr><td><code>__lt__</code> etc.</td><td>Write by hand</td><td>Optional via <code>order=True</code></td></tr>
+    <tr><td>Custom logic</td><td>Full control</td><td>Use <code>__post_init__</code></td></tr>
+    <tr><td>Performance</td><td>Same</td><td>Same (unless <code>slots=True</code>)</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: <code>__repr__</code> and <code>__str__</code></h3>
+    <p>Create a <code>Book</code> class with <code>title</code>, <code>author</code>, <code>pages</code>. Implement <code>__repr__</code> returning <code>Book(title='...', author='...', pages=N)</code> and <code>__str__</code> returning <code>"'...' by ... (N pages)"</code>. Test with <code>repr()</code>, <code>str()</code>, <code>print()</code>, and f-strings with <code>!r</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: <code>__format__</code> with Custom Specs</h3>
+    <p>Create a <code>Money</code> class with <code>amount</code> and <code>currency</code>. Implement <code>__format__</code> supporting: <code>""</code> (default: <code>"$10.50"</code>), <code>"e"</code> (euro: <code>"€10.50"</code>), <code>"g"</code> (GBP: <code>"£10.50"</code>), <code>"d"</code> (decimal with no decimals). Test with f-strings: <code>f"{Money(10.5, 'USD'):e}"</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Basic <code>__add__</code> (Vector Class)</h3>
+    <p>Create a <code>Vector2D</code> class with <code>x</code> and <code>y</code>. Implement <code>__add__</code> to return a new Vector2D with summed components. Implement <code>__repr__</code>. Test: <code>Vector2D(1, 2) + Vector2D(3, 4)</code> should return <code>Vector2D(4, 6)</code>. Verify the original vectors are unchanged (immutable-like behavior).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Reflected Operators (<code>__radd__</code>)</h3>
+    <p>Extend your Vector2D class with <code>__radd__</code> to support <code>0 + vector</code>. Then implement <code>__rmul__</code> for scalar multiplication so that both <code>vector * 3</code> and <code>3 * vector</code> work. Test with <code>sum()</code> on a list of vectors (starting with 0).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: In-place Operators</h3>
+    <p>Create a <code>BankAccount</code> class with <code>balance</code>. Implement <code>__iadd__</code> for deposits (<code>account += amount</code>) and <code>__isub__</code> for withdrawals (<code>account -= amount</code>). Return <code>self</code> for chaining. Validate that balance cannot go negative. Test: <code>account += 100; account -= 30</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Unary Operators</h3>
+    <p>Create a <code>Temperature</code> class storing Celsius. Implement <code>__neg__</code> (negate), <code>__abs__</code> (absolute value), and <code>__round__</code> (round to N digits). Also implement <code>__add__</code> and <code>__radd__</code> so you can add temperatures or numbers to a temperature. Test: <code>round(Temperature(36.6), 0)</code>, <code>-Temperature(10)</code>, <code>abs(Temperature(-20))</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Comparison with <code>@total_ordering</code></h3>
+    <p>Create a <code>Student</code> class with <code>name</code> and <code>gpa</code>. Use <code>@functools.total_ordering</code> with just <code>__eq__</code> and <code>__lt__</code>. Implement <code>__hash__</code> using <code>hash((name, gpa))</code>. Create 5 students, sort them, put them in a set, and use as dict keys. Test all comparison operators.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: <code>__hash__</code> and Dict Key Usage</h3>
+    <p>Create a <code>Color</code> class with <code>r</code>, <code>g</code>, <code>b</code>. Implement <code>__eq__</code> and <code>__hash__</code>. Create a dict mapping colors to their names. Test: <code>Color(255, 0, 0)</code> should equal <code>Color(255, 0, 0)</code> and have the same hash. Also implement <code>__repr__</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: <code>__len__</code> and <code>__getitem__</code> (Custom Sequence)</h3>
+    <p>Create a <code>FibonacciSequence</code> class that implements <code>__len__</code> (returns max count) and <code>__getitem__</code> (returns the nth Fibonacci number). Support indexing and slicing. Implement <code>__contains__</code> to check if a number is in the sequence. Test: <code>fib[5]</code>, <code>fib[2:8]</code>, <code>len(fib)</code>, <code>13 in fib</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: <code>__contains__</code>, <code>__iter__</code>, <code>__next__</code> (Iterator)</h3>
+    <p>Create a <code>PrimeIterator</code> class that generates prime numbers one at a time. Implement <code>__iter__</code> (returns self) and <code>__next__</code> (returns next prime). Also implement <code>__contains__</code> for efficient prime checking. Test: iterate with a for loop (use <code>islice</code>), check <code>17 in PrimeIterator()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: <code>__call__</code> (Callable Objects)</h3>
+    <p>Create an <code>累加器 (Accumulator)</code> class. When called, it adds the argument to a running total and returns the new total. Track <code>call_count</code>. Also implement <code>__repr__</code>. Create two accumulators and test: <code>acc(5)</code> → 5, <code>acc(3)</code> → 8, <code>acc.call_count</code> → 2.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Context Manager (<code>__enter__</code> / <code>__exit__</code>)</h3>
+    <p>Create a <code>IndentLog</code> context manager that increases indentation each time it's entered. When exiting, print a "done" message. Support nested usage: 3 nested <code>with IndentLog():</code> blocks should show 3 levels of indentation. Also handle exceptions by printing an error message if one occurred.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 13: <code>__slots__</code> vs <code>__dict__</code></h3>
+    <p>Create two versions of a <code>Point</code> class: one with <code>__slots__</code> and one without. Create 10,000 instances of each. Compare memory usage using <code>sys.getsizeof()</code> on an instance and <code>sys.getsizeof(instance.__dict__)</code> (for the non-slotted version). Demonstrate that the slotted version raises <code>AttributeError</code> for undeclared attributes.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 14: Dataclass with <code>field()</code>, <code>asdict</code>, <code>replace</code></h3>
+    <p>Create a <code>Product</code> dataclass with <code>name</code>, <code>price</code>, <code>tags</code> (list, default_factory), and <code>discount</code> (default 0, excluded from comparison). Use <code>__post_init__</code> to compute a <code>final_price</code> field. Use <code>asdict</code> to convert to dict, <code>replace</code> to create a discounted copy, and <code>fields</code> to list all fields. Make it frozen and orderable.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 15: Combined Challenge — Custom Collection Class</h3>
+    <p>Build a <code>PriorityQueue</code> class that implements: <code>__len__</code>, <code>__contains__</code>, <code>__repr__</code>, <code>__iter__</code> (yields items in priority order), <code>__getitem__</code> (index access to sorted items), <code>__call__</code> (add item with priority), and <code>__eq__</code> (two queues are equal if they have the same items). Also implement a context manager wrapper class <code>ManagedQueue</code> that tracks queue statistics (total items added, total removed) and prints them on exit.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What are magic methods? Why are they called "dunder" methods?</li>
+    <li>Should you call magic methods directly? Why or why not?</li>
+    <li>What is <code>NotImplemented</code>? How does it differ from <code>NotImplementedError</code>?</li>
+    <li>What is the difference between <code>__repr__</code> and <code>__str__</code>? Which should you always define?</li>
+    <li>How does <code>__format__</code> work with f-string format specs?</li>
+    <li>What are reflected operators (<code>__radd__</code>, etc.)? When does Python call them?</li>
+    <li>How do in-place operators (<code>__iadd__</code>) work? What must they return?</li>
+    <li>What is <code>@functools.total_ordering</code>? What methods does it generate?</li>
+    <li>What are the rules for <code>__hash__</code> when <code>__eq__</code> is defined?</li>
+    <li>How does Python find items in a container? What is the fallback chain for <code>in</code>?</li>
+    <li>What is the difference between <code>__getattr__</code> and <code>__getattribute__</code>?</li>
+    <li>How does <code>__call__</code> make an object callable? What is a practical use case?</li>
+    <li>What does <code>__exit__</code> return to suppress exceptions? To let them propagate?</li>
+    <li>What are the limitations of <code>__slots__</code>?</li>
+    <li>What does <code>@dataclass</code> generate by default?</li>
+    <li>When is a dataclass unhashable? When is it hashable?</li>
+    <li>What is <code>field()</code> used for? Give an example with <code>default_factory</code>.</li>
+    <li>What is <code>__post_init__</code>? When is it called?</li>
+    <li>What is <code>InitVar</code>? How does it differ from regular fields?</li>
+    <li>What is the descriptor protocol? Which built-in features use it?</li>
+    <li>What is the lookup order for <code>obj.name</code>?</li>
+    <li>How does <code>__missing__</code> work in dict subclasses?</li>
+    <li>When would you use a dataclass vs a manual class?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0019-oop-inheritance-and-polymorphism.html">← Previous: OOP — Inheritance &amp; Polymorphism</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0021-oop-decorators-and-properties.html">Next: OOP — Decorators &amp; Properties →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

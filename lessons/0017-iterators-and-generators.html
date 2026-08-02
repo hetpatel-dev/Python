@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 17: Iterators &amp; Generators</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 17: Iterators &amp; Generators — Lazy Sequences and the Iteration Protocol</h1>
+
+  <p><span class="tag">concept</span> Iterators, Generators, itertools</p>
+
+  <p>Iterators and generators are the engine behind Python's <code>for</code> loop and many of its built-in functions. Understanding how they work unlocks lazy evaluation, memory-efficient data pipelines, and infinite sequences. This lesson covers the official <a href="https://docs.python.org/3/tutorial/classes.html#iterators">Python tutorial on iterators</a>, <a href="https://docs.python.org/3/tutorial/classes.html#generators">generators</a>, and the <a href="https://docs.python.org/3/library/itertools.html">itertools module</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/classes.html#iterators">Tutorial — Iterators</a>, <a href="https://docs.python.org/3/tutorial/classes.html#generators">Tutorial — Generators</a>, <a href="https://docs.python.org/3/library/itertools.html">itertools — Functions creating iterators</a>, <a href="https://docs.python.org/3/library/functions.html#iter">Built-in — iter()</a>, <a href="https://docs.python.org/3/library/functions.html#next">Built-in — next()</a>, <a href="https://docs.python.org/3/reference/expressions.html#yieldexpr">Reference — yield expressions</a>.</p>
+
+  <hr>
+
+  <h2>1. Iterable vs Iterator</h2>
+
+  <p>Every time you write a <code>for</code> loop, Python uses an iterator under the hood. But not everything you loop over is itself an iterator.</p>
+
+  <h3>The Core Distinction</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Concept</th><th style="border: 1px solid #ddd; padding: 8px;"><code>__iter__()</code></th><th style="border: 1px solid #ddd; padding: 8px;"><code>__next__()</code></th><th style="border: 1px solid #ddd; padding: 8px;">Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Iterable</strong></td><td style="border: 1px solid #ddd; padding: 8px;">✅ Yes</td><td style="border: 1px solid #ddd; padding: 8px;">❌ No</td><td style="border: 1px solid #ddd; padding: 8px;"><code>[1, 2, 3]</code>, <code>"abc"</code>, <code>range(5)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Iterator</strong></td><td style="border: 1px solid #ddd; padding: 8px;">✅ Yes</td><td style="border: 1px solid #ddd; padding: 8px;">✅ Yes</td><td style="border: 1px solid #ddd; padding: 8px;"><code>iter([1,2,3])</code>, generator objects</td></tr>
+    </tbody>
+  </table>
+
+  <ul>
+    <li><strong>Iterable:</strong> An object that can produce an iterator. Has an <code>__iter__()</code> method that returns an iterator. Lists, strings, dicts, sets, tuples, files — all are iterables.</li>
+    <li><strong>Iterator:</strong> An object that represents a stream of data. Has both <code>__iter__()</code> (returns <code>self</code>) and <code>__next__()</code> (returns the next element or raises <code>StopIteration</code>).</li>
+  </ul>
+
+  <pre><code>fruits = ["apple", "banana", "cherry"]
+
+# Check if we can get an iterator:
+print(hasattr(fruits, "__iter__"))    # True — it's iterable
+print(hasattr(fruits, "__next__"))    # False — it's NOT an iterator
+
+# Get an iterator:
+it = iter(fruits)
+print(hasattr(it, "__iter__"))        # True
+print(hasattr(it, "__next__"))        # True — it IS an iterator</code></pre>
+
+  <div class="note">
+    <strong>💡 Rule of thumb:</strong> All iterators are iterables (they have <code>__iter__</code>), but not all iterables are iterators. A list is iterable but not an iterator. <code>iter(list)</code> returns an iterator.
+  </div>
+
+  <hr>
+
+  <h2>2. The Iterator Protocol</h2>
+
+  <p>The iterator protocol is the contract that makes <code>for</code> loops work. It consists of two methods:</p>
+
+  <ul>
+    <li><code>__iter__(self)</code> — returns the iterator object (usually <code>self</code>)</li>
+    <li><code>__next__(self)</code> — returns the next value. If there are no more items to return, raises <code>StopIteration</code></li>
+  </ul>
+
+  <h3>How <code>for</code> Loops Actually Work</h3>
+
+  <p>When you write <code>for x in iterable:</code>, Python does this internally:</p>
+
+  <pre><code># What Python does when you write: for x in sequence:
+iterator = iter(sequence)        # 1. Get an iterator
+while True:
+    try:
+        x = next(iterator)       # 2. Get the next value
+    except StopIteration:        # 3. No more values — stop
+        break
+    # ... body of loop runs here</code></pre>
+
+  <h3>Using <code>iter()</code> and <code>next()</code> Manually</h3>
+
+  <pre><code>s = "abc"
+it = iter(s)
+
+print(next(it))                    # 'a'
+print(next(it))                    # 'b'
+print(next(it))                    # 'c'
+print(next(it))                    # StopIteration raised!</code></pre>
+
+  <h3><code>next()</code> with a Default Value</h3>
+
+  <p><code>next(iterator, default)</code> returns <code>default</code> instead of raising <code>StopIteration</code> when the iterator is exhausted:</p>
+
+  <pre><code>it = iter([1, 2])
+print(next(it, "done"))            # 1
+print(next(it, "done"))            # 2
+print(next(it, "done"))            # "done" — no error
+print(next(it, "done"))            # "done"</code></pre>
+
+  <hr>
+
+  <h2>3. Built-in Iterators Everywhere</h2>
+
+  <p>Many Python constructs and built-in functions return iterators (not lists or containers). This is a key source of memory efficiency.</p>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Function / Construct</th><th style="border: 1px solid #ddd; padding: 8px;">Returns</th><th style="border: 1px solid #ddd; padding: 8px;">Lazy?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>range(10)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>range</code> object (iterable)</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>map(func, iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>map</code> iterator</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>filter(func, iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>filter</code> iterator</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>zip(*iterables)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>zip</code> iterator</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>enumerate(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>enumerate</code> iterator</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>reversed(seq)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>reversed</code> iterator</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>sorted(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>list</code> (eager)</td><td style="border: 1px solid #ddd; padding: 8px;">❌</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>list(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>list</code> (eager)</td><td style="border: 1px solid #ddd; padding: 8px;">❌</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>open("file.txt")</code></td><td style="border: 1px solid #ddd; padding: 8px;">file object (iterator)</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code># map returns an iterator — not a list anymore!
+result = map(str.upper, ["a", "b", "c"])
+print(result)                      # <map object at ...>
+
+# Convert to list to see all values:
+print(list(result))                # ['A', 'B', 'C']
+
+# zip, filter, enumerate — same behavior
+pairs = zip([1, 2], ["a", "b"])
+print(pairs)                       # <zip object at ...>
+print(list(pairs))                 # [(1, 'a'), (2, 'b')]</code></pre>
+
+  <div class="note">
+    <strong>💡 In Python 2</strong>, <code>map()</code>, <code>filter()</code>, and <code>zip()</code> returned lists. In Python 3, they all return lazy iterators. This is a significant memory improvement.
+  </div>
+
+  <hr>
+
+  <h2>4. Custom Iterators — Class-Based</h2>
+
+  <p>You can create your own iterator by implementing the iterator protocol in a class. This is the "manual" way — generators (next section) automate most of this.</p>
+
+  <h3>Basic Custom Iterator</h3>
+
+  <pre><code>class CountDown:
+    """Iterator that counts down from n to 1."""
+
+    def __init__(self, start):
+        self.current = start
+
+    def __iter__(self):
+        return self             # iterator returns itself
+
+    def __next__(self):
+        if self.current <= 0:
+            raise StopIteration # signal completion
+        value = self.current
+        self.current -= 1
+        return value
+
+# Usage:
+for n in CountDown(5):
+    print(n, end=" ")            # 5 4 3 2 1</code></pre>
+
+  <h3>The Official Example: Reverse Iterator</h3>
+
+  <p>This is the example from the Python tutorial:</p>
+
+  <pre><code>class Reverse:
+    """Iterator for looping over a sequence backwards."""
+
+    def __init__(self, data):
+        self.data = data
+        self.index = len(data)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.index == 0:
+            raise StopIteration
+        self.index = self.index - 1
+        return self.data[self.index]
+
+rev = Reverse("spam")
+for char in rev:
+    print(char, end=" ")           # m a p s</code></pre>
+
+  <h3>Infinite Iterator</h3>
+
+  <p>An iterator that never raises <code>StopIteration</code>:</p>
+
+  <pre><code>class CountForever:
+    """Infinite counter starting from a given value."""
+    def __init__(self, start=0):
+        self.n = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        value = self.n
+        self.n += 1
+        return value
+
+counter = CountForever()
+print(next(counter))               # 0
+print(next(counter))               # 1
+print(next(counter))               # 2
+# This would loop forever if we didn't stop</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Caution:</strong> Converting an infinite iterator to a list with <code>list()</code> or using it in a <code>for</code> loop without a <code>break</code> will run forever (or until memory is exhausted).
+  </div>
+
+  <hr>
+
+  <h2>5. Generator Functions — <code>yield</code></h2>
+
+  <p>Generators are the easiest way to create iterators. A generator is a function that contains <code>yield</code> instead of (or in addition to) <code>return</code>.</p>
+
+  <h3>Key Properties of Generators</h3>
+
+  <ul>
+    <li>When called, a generator function returns a generator <strong>object</strong> (not executing the body)</li>
+    <li>Each call to <code>next(gen)</code> executes the body up to the next <code>yield</code> and returns the yielded value</li>
+    <li>The generator <strong>remembers</strong> its local state between calls</li>
+    <li>When the generator finishes (falls off the end or hits <code>return</code>), it raises <code>StopIteration</code> automatically</li>
+  </ul>
+
+  <pre><code>def countdown(n):
+    """Generator that counts down from n to 1."""
+    while n > 0:
+        yield n
+        n -= 1
+
+# Calling the function creates a generator object:
+gen = countdown(3)
+print(gen)                         # <generator object countdown at ...>
+
+# Pull values with next():
+print(next(gen))                   # 3
+print(next(gen))                   # 2
+print(next(gen))                   # 1
+print(next(gen))                   # StopIteration raised
+
+# Or loop directly (for handles StopIteration):
+for x in countdown(5):
+    print(x, end=" ")              # 5 4 3 2 1</code></pre>
+
+  <h3>Generator vs Custom Class Comparison</h3>
+
+  <p>The <code>Reverse</code> iterator from above can be written as a generator in just 3 lines:</p>
+
+  <pre><code>def reverse(data):
+    """Generator version — much simpler!"""
+    for index in range(len(data) - 1, -1, -1):
+        yield data[index]
+
+for char in reverse("golf"):
+    print(char, end=" ")           # f l o g</code></pre>
+
+  <div class="note">
+    <strong>💡 Why generators are preferred:</strong>
+    <ul>
+      <li><code>__iter__()</code> and <code>__next__()</code> are created automatically</li>
+      <li>Local variables and execution state are saved automatically</li>
+      <li><code>StopIteration</code> is raised automatically when the function ends</li>
+      <li>Much less boilerplate code</li>
+    </ul>
+  </div>
+
+  <h3>Generators with <code>return</code></h3>
+
+  <p>A <code>return</code> in a generator terminates it (raises <code>StopIteration</code>). The return value is stored in the <code>StopIteration.value</code> attribute:</p>
+
+  <pre><code>def with_return():
+    yield 1
+    yield 2
+    return "done"
+    yield 3                         # never reached
+
+gen = with_return()
+print(next(gen))                    # 1
+print(next(gen))                    # 2
+try:
+    next(gen)
+except StopIteration as e:
+    print(e.value)                  # "done"</code></pre>
+
+  <h3>Generator with <code>yield</code> in a Loop — Reading Files</h3>
+
+  <p>Generators shine for lazy file processing:</p>
+
+  <pre><code>def read_lines(file_path):
+    """Yield lines from a file one at a time (lazy)."""
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            yield line.strip()
+
+# Usage — processes one line at a time, not the whole file:
+for line in read_lines("large_file.txt"):
+    if "error" in line:
+        print(f"Found: {line}")</code></pre>
+
+  <hr>
+
+  <h2>6. Generator Expressions</h2>
+
+  <p>Generator expressions (genexps) are the generator equivalent of list comprehensions. Use parentheses instead of square brackets:</p>
+
+  <pre><code># List comprehension (eager — creates list in memory):
+squares_list = [x * x for x in range(10)]
+print(squares_list)                  # [0, 1, 4, 9, ..., 81]
+
+# Generator expression (lazy — creates a generator object):
+squares_gen = (x * x for x in range(10))
+print(squares_gen)                   # <generator object at ...>
+print(list(squares_gen))             # [0, 1, 4, 9, ..., 81]</code></pre>
+
+  <h3>Memory Comparison</h3>
+
+  <pre><code># List comprehension — ALL values in memory at once:
+big_list = [x * x for x in range(10_000_000)]
+# Uses ~ 800 MB of RAM!
+
+# Generator expression — ONE value at a time:
+big_gen = (x * x for x in range(10_000_000))
+# Uses ~ tiny amount of RAM!
+
+# Use genexps with sum(), max(), min(), any(), all():
+total = sum(x * x for x in range(10_000_000))
+# Total memory: negligible
+
+# The double parentheses are optional in function calls:
+total = sum((x * x for x in range(10_000_000)))   # explicit
+total = sum(x * x for x in range(10_000_000))     # cleaner</code></pre>
+
+  <h3>Generator Expression vs List Comprehension — When to Use Which</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Use List Comprehension</th><th style="border: 1px solid #ddd; padding: 8px;">Use Generator Expression</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">You need the actual list (access by index, iterate multiple times)</td><td style="border: 1px solid #ddd; padding: 8px;">You only need to iterate once</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">The dataset is small enough to fit in memory</td><td style="border: 1px solid #ddd; padding: 8px;">The dataset is large or infinite</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">You need to append or modify the result</td><td style="border: 1px solid #ddd; padding: 8px;">You're passing the result to a function like <code>sum()</code>, <code>max()</code>, <code>any()</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Single-Use Nature of Generators</h3>
+
+  <p>A generator can only be iterated once. After it's exhausted, it yields no values:</p>
+
+  <pre><code>gen = (x * x for x in range(3))
+print(list(gen))                     # [0, 1, 4]
+print(list(gen))                     # [] — already exhausted!
+print(list(gen))                     # [] — still exhausted
+
+# If you need to iterate again, create a new generator or convert to list:
+gen = (x * x for x in range(3))
+print(sum(gen))                      # 5
+print(sum(gen))                      # 0 — gen was exhausted by first sum!</code></pre>
+
+  <hr>
+
+  <h2>7. <code>yield from</code> — Delegating to Sub-generators</h2>
+
+  <p>The <code>yield from</code> expression (Python 3.3+) lets a generator delegate part of its work to another generator. It's syntactic sugar for iterating over a sub-generator and yielding each value.</p>
+
+  <h3>Without <code>yield from</code> (manual loop)</h3>
+
+  <pre><code>def chain_manual(*iterables):
+    """Chain multiple iterables into one sequence."""
+    for iterable in iterables:
+        for item in iterable:
+            yield item
+
+print(list(chain_manual("ABC", "DEF")))  # ['A', 'B', 'C', 'D', 'E', 'F']</code></pre>
+
+  <h3>With <code>yield from</code> (cleaner)</h3>
+
+  <pre><code>def chain(*iterables):
+    for iterable in iterables:
+        yield from iterable          # delegate to the sub-iterable
+
+print(list(chain("ABC", "DEF")))     # ['A', 'B', 'C', 'D', 'E', 'F']</code></pre>
+
+  <h3>Flattening Nested Structures</h3>
+
+  <pre><code>def flatten(nested):
+    """Flatten a nested list recursively."""
+    for item in nested:
+        if isinstance(item, list):
+            yield from flatten(item) # recursively flatten
+        else:
+            yield item
+
+nested = [1, [2, [3, 4], 5], 6]
+print(list(flatten(nested)))         # [1, 2, 3, 4, 5, 6]</code></pre>
+
+  <h3><code>yield from</code> with Generators</h3>
+
+  <pre><code>def count_up_to(n):
+    for i in range(1, n + 1):
+        yield i
+
+def combined():
+    yield from count_up_to(3)
+    yield from count_up_to(2)
+
+print(list(combined()))              # [1, 2, 3, 1, 2]</code></pre>
+
+  <hr>
+
+  <h2>8. Practical Generator Patterns</h2>
+
+  <h3>Fibonacci Generator</h3>
+
+  <pre><code>def fibonacci():
+    """Infinite Fibonacci sequence."""
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+fib = fibonacci()
+print([next(fib) for _ in range(10)]) # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+
+# Get first n values using islice:
+from itertools import islice
+print(list(islice(fibonacci(), 15)))  # first 15 Fibonacci numbers</code></pre>
+
+  <h3>Data Pipeline (Generator Chaining)</h3>
+
+  <p>Generators can be composed into lazy pipelines — each step transforms data one item at a time:</p>
+
+  <pre><code>def read_lines(file_path):
+    with open(file_path, "r") as f:
+        yield from f
+
+def strip_lines(lines):
+    for line in lines:
+        yield line.strip()
+
+def non_empty_lines(lines):
+    for line in lines:
+        if line:
+            yield line
+
+def extract_numbers(lines):
+    for line in lines:
+        for word in line.split():
+            if word.isdigit():
+                yield int(word)
+
+# Pipeline — no intermediate lists created:
+pipeline = extract_numbers(
+    non_empty_lines(
+        strip_lines(
+            read_lines("data.txt")
+        )
+    )
+)
+
+for num in pipeline:
+    print(num)                       # processes one number at a time</code></pre>
+
+  <h3>Generator for Batch Processing</h3>
+
+  <pre><code>def batched(iterable, n):
+    """Yield successive n-sized chunks from an iterable."""
+    iterator = iter(iterable)
+    while True:
+        batch = list(islice(iterator, n))
+        if not batch:
+            break
+        yield batch
+
+for batch in batched(range(10), 3):
+    print(batch)
+# [0, 1, 2]
+# [3, 4, 5]
+# [6, 7, 8]
+# [9]</code></pre>
+
+  <h3>Generator with State — Running Average</h3>
+
+  <pre><code>def running_average():
+    """Generator that computes running average of sent values."""
+    total = 0
+    count = 0
+    while True:
+        value = yield                    # receive value via send()
+        if value is None:
+            break
+        total += value
+        count += 1
+        yield total / count              # yield running average
+
+avg = running_average()
+next(avg)                                # prime the generator
+print(avg.send(10))                      # 10.0
+print(avg.send(20))                      # 15.0
+print(avg.send(30))                      # 20.0
+avg.close()</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Two-way generators:</strong> Using <code>.send()</code> and <code>.close()</code> on generators turns them into <strong>coroutines</strong>. The generator must be "primed" with <code>next()</code> before sending. This is an advanced concept — we'll cover it more in the coroutines/asyncio context later.
+  </div>
+
+  <hr>
+
+  <h2>9. The <code>itertools</code> Module</h2>
+
+  <p>The <code>itertools</code> module is the standard library's toolkit for iterator manipulation. It contains a rich set of fast, memory-efficient building blocks. See the <a href="https://docs.python.org/3/library/itertools.html">official itertools documentation</a>.</p>
+
+  <h3>Infinite Iterators</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Iterator</th><th style="border: 1px solid #ddd; padding: 8px;">Description</th><th style="border: 1px solid #ddd; padding: 8px;">Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>count(start=0, step=1)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Evenly spaced values forever</td><td style="border: 1px solid #ddd; padding: 8px;"><code>count(10) → 10 11 12 ...</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>cycle(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Repeats the iterable infinitely</td><td style="border: 1px solid #ddd; padding: 8px;"><code>cycle("AB") → A B A B ...</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>repeat(elem [,n])</code></td><td style="border: 1px solid #ddd; padding: 8px;">Repeats an element n times or forever</td><td style="border: 1px solid #ddd; padding: 8px;"><code>repeat(10, 3) → 10 10 10</code></td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>from itertools import count, cycle, repeat
+
+# count: like range but infinite
+for i in count(5):
+    if i > 10:
+        break
+    print(i, end=" ")                # 5 6 7 8 9 10
+
+# cycle: infinite repeating loop
+colors = cycle(["red", "green", "blue"])
+for _ in range(5):
+    print(next(colors), end=" ")     # red green blue red green
+
+# repeat: constant value
+print(list(repeat("ha", 3)))         # ['ha', 'ha', 'ha']
+
+# Common pattern: numbering items
+for i, item in zip(count(1), ["a", "b", "c"]):
+    print(f"{i}: {item}")
+# 1: a
+# 2: b
+# 3: c</code></pre>
+
+  <h3>Finite Iterators</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Iterator</th><th style="border: 1px solid #ddd; padding: 8px;">Description</th><th style="border: 1px solid #ddd; padding: 8px;">Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>chain(*iterables)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Concatenate iterables</td><td style="border: 1px solid #ddd; padding: 8px;"><code>chain("AB", "CD") → A B C D</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>chain.from_iterable(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Chain from nested iterables</td><td style="border: 1px solid #ddd; padding: 8px;"><code>chain.from_iterable(["AB", "CD"]) → A B C D</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>compress(data, selectors)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Filter by selector</td><td style="border: 1px solid #ddd; padding: 8px;"><code>compress("ABCD", [1,0,1]) → A C</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>dropwhile(pred, seq)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Drop while predicate is true</td><td style="border: 1px solid #ddd; padding: 8px;"><code>dropwhile(lambda x: x<5, [3,4,5,6]) → 5 6</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>takewhile(pred, seq)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Take while predicate is true</td><td style="border: 1px solid #ddd; padding: 8px;"><code>takewhile(lambda x: x<5, [3,4,5,6]) → 3 4</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>filterfalse(pred, seq)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Filter where predicate is false</td><td style="border: 1px solid #ddd; padding: 8px;"><code>filterfalse(lambda x: x<5, [3,4,5,6]) → 5 6</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>islice(seq, start, stop [,step])</code></td><td style="border: 1px solid #ddd; padding: 8px;">Slice an iterator (like list slicing)</td><td style="border: 1px solid #ddd; padding: 8px;"><code>islice(range(10), 2, 7) → 2 3 4 5 6</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>starmap(func, seq)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Map with unpacked args</td><td style="border: 1px solid #ddd; padding: 8px;"><code>starmap(pow, [(2,3)]) → 8</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>accumulate(iterable [,func])</code></td><td style="border: 1px solid #ddd; padding: 8px;">Running totals</td><td style="border: 1px solid #ddd; padding: 8px;"><code>accumulate([1,2,3]) → 1 3 6</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>groupby(iterable [,key])</code></td><td style="border: 1px solid #ddd; padding: 8px;">Groups consecutive elements</td><td style="border: 1px solid #ddd; padding: 8px;"><code>groupby("AAABBC") → A->AAA, B->BB, C->C</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>pairwise(iterable)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Overlapping pairs (3.10+)</td><td style="border: 1px solid #ddd; padding: 8px;"><code>pairwise("ABC") → AB BC</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>zip_longest(*i, fillvalue=None)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Zip with fill for uneven lengths</td><td style="border: 1px solid #ddd; padding: 8px;"><code>zip_longest("AB", "XYZ", fill='?') → A X B Y ? Z</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>tee(iterable, n=2)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Split iterator into n independent copies</td><td style="border: 1px solid #ddd; padding: 8px;"><code>tee(range(3), 2) → two independent iterators</code></td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>from itertools import chain, islice, groupby, compress, pairwise
+
+# chain: concatenate
+print(list(chain("ABC", [1, 2, 3])))   # ['A', 'B', 'C', 1, 2, 3]
+
+# chain.from_iterable: flatten
+matrix = [[1, 2], [3, 4], [5, 6]]
+print(list(chain.from_iterable(matrix))) # [1, 2, 3, 4, 5, 6]
+
+# islice: slice an iterator (no negative indices!)
+print(list(islice(range(100), 5)))      # [0, 1, 2, 3, 4]
+print(list(islice(range(100), 10, 15))) # [10, 11, 12, 13, 14]
+
+# compress: filter with boolean mask
+data = ["apple", "banana", "cherry", "date"]
+mask = [True, False, True, False]
+print(list(compress(data, mask)))       # ['apple', 'cherry']
+
+# pairwise: sliding pairs
+print(list(pairwise("ABCDE")))           # [('A','B'), ('B','C'), ('C','D'), ('D','E')]
+
+# groupby: needs sorted data!
+items = [("fruit", "apple"), ("fruit", "banana"), ("animal", "cat"), ("animal", "dog")]
+for key, group in groupby(items, key=lambda x: x[0]):
+    print(f"{key}: {list(group)}")
+# fruit: [('fruit', 'apple'), ('fruit', 'banana')]
+# animal: [('animal', 'cat'), ('animal', 'dog')]</code></pre>
+
+  <h3>Combinatoric Iterators</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Iterator</th><th style="border: 1px solid #ddd; padding: 8px;">Description</th><th style="border: 1px solid #ddd; padding: 8px;">Example (r=2)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>product(*iterables, repeat=1)</code></td><td style="border: 1px solid #ddd; padding: 8px;">Cartesian product</td><td style="border: 1px solid #ddd; padding: 8px;"><code>product("AB", "CD") → AC AD BC BD</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>permutations(iterable, r=None)</code></td><td style="border: 1px solid #ddd; padding: 8px;">All r-length orderings</td><td style="border: 1px solid #ddd; padding: 8px;"><code>permutations("ABC", 2) → AB AC BA BC CA CB</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>combinations(iterable, r)</code></td><td style="border: 1px solid #ddd; padding: 8px;">r-length subsets in order</td><td style="border: 1px solid #ddd; padding: 8px;"><code>combinations("ABC", 2) → AB AC BC</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>combinations_with_replacement(iterable, r)</code></td><td style="border: 1px solid #ddd; padding: 8px;">r-length subsets with repeats</td><td style="border: 1px solid #ddd; padding: 8px;"><code>comb_with_replace("ABC", 2) → AA AB AC BB BC CC</code></td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>from itertools import product, permutations, combinations
+
+# Cartesian product
+print(list(product("AB", [1, 2])))      # [('A',1), ('A',2), ('B',1), ('B',2)]
+print(list(product("AB", repeat=2)))    # [('A','A'), ('A','B'), ('B','A'), ('B','B')]
+
+# Permutations (order matters)
+print(list(permutations("ABC", 2)))     # [('A','B'), ('A','C'), ('B','A'), ('B','C'), ('C','A'), ('C','B')]
+
+# Combinations (order doesn't matter)
+print(list(combinations("ABC", 2)))     # [('A','B'), ('A','C'), ('B','C')]</code></pre>
+
+  <hr>
+
+  <h2>10. Iterators vs Containers — Memory and Performance</h2>
+
+  <h3>Lazy vs Eager</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Property</th><th style="border: 1px solid #ddd; padding: 8px;">Iterator</th><th style="border: 1px solid #ddd; padding: 8px;">Container (list, tuple, etc.)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Stores all values</td><td style="border: 1px solid #ddd; padding: 8px;">❌</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Computes values lazily</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td><td style="border: 1px solid #ddd; padding: 8px;">❌</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Can be iterated multiple times</td><td style="border: 1px solid #ddd; padding: 8px;">❌ (single-use)</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Supports index access (<code>[n]</code>)</td><td style="border: 1px solid #ddd; padding: 8px;">❌</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Supports <code>len()</code></td><td style="border: 1px solid #ddd; padding: 8px;">❌</td><td style="border: 1px solid #ddd; padding: 8px;">✅</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Memory for 10M items</td><td style="border: 1px solid #ddd; padding: 8px;">~ few bytes</td><td style="border: 1px solid #ddd; padding: 8px;">~ 800 MB</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Converting Between Them</h3>
+
+  <pre><code># Iterator → container (eager):
+it = (x * 2 for x in range(5))
+lst = list(it)                         # [0, 2, 4, 6, 8]
+tup = tuple(it)                        # () — it's already exhausted!
+# Always create a new generator if you need both:
+tup = tuple(x * 2 for x in range(5))   # (0, 2, 4, 6, 8)
+
+# Container → iterator (lazy):
+lst = [1, 2, 3]
+it = iter(lst)                         # list_iterator object
+print(next(it))                        # 1</code></pre>
+
+  <hr>
+
+  <h2>11. Common Pitfalls</h2>
+
+  <h3>Pitfall 1: Iterator Exhaustion</h3>
+
+  <pre><code># BAD: consuming twice
+gen = (x * 2 for x in range(3))
+if sum(gen) > 5:                       # gen is exhausted here
+    print(list(gen))                   # [] — nothing left!
+
+# GOOD: materialize first
+values = list(x * 2 for x in range(3))
+if sum(values) > 5:                    # works on the list
+    print(values)                      # [0, 2, 4]</code></pre>
+
+  <h3>Pitfall 2: Reusing a Generator</h3>
+
+  <pre><code># BAD: trying to reuse
+gen = (x ** 2 for x in range(5))
+print(list(gen))                       # [0, 1, 4, 9, 16]
+print(list(gen))                       # [] — exhausted!
+
+# GOOD: recreate or use list
+values = [x ** 2 for x in range(5)]
+print(values)                          # [0, 1, 4, 9, 16]
+print(values)                          # [0, 1, 4, 9, 16]</code></pre>
+
+  <h3>Pitfall 3: Modifying a Container While Iterating</h3>
+
+  <pre><code># BAD: modifying during iteration
+lst = [1, 2, 3, 4, 5]
+for x in lst:
+    if x % 2 == 0:
+        lst.remove(x)                  # skips the next element!
+print(lst)                             # [1, 3, 5] — not correct!
+
+# GOOD: iterate over a copy
+lst = [1, 2, 3, 4, 5]
+for x in lst.copy():
+    if x % 2 == 0:
+        lst.remove(x)
+print(lst)                             # [1, 3, 5] — correct
+
+# BETTER: use a list comprehension
+lst = [1, 2, 3, 4, 5]
+lst = [x for x in lst if x % 2 != 0]
+print(lst)                             # [1, 3, 5]</code></pre>
+
+  <h3>Pitfall 4: Chaining Infinite Iterators Without Truncation</h3>
+
+  <pre><code># DANGEROUS: infinite loop
+from itertools import count
+for x in count():                     # infinite!
+    if some_condition(x):
+        break                         # need break to escape
+
+# Even worse:
+list(count())                          # runs forever / memory exhaustion
+
+# Fix: always use islice, takewhile, etc.
+from itertools import islice
+print(list(islice(count(), 5)))        # [0, 1, 2, 3, 4] — safe</code></pre>
+
+  <h3>Pitfall 5: Groupby Requires Sorted Data</h3>
+
+  <pre><code># BAD: groupby on unsorted data
+from itertools import groupby
+items = [1, 1, 2, 1, 1, 2]
+for key, group in groupby(items):
+    print(f"{key}: {list(group)}")
+# 1: [1, 1]
+# 2: [2]
+# 1: [1, 1]      ← duplicate group!
+# 2: [2]         ← duplicate group!
+
+# GOOD: sort first
+items = sorted([1, 1, 2, 1, 1, 2])
+for key, group in groupby(items):
+    print(f"{key}: {list(group)}")
+# 1: [1, 1, 1, 1]
+# 2: [2, 2]</code></pre>
+
+  <h3>Pitfall 6: <code>tee()</code> Can Use a Lot of Memory</h3>
+
+  <pre><code>from itertools import tee
+
+# tee creates independent copies, BUT
+# if one iterator runs far ahead, tee stores
+# the unconsumed items in memory!
+
+# If one iterator uses most or all of the data
+# before another starts, it's faster to use list().
+it1, it2 = tee(range(10_000_000))
+list(it1)       # consumes all — tee stores everything for it2
+list(it2)       # now it2 can finally iterate
+
+# Better when one is far ahead:
+values = list(range(10_000_000))      # one copy
+it2 = iter(values)                    # reuse through iteration</code></pre>
+
+  <hr>
+
+  <h2>12. Best Practices &amp; Cheat Sheet</h2>
+
+  <h3>When to Use What</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Scenario</th><th style="border: 1px solid #ddd; padding: 8px;">Recommended</th><th style="border: 1px solid #ddd; padding: 8px;">Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Need to iterate once over large data</td><td style="border: 1px solid #ddd; padding: 8px;">Generator / generator expression</td><td style="border: 1px solid #ddd; padding: 8px;">Memory efficient</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Need random access / multiple passes</td><td style="border: 1px solid #ddd; padding: 8px;">List / container</td><td style="border: 1px solid #ddd; padding: 8px;">Reusable, indexable</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Simple transformation + sum/max/any</td><td style="border: 1px solid #ddd; padding: 8px;">Generator expression</td><td style="border: 1px solid #ddd; padding: 8px;">Concise and lazy</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Complex iteration with state</td><td style="border: 1px solid #ddd; padding: 8px;">Generator function with <code>yield</code></td><td style="border: 1px solid #ddd; padding: 8px;">Clear state management</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Need to delegate to sub-generators</td><td style="border: 1px solid #ddd; padding: 8px;"><code>yield from</code></td><td style="border: 1px solid #ddd; padding: 8px;">Clean composition</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Need combinatorics (product, perms)</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools</code></td><td style="border: 1px solid #ddd; padding: 8px;">Efficient, tested</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Data pipeline (transform chain)</td><td style="border: 1px solid #ddd; padding: 8px;">Generator pipeline + itertools</td><td style="border: 1px solid #ddd; padding: 8px;">Lazy, composable</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Custom class with iterator behavior</td><td style="border: 1px solid #ddd; padding: 8px;"><code>__iter__</code>/<code>__next__</code></td><td style="border: 1px solid #ddd; padding: 8px;">Full control; or use generator</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cheat Sheet</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Task</th><th style="border: 1px solid #ddd; padding: 8px;">Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Create a simple iterator from a container</td><td style="border: 1px solid #ddd; padding: 8px;"><code>iter(container)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Manually advance an iterator</td><td style="border: 1px solid #ddd; padding: 8px;"><code>next(iterator)</code>, <code>next(it, default)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Create a lazy sequence</td><td style="border: 1px solid #ddd; padding: 8px;">Generator function with <code>yield</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Create a lazy expression</td><td style="border: 1px solid #ddd; padding: 8px; "><code>(expr for x in iterable)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Delegate to another generator</td><td style="border: 1px solid #ddd; padding: 8px;"><code>yield from subgen</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Chain iterables</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.chain(a, b, c)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Slice an iterator</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.islice(it, start, stop)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Take first n items</td><td style="border: 1px solid #ddd; padding: 8px;"><code>list(islice(it, n))</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Add sequence numbers</td><td style="border: 1px solid #ddd; padding: 8px;"><code>enumerate(it, start=1)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Infinite counter</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.count(start, step)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Cycle through values</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.cycle(iterable)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Cartesian product</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.product(a, b)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">All permutations</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.permutations(seq, r)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">All combinations</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.combinations(seq, r)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Split one iterator into n</td><td style="border: 1px solid #ddd; padding: 8px;"><code>itertools.tee(it, n)</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Convert iterator to list (eager)</td><td style="border: 1px solid #ddd; padding: 8px;"><code>list(iterator)</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Understanding the Iterator Protocol</h3>
+    <p>Use <code>iter()</code> and <code>next()</code> to manually iterate over a list of strings. Handle <code>StopIteration</code> yourself. Show the difference between an iterable (list) and an iterator (the result of <code>iter()</code>) by checking with <code>hasattr()</code> which supports <code>__iter__</code> and <code>__next__</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Built-in Functions Return Iterators</h3>
+    <p>Demonstrate that <code>map()</code>, <code>filter()</code>, <code>zip()</code>, <code>enumerate()</code>, and <code>reversed()</code> all return iterators (not lists). Show their types, and confirm they are lazy by calling <code>next()</code> on each before converting to a list.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Custom Class-Based Iterator</h3>
+    <p>Create a class <code>StepRange</code> that acts as an iterator, yielding values from <code>start</code> to <code>stop</code> (inclusive) stepping by <code>step</code>. Implement <code>__iter__</code> and <code>__next__</code>. Test it with <code>for</code> loop and manual <code>next()</code> calls.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Generator Function Basics</h3>
+    <p>Write a generator function <code>even_numbers(n)</code> that yields the first <code>n</code> even numbers (starting from 0). Then write another generator <code>odd_numbers(n)</code> that yields the first <code>n</code> odd numbers. Use both in a <code>for</code> loop and verify the output. Show that calling <code>list()</code> on an exhausted generator returns <code>[]</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Generator State Preservation</h3>
+    <p>Create a generator <code>interleave(a, b)</code> that takes two iterables and yields items from both alternately (like a zipper but with the extra items from the longer one appended at the end). Verify that local variables are preserved between <code>yield</code> calls by stepping through with <code>next()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Generator Expressions vs List Comprehensions</h3>
+    <p>Create a list comprehension and a generator expression for the same data: squares of numbers from 0 to 999,999. Compare their memory usage using <code>sys.getsizeof()</code> (note: <code>getsizeof</code> for generators is misleading — also check <code>type()</code>). Show that the generator is single-use by iterating it twice.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: <code>yield from</code> for Delegation</h3>
+    <p>Write a generator <code>merge_sorted(a, b)</code> that takes two sorted iterables and yields their items in sorted order. Use <code>yield from</code> where appropriate. Also write a recursive <code>deep_flatten(nested)</code> that flattens arbitrarily nested lists using <code>yield from</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Practical Generator Patterns</h3>
+    <p>Implement three generators: (1) <code>fibonacci(n)</code> — yields the first n Fibonacci numbers. (2) <code>primes()</code> — infinite generator of prime numbers (use a simple sieve). (3) <code>running_total(items)</code> — yields cumulative sums. Use <code>itertools.islice</code> to take the first 10 items from <code>primes()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: itertools — Basic Tools</h3>
+    <p>Use <code>itertools.chain</code> to combine three lists. Use <code>itertools.islice</code> to take items 5 through 15 from <code>range(100)</code>. Use <code>itertools.compress</code> to filter items by a boolean mask. Use <code>itertools.cycle</code> to create an infinite repeating pattern and take 10 items from it. Use <code>itertools.count(10, 2.5)</code> and take 5 values.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: itertools — Combinatorics</h3>
+    <p>Given a list of 4 items <code>["A", "B", "C", "D"]</code>, use <code>itertools.product</code> to generate all 2-element ordered pairs (with repeats). Use <code>itertools.permutations</code> to generate all 2-element orderings (no repeats). Use <code>itertools.combinations</code> to generate all 2-element subsets. Count the outputs and verify the formulas: <code>n²</code>, <code>n!/(n-r)!</code>, <code>n!/(r!(n-r)!)</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: Iterator Pipeline — File Processing</h3>
+    <p>Build a lazy data processing pipeline using generators: (1) <code>read_lines(filename)</code> — yields lines from a file. (2) <code>parse_csv(lines)</code> — splits each line by comma (yields lists). (3) <code>filter_rows(rows, column_index, value)</code> — yields only rows where <code>row[column_index] == value</code>. (4) <code>extract_column(rows, column_index)</code> — yields a single column. Test with sample CSV data in a string using <code>io.StringIO</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Combined Challenge — Build a Data Pipeline with Generators + itertools</h3>
+    <p>Build a complete data processing pipeline that: (1) Generates an infinite stream of random integers (1-100). (2) Batches them into groups of 5 using <code>itertools.islice</code> in a loop. (3) Computes the running average of each batch using <code>itertools.accumulate</code>. (4) Takes only those averages that are above 50 (use <code>itertools.compress</code> or <code>filter()</code>). (5) Limits the output to the first 10 results using <code>itertools.islice</code>. (6) Wraps the entire pipeline in a generator function <code>pipeline()</code> that yields the final results lazily. No lists should be created in memory — everything should be lazy.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What is the difference between an iterable and an iterator?</li>
+    <li>What two methods make up the iterator protocol?</li>
+    <li>How does a <code>for</code> loop use the iterator protocol internally?</li>
+    <li>What does <code>next(iterator, default)</code> do differently from <code>next(iterator)</code>?</li>
+    <li>What happens when you call <code>next()</code> on an exhausted iterator?</li>
+    <li>How do you create a custom class-based iterator?</li>
+    <li>What is a generator function? How is it different from a regular function?</li>
+    <li>What does the <code>yield</code> keyword do? How is it different from <code>return</code>?</li>
+    <li>What happens to a generator's local state between <code>next()</code> calls?</li>
+    <li>How does a generator signal that it has no more values?</li>
+    <li>What is a generator expression? How is it different from a list comprehension?</li>
+    <li>Why would you use a generator expression over a list comprehension?</li>
+    <li>Can an iterator be used more than once? What happens if you try?</li>
+    <li>What does <code>yield from</code> do?</li>
+    <li>Name three infinite iterators from <code>itertools</code> and what they do.</li>
+    <li>What is <code>itertools.islice</code> and how is it different from regular slicing?</li>
+    <li>What assumption must hold for <code>itertools.groupby</code> to work correctly?</li>
+    <li>What is the relationship between <code>itertools.product</code>, <code>permutations</code>, and <code>combinations</code>?</li>
+    <li>What does <code>itertools.tee</code> do? What is its memory cost?</li>
+    <li>How do you convert an iterator to a list? What are the trade-offs?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0016-modules-and-packages.html">← Previous: Modules &amp; Packages</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0018-oop-classes-and-objects.html">Next: OOP — Classes &amp; Objects →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

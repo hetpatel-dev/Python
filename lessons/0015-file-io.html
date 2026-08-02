@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 15: File I/O</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 15: File I/O — Reading, Writing, and Working with Data</h1>
+
+  <p><span class="tag">concept</span> File I/O</p>
+
+  <p>Programs need to read data from files and write results back. Python's file I/O toolkit — <code>open()</code>, <code>with</code> statement, <code>pathlib</code>, <code>csv</code>, <code>json</code>, <code>os</code>, and <code>shutil</code> — provides everything from low-level file operations to high-level directory management. This lesson covers the full file I/O ecosystem from the official <a href="https://docs.python.org/3/tutorial/inputoutput.html">Python tutorial on input and output</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/inputoutput.html">Tutorial — Input and Output</a>, <a href="https://docs.python.org/3/library/io.html">io — Core tools for working with streams</a>, <a href="https://docs.python.org/3/library/pathlib.html">pathlib — Object-oriented filesystem paths</a>, <a href="https://docs.python.org/3/library/csv.html">csv — CSV File Reading and Writing</a>, <a href="https://docs.python.org/3/library/json.html">json — JSON encoder and decoder</a>, <a href="https://docs.python.org/3/library/os.html">os — Miscellaneous operating system interfaces</a>, <a href="https://docs.python.org/3/library/shutil.html">shutil — High-level file operations</a>.</p>
+
+  <hr>
+
+  <h2>1. Opening and Closing Files</h2>
+
+  <p>The built-in <code>open()</code> function returns a file object. It's most commonly used with two positional arguments and one keyword argument: <code>open(filename, mode='r', encoding=None)</code>.</p>
+
+  <h3>File Modes</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Mode</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">File Exists?</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">File Missing?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"r"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Read (default)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Read only</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">FileNotFoundError</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"w"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Write (overwrites!)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Erases content</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Creates new file</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"a"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Append</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Adds to end</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Creates new file</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"x"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Exclusive create</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">FileExistsError</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Creates new file</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"r+"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Read + Write</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Both read and write</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">FileNotFoundError</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"rb"</code>, <code>"wb"</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Binary mode</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Read/write bytes</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Varies by mode</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Text vs Binary Mode</h3>
+
+  <pre><code># Text mode (default) — strings, encoding/decoding
+with open("data.txt", "r", encoding="utf-8") as f:
+    text = f.read()  # Returns str
+
+# Binary mode — bytes objects, no encoding
+with open("image.jpg", "rb") as f:
+    data = f.read()  # Returns bytes</code></pre>
+
+  <h3>Why Always Use 'with'</h3>
+
+  <pre><code># BAD — manual close is risky
+f = open("data.txt")
+content = f.read()
+# What if an exception occurs here?
+f.close()  # Might never execute!
+
+# GOOD — context manager guarantees closure
+with open("data.txt", encoding="utf-8") as f:
+    content = f.read()
+# f.close() is called automatically, even if exception occurs
+
+# Verify closure
+with open("data.txt") as f:
+    content = f.read()
+print(f.closed)  # True</code></pre>
+
+  <div class="note">
+    <strong>💡 Always specify encoding:</strong> Use <code>encoding="utf-8"</code> explicitly. The default encoding is platform-dependent (locale encoding). Python 3.15+ will make UTF-8 the default (PEP 686), but specify it now for compatibility.
+  </div>
+
+  <hr>
+
+  <h2>2. Reading Files</h2>
+
+  <p>File objects provide multiple ways to read content. Choose based on file size and processing needs.</p>
+
+  <pre><code>with open("data.txt", encoding="utf-8") as f:
+    # Read entire file at once (good for small files)
+    content = f.read()           # Returns entire file as str
+    content = f.read(100)        # Read first 100 characters
+
+    # Reset position to beginning
+    f.seek(0)
+
+    # Read one line at a time
+    line = f.readline()          # Includes trailing \n
+    line = f.readline(50)        # Read at most 50 characters from current line
+
+    # Reset position again
+    f.seek(0)
+
+    # Read all lines into a list
+    lines = f.readlines()        # Returns list of strings
+
+    # Reset position again
+    f.seek(0)
+
+    # Most memory-efficient: iterate directly
+    for line in f:
+        process(line.strip())    # strip() removes trailing \n</code></pre>
+
+  <h3>Reading Large Files</h3>
+
+  <pre><code># BAD — loads entire file into memory
+with open("huge.log", encoding="utf-8") as f:
+    content = f.read()  # Could use GB of memory!
+
+# GOOD — iterate line by line
+with open("huge.log", encoding="utf-8") as f:
+    for line in f:  # Only one line in memory at a time
+        process(line)
+
+# GOOD — read in chunks
+with open("huge.log", "rb") as f:
+    while True:
+        chunk = f.read(8192)  # Read 8KB at a time
+        if not chunk:
+            break
+        process(chunk)</code></pre>
+
+  <div class="note">
+    <strong>💡 EOF detection:</strong> An empty string <code>''</code> from <code>read()</code> or <code>readline()</code> means end of file. A blank line returns <code>'\n'</code>, not an empty string.
+  </div>
+
+  <hr>
+
+  <h2>3. Writing Files</h2>
+
+  <pre><code># Write text (returns number of characters written)
+with open("output.txt", "w", encoding="utf-8") as f:
+    n = f.write("Hello, World!\n")  # Returns 14
+    f.write("Second line\n")
+
+# Append to existing file
+with open("log.txt", "a", encoding="utf-8") as f:
+    f.write("New log entry\n")
+
+# Write multiple lines (no newlines added automatically!)
+lines = ["Line 1\n", "Line 2\n", "Line 3\n"]
+with open("output.txt", "w", encoding="utf-8") as f:
+    f.writelines(lines)
+
+# Write bytes
+with open("data.bin", "wb") as f:
+    f.write(b"\x00\x01\x02\x03")</code></pre>
+
+  <h3>Buffering and Flushing</h3>
+
+  <pre><code># Data is buffered for efficiency
+with open("output.txt", "w", encoding="utf-8") as f:
+    f.write("data")
+    # Data may not be written to disk yet!
+    f.flush()  # Force buffer to disk
+
+    # With statement calls flush() automatically on exit</code></pre>
+
+  <hr>
+
+  <h2>4. File Position (tell and seek)</h2>
+
+  <pre><code>with open("data.txt", encoding="utf-8") as f:
+    print(f.tell())    # 0 — current position
+
+    f.read(10)         # Read first 10 characters
+    print(f.tell())    # 10
+
+    f.seek(0)          # Go back to beginning
+    print(f.tell())    # 0
+
+    f.seek(0, 2)       # Go to end (whence=2)
+    print(f.tell())    # File size (in bytes for binary, varies for text)
+
+    # Binary mode — full random access
+with open("data.bin", "rb") as f:
+    f.seek(100)        # Jump to byte 100
+    data = f.read(50)  # Read 50 bytes from position 100</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Text mode seek limitations:</strong> In text mode, only <code>seek(0)</code> (beginning) and <code>seek(0, 2)</code> (end) are guaranteed to work. Other seeks may cause undefined behavior due to multi-byte encodings.
+  </div>
+
+  <hr>
+
+  <h2>5. Encoding and Newlines</h2>
+
+  <pre><code># Always specify encoding
+with open("data.txt", encoding="utf-8") as f:
+    content = f.read()
+
+# Universal newlines (default)
+with open("data.txt", newline=None) as f:  # Default behavior
+    # \r\n, \r, \n all become \n
+    content = f.read()
+
+# No newline translation
+with open("data.txt", newline='') as f:
+    # Line endings preserved as-is
+    content = f.read()
+
+# On Windows, writing with \n converts to \r\n
+# On Unix, \n stays as \n
+with open("output.txt", "w", newline='', encoding="utf-8") as f:
+    f.write("Line 1\nLine 2\n")  # \n written as-is</code></pre>
+
+  <div class="note">
+    <strong>💡 CSV files require <code>newline=''</code>:</strong> When reading/writing CSV files with the <code>csv</code> module, always use <code>newline=''</code> to prevent double newlines on Windows.
+  </div>
+
+  <hr>
+
+  <h2>6. pathlib — Modern File Paths</h2>
+
+  <p>The <code>pathlib</code> module (Python 3.4+) provides an object-oriented approach to file paths. Prefer <code>pathlib</code> over <code>os.path</code> in new code.</p>
+
+  <pre><code>from pathlib import Path
+
+# Create Path objects
+p = Path("data/file.txt")           # Relative path
+p = Path.home() / "documents"       # Home directory
+p = Path.cwd()                      # Current working directory
+p = Path("/usr/bin/python3")        # Absolute path
+
+# The / operator joins paths
+config = Path("project") / "config" / "settings.json"
+# Path("project/config/settings.json")
+
+# Path properties
+p = Path("/home/user/data/report.csv")
+print(p.name)       # "report.csv" — final component
+print(p.stem)       # "report" — without suffix
+print(p.suffix)     # ".csv" — file extension
+print(p.parent)     # Path("/home/user/data") — parent directory
+print(p.parts)      # ('/', 'home', 'user', 'data', 'report.csv')</code></pre>
+
+  <h3>Reading and Writing with pathlib</h3>
+
+  <pre><code># Read text (convenience methods)
+p = Path("data.txt")
+content = p.read_text(encoding="utf-8")
+
+# Write text
+p.write_text("Hello, World!\n", encoding="utf-8")
+
+# Read/write bytes
+data = p.read_bytes()
+p.write_bytes(b"\x00\x01\x02")</code></pre>
+
+  <h3>Path Operations</h3>
+
+  <pre><code>p = Path("project/data")
+
+# Query
+print(p.exists())          # True/False
+print(p.is_file())         # True if file
+print(p.is_dir())          # True if directory
+print(p.is_symlink())      # True if symbolic link
+
+# Metadata
+stats = p.stat()
+print(stats.st_size)       # Size in bytes
+print(stats.st_mtime)      # Modification time
+
+# Create directories
+p.mkdir(parents=True, exist_ok=True)  # Create path and parents
+
+# Delete file
+p.unlink()                 # Delete file (not directory!)
+
+# Rename/move
+p.rename("new_name.txt")</code></pre>
+
+  <h3>Iterating and Globbing</h3>
+
+  <pre><code># List directory contents
+for p in Path("data").iterdir():
+    print(p)
+
+# Find files by pattern
+for p in Path("project").glob("*.py"):
+    print(p)  # All .py files in project/
+
+# Recursive search
+for p in Path("project").rglob("*.py"):
+    print(p)  # All .py files in project/ and subdirectories</code></pre>
+
+  <div class="note">
+    <strong>💡 pathlib vs os.path:</strong> <code>pathlib</code> is more readable (<code>p.name</code> vs <code>os.path.basename(p)</code>), more powerful (glob built-in), and more Pythonic. Use <code>pathlib</code> for new code.
+  </div>
+
+  <hr>
+
+  <h2>7. os Module — File System Operations</h2>
+
+  <pre><code>import os
+
+# Working directory
+print(os.getcwd())         # Current directory
+os.chdir("/tmp")           # Change directory
+
+# Path operations
+os.path.join("dir", "file.txt")     # "dir/file.txt"
+os.path.basename("/a/b/file.txt")   # "file.txt"
+os.path.dirname("/a/b/file.txt")    # "/a/b"
+os.path.split("/a/b/file.txt")      # ("/a/b", "file.txt")
+os.path.splitext("file.txt")        # ("file", ".txt")
+os.path.abspath("relative")         # Absolute path
+os.path.exists("path")              # True/False
+
+# Directory operations
+os.mkdir("new_dir")                 # Create directory
+os.makedirs("a/b/c", exist_ok=True)  # Create nested directories
+os.rmdir("empty_dir")               # Remove empty directory
+os.listdir(".")                     # List directory contents</code></pre>
+
+  <hr>
+
+  <h2>8. Directory Traversal</h2>
+
+  <pre><code>import os
+
+# os.listdir — simple but no metadata
+for name in os.listdir("data"):
+    print(name)  # Just filenames
+
+# os.scandir — efficient, returns DirEntry with cached metadata
+with os.scandir("data") as entries:
+    for entry in entries:
+        print(entry.name)
+        print(entry.is_dir())    # Cached, no extra stat() call
+        print(entry.stat().st_size)  # File size
+
+# os.walk — recursive traversal
+for dirpath, dirnames, filenames in os.walk("project"):
+    print(f"Directory: {dirpath}")
+    for filename in filenames:
+        print(f"  File: {filename}")
+
+# os.walk bottom-up (for deleting empty directories)
+for dirpath, dirnames, filenames in os.walk("project", topdown=False):
+    os.rmdir(dirpath)  # Remove after contents are processed
+
+# glob.glob — pattern matching
+import glob
+for p in glob.glob("**/*.py", recursive=True):
+    print(p)  # All .py files recursively</code></pre>
+
+  <div class="note">
+    <strong>💡 Use os.scandir():</strong> <code>os.scandir()</code> is 2-20x faster than <code>os.listdir()</code> + <code>os.path.isdir()</code> because it caches metadata from the OS. Use it when you need to check file type or size.
+  </div>
+
+  <hr>
+
+  <h2>9. File Metadata (os.stat)</h2>
+
+  <pre><code>import os
+import stat
+
+info = os.stat("file.txt")
+
+# Size
+print(info.st_size)        # Size in bytes
+
+# Timestamps
+print(info.st_mtime)       # Modification time (seconds since epoch)
+print(info.st_atime)       # Access time
+print(info.st_ctime)       # Creation (Windows) or metadata change (Unix)
+print(info.st_mtime_ns)    # Nanosecond precision
+
+# Convert to readable format
+from datetime import datetime
+mod_time = datetime.fromtimestamp(info.st_mtime)
+print(mod_time.strftime("%Y-%m-%d %H:%M:%S"))
+
+# File type from st_mode
+if stat.S_ISREG(info.st_mode):
+    print("Regular file")
+elif stat.S_ISDIR(info.st_mode):
+    print("Directory")
+elif stat.S_ISLNK(info.st_mode):
+    print("Symbolic link")
+
+# Permission bits (Unix-style)
+print(oct(info.st_mode & 0o777))  # e.g., 0o644</code></pre>
+
+  <hr>
+
+  <h2>10. shutil — High-level File Operations</h2>
+
+  <pre><code>import shutil
+
+# Copy files
+shutil.copyfile("source.txt", "dest.txt")    # Copy content only
+shutil.copy("source.txt", "dest.txt")        # Copy content + permissions
+shutil.copy2("source.txt", "dest.txt")       # Copy content + permissions + metadata
+
+# Copy directory tree
+shutil.copytree("src_dir", "dst_dir")
+shutil.copytree("src", "dst", dirs_exist_ok=True)  # Merge into existing
+shutil.copytree("src", "dst", ignore=shutil.ignore_patterns("*.pyc", "__pycache__"))
+
+# Move files/directories
+shutil.move("file.txt", "new_location/")      # Move file
+shutil.move("dir", "parent/")                 # Move directory
+
+# Delete directory tree (use with caution!)
+shutil.rmtree("directory_to_delete")
+shutil.rmtree("dir", ignore_errors=True)      # Ignore errors
+
+# Disk usage
+usage = shutil.disk_usage("/")
+print(f"Total: {usage.total // (1024**3)} GB")
+print(f"Used: {usage.used // (1024**3)} GB")
+print(f"Free: {usage.free // (1024**3)} GB")</code></pre>
+
+  <div class="note">
+    <strong>⚠️ shutil.rmtree is dangerous:</strong> It recursively deletes everything! Always double-check the path. Consider using <code>shutil.copytree()</code> to backup first.
+  </div>
+
+  <hr>
+
+  <h2>11. Temporary Files</h2>
+
+  <pre><code>import tempfile
+
+# Named temporary file (has a name attribute)
+with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=True) as f:
+    f.write("temp data")
+    print(f.name)  # e.g., /tmp/tmp12345.txt
+# File deleted automatically when exiting with block
+
+# Named temp file that persists after close
+with tempfile.NamedTemporaryFile(delete=False) as f:
+    f.write(b"persistent data")
+    name = f.name
+# File still exists at 'name' — must delete manually
+
+# Temporary directory
+with tempfile.TemporaryDirectory() as tmpdir:
+    print(tmpdir)  # e.g., /tmp/tmp12345
+    # Create files in tmpdir
+    (Path(tmpdir) / "data.txt").write_text("hello")
+# Directory and contents deleted automatically
+
+# SpooledTemporaryFile — in-memory until threshold
+with tempfile.SpooledTemporaryFile(max_size=1024 * 1024) as f:
+    f.write(b"data")
+    # Stays in memory until > 1MB, then rolls to disk</code></pre>
+
+  <hr>
+
+  <h2>12. In-Memory Streams (StringIO, BytesIO)</h2>
+
+  <pre><code>import io
+
+# StringIO — in-memory text stream
+buffer = io.StringIO()
+buffer.write("Hello ")
+buffer.write("World!")
+print(buffer.getvalue())  # "Hello World!"
+buffer.seek(0)
+print(buffer.read())      # "Hello World!"
+buffer.close()
+
+# Initialize with content
+buffer = io.StringIO("Initial content")
+print(buffer.read())      # "Initial content"
+
+# BytesIO — in-memory binary stream
+buffer = io.BytesIO()
+buffer.write(b"Hello ")
+buffer.write(b"World!")
+print(buffer.getvalue())  # b"Hello World!"
+buffer.close()
+
+# Use cases: testing, building content before writing, CSV in memory
+# Pass StringIO to csv module instead of file
+import csv
+output = io.StringIO()
+writer = csv.writer(output)
+writer.writerow(["Name", "Age"])
+writer.writerow(["Alice", 30])
+csv_content = output.getvalue()  # "Name,Age\nAlice,30\n"</code></pre>
+
+  <hr>
+
+  <h2>13. Working with CSV Files</h2>
+
+  <pre><code>import csv
+
+# Reading CSV
+with open("data.csv", newline='', encoding="utf-8") as f:
+    reader = csv.reader(f)
+    header = next(reader)  # First row as header
+    for row in reader:
+        print(row)  # Each row is a list of strings
+
+# Reading CSV as dictionaries
+with open("data.csv", newline='', encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row["Name"], row["Age"])  # Access by column name
+
+# Writing CSV
+with open("output.csv", "w", newline='', encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["Name", "Age"])  # Write header
+    writer.writerow(["Alice", 30])
+    writer.writerow(["Bob", 25])
+    writer.writerows([["Charlie", 35], ["Diana", 28]])
+
+# Writing CSV from dictionaries
+with open("output.csv", "w", newline='', encoding="utf-8") as f:
+    fieldnames = ["Name", "Age", "City"]
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerow({"Name": "Alice", "Age": 30, "City": "NYC"})
+    writer.writerow({"Name": "Bob", "Age": 25, "City": "LA"})
+
+# Custom delimiter
+with open("data.tsv", "w", newline='', encoding="utf-8") as f:
+    writer = csv.writer(f, delimiter='\t')
+    writer.writerow(["Name", "Age"])</code></pre>
+
+  <div class="note">
+    <strong>💡 Why <code>newline=''</code>?</strong> On Windows, Python's default newline handling converts <code>\n</code> to <code>\r\n</code> when writing. The <code>csv</code> module adds its own newlines. Without <code>newline=''</code>, you get double newlines: <code>\r\r\n</code>.
+  </div>
+
+  <hr>
+
+  <h2>14. Working with JSON Files</h2>
+
+  <pre><code>import json
+
+# Python to JSON type conversion:
+# dict       → object
+# list/tuple → array
+# str        → string
+# int/float  → number
+# True       → true
+# False      → false
+# None       → null
+
+data = {
+    "name": "Alice",
+    "age": 30,
+    "scores": [95, 87, 92],
+    "active": True,
+    "address": None
+}
+
+# Write JSON to file
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+
+# Read JSON from file
+with open("data.json", encoding="utf-8") as f:
+    loaded = json.load(f)
+
+# Serialize to string (with pretty printing)
+json_str = json.dumps(data, indent=2, ensure_ascii=False)
+print(json_str)
+# {
+#   "name": "Alice",
+#   "age": 30,
+#   "scores": [95, 87, 92],
+#   "active": true,
+#   "address": null
+# }
+
+# Deserialize from string
+obj = json.loads(json_str)
+
+# Custom default for non-serializable types
+import datetime
+def default_handler(obj):
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+json.dumps({"timestamp": datetime.datetime.now()}, default=default_handler)</code></pre>
+
+  <h3>JSON Lines (one JSON object per line)</h3>
+
+  <pre><code># Write JSON lines (useful for large datasets)
+with open("data.jsonl", "w", encoding="utf-8") as f:
+    for item in items:
+        f.write(json.dumps(item) + "\n")
+
+# Read JSON lines
+with open("data.jsonl", encoding="utf-8") as f:
+    items = [json.loads(line) for line in f]</code></pre>
+
+  <hr>
+
+  <h2>15. Binary Files</h2>
+
+  <pre><code># Reading/writing bytes
+with open("data.bin", "wb") as f:
+    f.write(b"\x00\x01\x02\x03\x04")
+
+with open("data.bin", "rb") as f:
+    data = f.read()  # b"\x00\x01\x02\x03\x04"
+
+# struct module for packing/unpacking binary data
+import struct
+# Pack integers into bytes
+data = struct.pack("iii", 1, 2, 3)  # 12 bytes
+# Unpack bytes back to integers
+a, b, c = struct.unpack("iii", data)  # a=1, b=2, c=3</code></pre>
+
+  <hr>
+
+  <h2>16. Error Handling in File I/O</h2>
+
+  <pre><code>from pathlib import Path
+
+# Common file I/O exceptions:
+# FileNotFoundError — file doesn't exist
+# PermissionError — no access rights
+# FileExistsError — file already exists (x mode)
+# IsADirectoryError — expected file, got directory
+# NotADirectoryError — expected directory, got file
+# OSError — base class for file system errors
+
+# Graceful handling patterns
+try:
+    with open("config.txt", encoding="utf-8") as f:
+        config = f.read()
+except FileNotFoundError:
+    print("Config file not found, using defaults")
+    config = "{}"
+except PermissionError:
+    print("No permission to read config file")
+    config = "{}"
+
+# Check existence before operations
+p = Path("data.txt")
+if p.exists():
+    content = p.read_text(encoding="utf-8")
+else:
+    print(f"File not found: {p}")
+
+# Safe directory operations
+import shutil
+try:
+    shutil.rmtree("directory")
+except FileNotFoundError:
+    pass  # Already deleted
+except PermissionError as e:
+    print(f"Cannot delete: {e}")</code></pre>
+
+  <hr>
+
+  <h2>17. Best Practices Summary</h2>
+
+  <pre><code># 1. Always use 'with' statement
+with open("file.txt") as f:  # ✅
+    content = f.read()
+
+# 2. Always specify encoding
+with open("file.txt", encoding="utf-8") as f:  # ✅
+    content = f.read()
+
+# 3. Don't load entire large files into memory
+for line in open("huge.log"):  # ✅ iterate
+    process(line)
+
+# 4. Use pathlib for modern path handling
+from pathlib import Path
+p = Path("data") / "file.txt"  # ✅
+
+# 5. Use os.scandir for directory listing with metadata
+with os.scandir("dir") as entries:  # ✅ faster
+    for entry in entries:
+        print(entry.name, entry.stat().st_size)
+
+# 6. CSV files: always use newline=''
+with open("data.csv", newline='', encoding="utf-8") as f:  # ✅
+    reader = csv.reader(f)
+
+# 7. JSON: use ensure_ascii=False for Unicode
+json.dumps(data, ensure_ascii=False)  # ✅
+
+# 8. Use tempfile for temporary files
+with tempfile.NamedTemporaryFile() as f:  # ✅ auto-cleanup
+    f.write(b"data")
+
+# 9. Binary mode for non-text files
+with open("image.jpg", "rb") as f:  # ✅
+    data = f.read()
+
+# 10. Handle errors gracefully
+try:
+    with open("file.txt") as f:
+        content = f.read()
+except FileNotFoundError:
+    content = default_content</code></pre>
+
+  <hr>
+
+  <h2>18. When to Use What</h2>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Task</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Tool</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Read/write text files</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>open()</code> with <code>with</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Path manipulation</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>pathlib.Path</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Directory listing</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>os.scandir()</code> or <code>Path.iterdir()</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Recursive directory walk</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>os.walk()</code> or <code>Path.rglob()</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Pattern-based file search</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>glob.glob()</code> or <code>Path.glob()</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Copy/move/delete files</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>shutil</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Temporary files</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>tempfile</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">CSV data</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>csv</code> module</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">JSON data</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>json</code> module</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Binary data</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>open()</code> with <code>rb</code>/<code>wb</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">In-memory streams</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>io.StringIO</code>, <code>io.BytesIO</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">File metadata</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>os.stat()</code> or <code>Path.stat()</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic File Reading</h3>
+    <p>Create a text file with 5 lines of text. Read it using <code>read()</code>, <code>readline()</code>, <code>readlines()</code>, and direct iteration. Print results to show the differences.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Basic File Writing</h3>
+    <p>Write a program that creates a file, writes 3 lines, then appends 2 more lines. Read the file back to verify the content.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Context Managers and Error Handling</h3>
+    <p>Write a function that safely reads a file. Handle <code>FileNotFoundError</code> and <code>PermissionError</code>. Verify that the file is closed after reading (even if an error occurs).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: File Position</h3>
+    <p>Create a file with "ABCDEFGHIJ" (no newline). Read the first 3 characters, then seek to position 5 and read 2 characters. Use <code>tell()</code> to show the position at each step.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: pathlib Basics</h3>
+    <p>Given a path <code>Path("/home/user/documents/report.csv")</code>, print the name, stem, suffix, and parent. Create a new path joining "data", "2024", and "january.csv" using the <code>/</code> operator.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: pathlib Operations</h3>
+    <p>List all <code>.txt</code> files in the current directory using <code>Path.glob()</code>. For each file, print its name and size using <code>.stat().st_size</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: CSV Reading</h3>
+    <p>Create a CSV file with headers "Name", "Age", "City" and 3 rows of data. Read it using both <code>csv.reader()</code> and <code>csv.DictReader()</code>. Print the results.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: CSV Writing</h3>
+    <p>Given a list of dictionaries <code>[{"name": "Alice", "score": 95}, {"name": "Bob", "score": 87}]</code>, write them to a CSV file with headers using <code>csv.DictWriter()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: JSON Operations</h3>
+    <p>Create a dictionary with nested data (name, scores list, address dict). Write it to a JSON file with <code>indent=2</code>. Read it back and verify the data matches. Then convert to a JSON string with <code>json.dumps()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: In-Memory Streams</h3>
+    <p>Use <code>io.StringIO</code> to build a CSV string in memory (write header and 2 data rows). Get the final content with <code>getvalue()</code>. Then parse it with <code>csv.reader()</code> to verify it's valid CSV.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: File Metadata</h3>
+    <p>Use <code>os.stat()</code> on a file to get its size, modification time, and permissions. Convert the modification time to a readable format using <code>datetime.fromtimestamp()</code>. Use <code>stat.S_ISREG()</code> to verify it's a regular file.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Directory Traversal</h3>
+    <p>Use <code>os.walk()</code> to traverse a directory tree and count the total number of files and directories. Print the results. Use <code>os.scandir()</code> to find the largest file in a directory.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 13: shutil Operations</h3>
+    <p>Copy a file using <code>shutil.copy2()</code> (preserving metadata). Create a backup of a directory using <code>shutil.copytree()</code>. Move a file to a new location with <code>shutil.move()</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 14: Temporary Files</h3>
+    <p>Use <code>tempfile.NamedTemporaryFile()</code> to create a temporary file, write data to it, and verify it's deleted after the <code>with</code> block. Use <code>tempfile.TemporaryDirectory()</code> to create a temp directory, create files in it, and verify cleanup.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 15: Combined Challenge — Data Pipeline</h3>
+    <p>Build a data processing pipeline: (1) Read a CSV file with student data (name, grade, subject), (2) Convert to JSON format, (3) Write the JSON file, (4) Create a summary report with counts per subject. Use <code>pathlib</code> for all paths, handle errors gracefully, and add proper encoding.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>Why should you always use <code>with</code> when opening files?</li>
+    <li>What's the difference between <code>read()</code>, <code>readline()</code>, and <code>readlines()</code>?</li>
+    <li>When would you use <code>a</code> mode vs <code>w</code> mode?</li>
+    <li>What does <code>x</code> mode do? When would you use it?</li>
+    <li>Why is <code>encoding="utf-8"</code> important?</li>
+    <li>What's the difference between text mode and binary mode?</li>
+    <li>How do <code>tell()</code> and <code>seek()</code> work? What are the limitations in text mode?</li>
+    <li>When would you use <code>pathlib</code> vs <code>os.path</code>?</li>
+    <li>What does the <code>/</code> operator do with <code>Path</code> objects?</li>
+    <li>How do you list files in a directory? What are the tradeoffs of <code>os.listdir()</code>, <code>os.scandir()</code>, and <code>os.walk()</code>?</li>
+    <li>What's the difference between <code>os.stat()</code> attributes <code>st_mtime</code> and <code>st_ctime</code>?</li>
+    <li>When would you use <code>shutil.copy()</code> vs <code>shutil.copy2()</code>?</li>
+    <li>What does <code>shutil.rmtree()</code> do? Why is it dangerous?</li>
+    <li>When would you use <code>tempfile.NamedTemporaryFile()</code>?</li>
+    <li>What's the difference between <code>io.StringIO</code> and regular strings?</li>
+    <li>How do you read/write CSV files? Why is <code>newline=''</code> important?</li>
+    <li>What are JSON types? How do Python types map to JSON?</li>
+    <li>What's the difference between <code>json.dump()</code> and <code>json.dumps()</code>?</li>
+    <li>How do you handle <code>FileNotFoundError</code> gracefully?</li>
+    <li>What are common file I/O pitfalls to avoid?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0014-error-handling.html">← Previous: Error Handling</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0016-modules-and-packages.html">Next: Modules &amp; Packages →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

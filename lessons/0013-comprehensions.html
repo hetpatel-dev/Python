@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 13: Comprehensions</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 13: Comprehensions — Concise Data Collection</h1>
+
+  <p><span class="tag">concept</span> Comprehensions</p>
+
+  <p>Comprehensions provide a concise way to create lists, dictionaries, and sets from iterables. They are inspired by set-builder notation in mathematics and the functional language Haskell. A comprehension wraps a <code>for</code> loop — and optionally an <code>if</code> filter — into a single readable expression. This lesson covers all four kinds of comprehensions from the official <a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">Python tutorial on list comprehensions</a> and <a href="https://docs.python.org/3/reference/expressions.html#displays-for-lists-sets-and-dictionaries">language reference on displays</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions">Tutorial — List Comprehensions</a>, <a href="https://docs.python.org/3/tutorial/datastructures.html#nested-list-comprehensions">Nested List Comprehensions</a>, <a href="https://docs.python.org/3/tutorial/classes.html#generator-expressions">Generator Expressions</a>, <a href="https://docs.python.org/3/howto/functional.html#generator-expressions-and-list-comprehensions">Functional HOWTO</a>, <a href="https://docs.python.org/3/reference/expressions.html#displays-for-lists-sets-and-dictionaries">Reference — Displays</a>.</p>
+
+  <hr>
+
+  <h2>1. Why Comprehensions?</h2>
+
+  <p>Imagine you want a list of squares for numbers 0..9. The imperative approach uses a <code>for</code> loop, a blank list, and <code>.append()</code> — four lines of boilerplate. A list comprehension says the same thing in one line and makes the <em>what</em> (squares) obvious rather than the <em>how</em> (appending in a loop):</p>
+
+  <pre><code># Imperative approach — 4 lines
+squares = []
+for x in range(10):
+    squares.append(x ** 2)
+
+# List comprehension — 1 line
+squares = [x ** 2 for x in range(10)]
+
+print(squares)  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]</code></pre>
+
+  <p>Comprehensions also avoid a subtle side effect: the loop variable <code>x</code> leaks into the surrounding scope in the <code>for</code> loop version but is scoped to the comprehension in Python 3.</p>
+
+  <div class="note">
+    <strong>💡 Comprehensions vs loops:</strong> Use comprehensions when you're mapping (transform every element) or filtering (select some elements) from an iterable. Use explicit loops when you need side effects (like <code>print()</code>), complex control flow (<code>break</code>, <code>continue</code>), or when a comprehension would be too long to read at a glance.
+  </div>
+
+  <hr>
+
+  <h2>2. List Comprehensions</h2>
+
+  <p>The most common comprehension. Syntax: <code>[expression for item in iterable if condition]</code>. The <code>if</code> clause is optional.</p>
+
+  <pre><code># Basic — squares
+squares = [x ** 2 for x in range(10)]
+
+# With filter — even squares
+even_squares = [x ** 2 for x in range(10) if x ** 2 % 2 == 0]
+# Or more directly:
+even_squares = [x ** 2 for x in range(10) if x % 2 == 0]
+
+# Applying a method
+fruits = ["  banana", "  loganberry ", "passion fruit  "]
+stripped = [f.strip() for f in fruits]
+# ['banana', 'loganberry', 'passion fruit']
+
+# Calling a function
+from math import pi
+rounded = [str(round(pi, i)) for i in range(1, 6)]
+# ['3.1', '3.14', '3.142', '3.1416', '3.14159']
+
+# Expression with if-else (ternary) — note different position!
+labels = ["even" if x % 2 == 0 else "odd" for x in range(10)]
+# ['even', 'odd', 'even', 'odd', 'even', 'odd', 'even', 'odd', 'even', 'odd']
+
+# Multiple for clauses (Cartesian product)
+pairs = [(x, y) for x in [1, 2, 3] for y in [3, 1, 4] if x != y]
+# [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)]
+
+# Tuple expressions must be parenthesized
+coords = [(x, x ** 2) for x in range(5)]
+# [(0, 0), (1, 1), (2, 4), (3, 9), (4, 16)]</code></pre>
+
+  <div class="note">
+    <strong>💡 Syntax trap — tuple in expression:</strong> <code>[x, x**2 for x in range(5)]</code> is a <code>SyntaxError</code>. You must parenthesize tuples: <code>[(x, x**2) for x in range(5)]</code>.
+  </div>
+
+  <h2>3. Dict Comprehensions</h2>
+
+  <p>Dict comprehensions use curly braces and a <code>key: value</code> pair as the expression. Syntax: <code>{key_expr: value_expr for item in iterable if condition}</code>.</p>
+
+  <pre><code># Basic — squares as dict
+squares_dict = {x: x ** 2 for x in range(6)}
+# {0: 0, 1: 1, 2: 4, 3: 9, 4: 16, 5: 25}
+
+# From parallel lists with zip()
+names = ["Alice", "Bob", "Charlie"]
+ages = [30, 25, 35]
+name_to_age = {name: age for name, age in zip(names, ages)}
+# {'Alice': 30, 'Bob': 25, 'Charlie': 35}
+
+# From list of tuples
+pairs = [("a", 1), ("b", 2), ("c", 3)]
+dict_from_pairs = {k: v for k, v in pairs}
+# {'a': 1, 'b': 2, 'c': 3}
+
+# Swapping keys and values
+original = {"a": 1, "b": 2, "c": 3}
+swapped = {v: k for k, v in original.items()}
+# {1: 'a', 2: 'b', 3: 'c'}
+
+# With filter — passing scores
+scores = {"Alice": 85, "Bob": 42, "Charlie": 91, "Diana": 67}
+passing = {name: score for name, score in scores.items() if score >= 70}
+# {'Alice': 85, 'Charlie': 91}
+
+# Transforming values
+discounted = {name: round(price * 0.9, 2) for name, price in {"shirt": 50.0, "hat": 25.0}.items()}
+# {'shirt': 45.0, 'hat': 22.5}</code></pre>
+
+  <div class="note">
+    <strong>💡 Values can be arbitrary expressions:</strong> The value side of a dict comprehension can be any expression, including a list comprehension or another dict comprehension. But be careful — deep nesting hurts readability.
+  </div>
+
+  <h2>4. Set Comprehensions</h2>
+
+  <p>Set comprehensions also use curly braces, but without a colon. Syntax: <code>{expression for item in iterable if condition}</code>. The result is a set — unordered with duplicates removed.</p>
+
+  <pre><code># Basic — unique squares mod 10
+mods = {x ** 2 % 10 for x in range(20)}
+# {0, 1, 4, 5, 6, 9} — smaller than 20 because many share the same last digit
+
+# From a string — unique characters
+unique_chars = {c for c in "abracadabra"}
+# {'a', 'b', 'c', 'd', 'r'} — order is not preserved
+
+# With filter — unique even numbers
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+evens_set = {x for x in numbers if x % 2 == 0}
+# {2, 4, 6, 8, 10}
+
+# Transforming and deduplicating
+words = ["hello", "world", "hello", "python", "world"]
+upper_unique = {w.upper() for w in words}
+# {'HELLO', 'WORLD', 'PYTHON'}
+
+# Empty set trap — can't use {} for empty set!
+empty_dict = {}           # This is a dict, not a set
+empty_set = set()         # This is the correct way
+print(type(empty_dict))   # &lt;class 'dict'&gt;
+print(type(empty_set))    # &lt;class 'set'&gt;</code></pre>
+
+  <div class="note">
+    <strong>💡 Empty set trap:</strong> <code>{}</code> creates an empty <strong>dictionary</strong>, not a set. To create an empty set, you must use <code>set()</code>. This is the same pitfall as set literals — the curly brace overload is resolved by whether there's a colon.
+  </div>
+
+  <h2>5. Generator Expressions</h2>
+
+  <p>Generator expressions (or "genexps") are like list comprehensions but with parentheses instead of square brackets. They return a <strong>lazy iterator</strong> — values are computed on demand, one at a time, instead of building the entire list in memory.</p>
+
+  <pre><code># Generator expression — lazy
+squares_gen = (x ** 2 for x in range(10))
+print(squares_gen)  # &lt;generator object &lt;genexpr&gt; at 0x...&gt;
+
+# Exhaust the generator
+print(list(squares_gen))  # [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+# The generator is now exhausted:
+print(list(squares_gen))  # []
+
+# Generator in a function call — extra parentheses NOT needed
+total = sum(x ** 2 for x in range(10))          # OK — sum gets the genexp directly
+total = sum((x ** 2 for x in range(10)))        # Also OK but redundant
+print(total)  # 285
+
+# Memory comparison
+import sys
+list_comp = [x ** 2 for x in range(100000)]
+gen_exp   = (x ** 2 for x in range(100000))
+print(sys.getsizeof(list_comp))  # ~824,464 bytes
+print(sys.getsizeof(gen_exp))    # ~112 bytes — always tiny!
+
+# Chain with any(), all(), max(), min()
+has_large = any(x ** 2 > 1000 for x in range(50))   # True
+all_small = all(x < 100 for x in range(50))          # True
+biggest = max(x ** 2 for x in range(50))             # 2401
+
+# Generator expressions are SINGLE-USE
+gen = (x for x in [1, 2, 3])
+print(list(gen))  # [1, 2, 3]
+print(list(gen))  # [] — already exhausted!</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use generators:</strong> Use generator expressions when you're processing large or infinite streams of data, when you only need to iterate once, or when you're passing the result directly to a function like <code>sum()</code>, <code>max()</code>, <code>min()</code>, <code>any()</code>, or <code>all()</code>. Use list comprehensions when you need to index, slice, or iterate multiple times over the result.
+  </div>
+
+  <h2>6. Nested Comprehensions</h2>
+
+  <p>The expression in a comprehension can itself be a comprehension. This creates a nested structure, equivalent to nested <code>for</code> loops. The inner comprehension varies fastest (like nested <code>for</code> loops).</p>
+
+  <pre><code># Matrix as list of lists
+matrix = [
+    [1, 2, 3, 4],
+    [5, 6, 7, 8],
+    [9, 10, 11, 12],
+]
+
+# Flatten a 2D matrix into a 1D list
+flattened = [num for row in matrix for num in row]
+# [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+
+# Transpose rows and columns — inner comprehension is the expression
+transposed = [[row[i] for row in matrix] for i in range(4)]
+# [[1, 5, 9], [2, 6, 10], [3, 7, 11], [4, 8, 12]]
+# Equivalent to:
+transposed = []
+for i in range(4):
+    transposed.append([row[i] for row in matrix])
+
+# Nested for clauses (Cartesian product — multiple for on same level)
+pairs = [(x, y) for x in [1, 2, 3] for y in ['a', 'b']]
+# [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'), (3, 'a'), (3, 'b')]
+
+# Flatten an irregularly nested list (jagged)
+jagged = [[1, 2], [3, 4, 5], [6]]
+flat_jagged = [num for sublist in jagged for num in sublist]
+# [1, 2, 3, 4, 5, 6]
+
+# The built-in zip() is often cleaner than a nested comprehension for transposing
+from pprint import pprint
+pprint(list(zip(*matrix)))
+# [(1, 5, 9), (2, 6, 10), (3, 7, 11), (4, 8, 12)]</code></pre>
+
+  <div class="note">
+    <strong>💡 Readability warning:</strong> Nested comprehensions with more than two <code>for</code> clauses or nesting deeper than one level can become hard to read. A good rule of thumb: if a comprehension requires line breaks or comments to understand, rewrite it as a <code>for</code> loop. The <code>zip()</code> built-in often replaces transposition patterns more clearly.
+  </div>
+
+  <h2>7. Conditional Logic in Depth</h2>
+
+  <p>There are two places where conditions can appear in a comprehension, and they mean different things: the <strong>filter</strong> position (after the <code>for</code>) and the <strong>expression</strong> position (inside the expression, using the ternary operator).</p>
+
+  <pre><code># Filter position — IF at the end keeps or excludes items
+evens = [x for x in range(20) if x % 2 == 0]
+# [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+# Multiple filter conditions (combined with logical operators)
+special = [x for x in range(50) if x % 3 == 0 and x % 5 == 0]
+# [0, 15, 30, 45]
+
+# Expression position — ternary IF-ELSE transforms each item
+labels = ["small" if x < 10 else "big" for x in range(15)]
+# ['small', 'small', 'small', 'small', 'small', 'small', 'small', 'small', 'small', 'small', 'big', 'big', 'big', 'big', 'big']
+
+# Both together — filter THEN transform
+result = [
+    f"{n} is {'even' if n % 2 == 0 else 'odd'}"
+    for n in range(20)
+    if n > 10
+]
+# ['11 is odd', '12 is even', '13 is odd', ..., '19 is odd']
+
+# Multiple if clauses (AND-like chaining)
+filtered = [x for x in range(100) if x % 2 == 0 if x % 7 == 0 if x > 20]
+# [28, 42, 56, 70, 84, 98]
+# Equivalent to: x % 2 == 0 and x % 7 == 0 and x > 20</code></pre>
+
+  <div class="note">
+    <strong>💡 Filter vs ternary — position matters:</strong> The <code>if</code> at the end of a comprehension <strong>filters</strong> (keeps or discards items). An <code>if-else</code> inside the expression <strong>transforms</strong> (chooses which value to put in the result for each item). You can use both in the same comprehension, but the filter runs first — items that fail the filter never reach the expression.
+  </div>
+
+  <h2>8. The Walrus Operator (<code>:=</code>) in Comprehensions</h2>
+
+  <p>Since Python 3.8, the walrus operator (<code>:=</code>) allows assignment within an expression. In comprehensions, this is especially useful when you need to use a computed value both in the filter condition and in the output — without computing it twice.</p>
+
+  <pre><code># Without walrus — computing len() twice
+long_words = [w for w in words if len(w) > 5]
+
+# With walrus — compute len() once
+long_words = [w for w in words if (n := len(w)) > 5]
+# But the above doesn't capture n in the output!
+
+# Using the assigned value in the OUTPUT too
+words = ["hello", "world", "python", "code", "comprehension"]
+result = [(w, n) for w in words if (n := len(w)) > 5]
+# [('python', 6), ('comprehension', 13)]
+
+# Filter where a computed property meets a condition
+from math import sqrt
+nums = list(range(1, 50))
+perf_squares = [n for n in nums if (root := sqrt(n)) == int(root)]
+# [1, 4, 9, 16, 25, 36, 49]
+# root is still available after the comprehension!
+
+# Transforming with expensive computation
+import time
+def expensive(x):
+    time.sleep(0.01)  # Simulate heavy work
+    return x ** 2
+
+values = [5, 3, 8, 2, 9]
+# Without walrus — expensive() called twice per item
+result = [expensive(x) for x in values if expensive(x) > 20]
+
+# With walrus — expensive() called once per item
+result = [val for x in values if (val := expensive(x)) > 20]</code></pre>
+
+  <div class="note">
+    <strong>💡 Walrus scope leakage:</strong> Variables assigned with <code>:=</code> inside a list comprehension leak into the surrounding scope (unlike the loop variable in a comprehension). In the <code>perf_squares</code> example, <code>root</code> is accessible after the comprehension. This is <strong>not</strong> the case for generator expressions — walrus assignments in genexps are scoped locally.
+  </div>
+
+  <h2>9. When to Use vs Avoid</h2>
+
+  <p>Comprehensions are elegant, but they're not always the right choice. Here are guidelines for deciding:</p>
+
+  <pre><code># ✅ GOOD uses of comprehensions
+
+# Simple mapping — transform every element
+names = ["alice", "bob", "charles"]
+capitalized = [n.capitalize() for n in names]
+
+# Simple filtering — keep elements matching a condition
+evens = [x for x in range(100) if x % 2 == 0]
+
+# Mapping + filtering combined
+results = [process(x) for x in data if condition(x)]
+
+# Dict from structured data
+lookup = {item.id: item.name for item in items}
+
+# Set for deduplication
+unique_sizes = {len(w) for w in words}
+
+# Lazy sum
+total = sum(x * x for x in range(10_000_000))  # genexp, doesn't build a list
+
+
+# ❌ BAD uses of comprehensions
+
+# Side effects — don't use comprehensions for printing
+[print(x) for x in data]        # Bad — use a for loop instead
+
+# Too complex — break into a for loop
+# This is too long to parse at a glance:
+result = [
+    complex_transform(a, b)
+    for a in data_a
+    for b in data_b
+    if condition_a(a) and condition_b(b)
+    for c in inner(c)
+    if inner_condition(c)
+]
+# Better as a for loop:
+result = []
+for a in data_a:
+    if not condition_a(a):
+        continue
+    for b in data_b:
+        if not condition_b(b):
+            continue
+        for c in inner(c):
+            if inner_condition(c):
+                result.append(complex_transform(a, b))
+
+# Multiple side-effect operations
+# Don't do this:
+[output_file.write(line) and print(line) for line in lines]
+
+# When you need break/continue — comprehensions don't support these
+# Use a for loop when you need to stop early</code></pre>
+
+  <div class="note">
+    <strong>💡 The "one comprehension" guideline:</strong> A good rule of thumb: if a comprehension has more than one <code>for</code> clause or two <code>if</code>/<code>if-else</code> operations, it's probably clearer as a <code>for</code> loop. Comprehensions trade explicitness for conciseness — when the conciseness gain is small but the readability cost is high, use a loop.
+  </div>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic List Comprehension — Squares and Cubes</h3>
+    <p>Use list comprehensions to create lists of squares (n²), cubes (n³), and (number, square) tuples for 0..10. Also create formatted strings like <code>"5^2 = 25"</code>. Finally use <code>range(start, stop, step)</code> to produce squares of even numbers only.</p>
+    <pre><code>Squares: [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+Cubes: [0, 1, 8, 27, 64, 125, 216, 343, 512, 729, 1000]
+Tuples: [(0, 0), (1, 1), (2, 4), (3, 9), (4, 16), (5, 25)]
+Strings: ['0^2 = 0', '1^2 = 1', '2^2 = 4', ...]
+Even squares: [0, 4, 16, 36, 64, 100]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Filtering with List Comprehensions</h3>
+    <p>Given a list of numbers, filter to keep only even numbers, only numbers greater than 10, and numbers that are both even AND greater than 20. Given a list of strings, keep only those starting with a vowel. Given a mixed list, keep only integers using <code>isinstance()</code>. Keep words with length &gt; 4.</p>
+    <pre><code>Evens: [2, 4, 6, 8, 10]
+Greater than 10: [11, 15, 20, 25]
+Start with vowel: ['apple', 'orange', 'umbrella']
+Only ints: [1, 42, 7]
+Long words: ['hello', 'world', 'python']</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Transformation with List Comprehensions</h3>
+    <p>Convert Celsius to Fahrenheit using <code>(c * 9/5) + 32</code>. Strip whitespace from strings, convert numeric strings to integers, capitalize words, compute absolute values, and split sentences into word lists. All using list comprehensions.</p>
+    <pre><code>Fahrenheit: [32.0, 50.0, 68.0, 86.0, 104.0]
+Stripped: ['hello', 'world', 'python']
+Integers: [1, 2, 3, 4, 5]
+Capitalized: ['Alice', 'Bob', 'Charlie']
+Absolute: [4, 2, 0, 2, 4]
+Split: [['hello', 'world'], ['how', 'are', 'you']]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Dictionary Comprehensions</h3>
+    <p>Create a dict mapping words to their lengths. Map numbers to their squares. Use <code>zip()</code> to pair two parallel lists into a dict. Map each fruit string to its length. From a string, create a character frequency dict. Convert a list of tuples to a dict.</p>
+    <pre><code>Word lengths: {'apple': 5, 'banana': 6, 'cherry': 6}
+Number squares: {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+From zip: {'Alice': 30, 'Bob': 25, 'Charlie': 35}
+Fruit lengths: {'apple': 5, 'banana': 6, 'kiwi': 4}
+Char count: {'h': 1, 'e': 1, 'l': 3, 'o': 2}
+From pairs: {'a': 1, 'b': 2, 'c': 3}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Dictionary Comprehensions with Filtering and Transformation</h3>
+    <p>Given a dict of scores, keep only passing entries (≥70). Swap keys and values so old values become keys. Apply a 10% discount to items over $50. Keep only words longer than 4 characters. Filter ages 18-65 and increment each by 1. Map numbers to "even"/"odd" strings.</p>
+    <pre><code>Passing: {'Alice': 85, 'Charlie': 91, 'Diana': 73}
+Swapped: {1: 'a', 2: 'b', 3: 'c'}
+Discounted: {'shirt': 45.0, 'hat': 22.5}
+Long words: {'python': 6, 'comprehension': 13}
+Adults: {'Alice': 31, 'Bob': 26}
+Even/odd: {1: 'odd', 2: 'even', 3: 'odd', 4: 'even', 5: 'odd'}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Set Comprehensions</h3>
+    <p>Find unique characters in a string, unique word lengths from a list, unique vowels in a sentence, unique remainders when dividing by 3, unique values across nested sublists, and unique types in a mixed list. All using set comprehensions.</p>
+    <pre><code>Unique chars: {'a', 'b', 'c', 'd', 'r'}
+Unique lengths: {3, 4, 5, 6, 7}
+Unique vowels: {'a', 'e', 'i', 'o', 'u'}
+Remainders mod 3: {0, 1, 2}
+Unique across sublists: {1, 2, 3, 4}
+Unique types: {&lt;class 'int'&gt;, &lt;class 'str'&gt;, &lt;class 'float'&gt;, &lt;class 'list'&gt;}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Generator Expressions — Lazy Evaluation</h3>
+    <p>Create a generator expression for squares 0..9 and print it directly (observe it's a generator object, not a list). Use a genexp inside <code>sum()</code>, <code>max()</code>, and <code>any()</code>. Create a Fibonacci generator and convert to list. Compare memory size of a list comprehension vs a generator expression for 100,000 items using <code>sys.getsizeof()</code>.</p>
+    <pre><code>Generator object: &lt;generator object &lt;genexpr&gt; at 0x...&gt;
+Sum of squares: 285
+Max cube under 1000: 729
+Any divisible by 7 and 13: True
+First 10 Fibonacci: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+List size vs gen size: ~824464 vs ~112 (gen is always tiny!)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Nested Comprehensions</h3>
+    <p>Flatten a 3x3 matrix to a single list. Transpose a matrix (swap rows and columns). Generate a multiplication table (1..10) as a 2D list. Convert each string in a list to a list of its characters. Generate all (x, y) pairs from two lists using two <code>for</code> clauses. Double every element in a matrix.</p>
+    <pre><code>Flattened: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+Transposed: [(1, 4, 7), (2, 5, 8), (3, 6, 9)]
+Multiplication table: [[1, 2, ...], [2, 4, ...], ...]
+Char lists: [['h', 'i'], ['t', 'h', 'e', 'r', 'e']]
+Cartesian pairs: [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]
+Doubled: [[2, 4, 6], [8, 10, 12], [14, 16, 18]]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Conditional Logic — Ternary Expressions in Comprehensions</h3>
+    <p>Map numbers to "even"/"odd" strings. Uppercase words longer than 4, title-case others. Map numbers to "positive"/"negative"/"zero". Implement FizzBuzz for 1..30 using a list comprehension. Map numeric grades (0..100) to letter grades (A/B/C/D/F). In a mixed list, keep strings and numbers but convert digit-strings to ints.</p>
+    <pre><code>Even/odd labels: ['even', 'odd', 'even', 'odd', 'even']
+Case transform: ['SMALL', 'BIG', 'BIG', 'Small']
+Sign labels: ['positive', 'negative', 'zero', 'positive', 'negative']
+FizzBuzz: ['1', '2', 'Fizz', '4', 'Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz', '11', 'Fizz', '13', '14', 'FizzBuzz', ...]
+Grade letters: ['A', 'B', 'C', 'D', 'F']
+Cleaned types: ['hello', 42, 'world', 99, 3.14]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Walrus Operator (:=) in Comprehensions</h3>
+    <p>Filter strings longer than 5 and collect their lengths in one pass. Find perfect squares by computing the square root once per number. Filter sentences with >3 words and store word counts. Convert bytes to kilobytes but only keep those >1 KB. Strip strings and filter out empty results — all in one pass. Find numbers whose factorial is < 10000 and store both number and factorial.</p>
+    <pre><code>Long words with lengths: [('python', 6), ('comprehension', 13)]
+Perfect squares: [1, 4, 9, 16, 25, 36, 49]
+Sentences with counts: [('Hello world', 2), ('This is a test', 4)]
+Large files in KB: [(2048, 2.0), (5120, 5.0)]
+Stripped non-empty: ['hello', 'world']
+Factorials under 10000: [(1, 1), (2, 2), (3, 6), (4, 24), (5, 120), (6, 720), (7, 5040)]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: Multiple for Clauses — Cartesian Products</h3>
+    <p>Generate all (i, j) pairs from numbers and letters. Combine colors, sizes, and styles into all possible tuples. Generate all (x, y) coordinates for a 3×3 grid. Combine "ABC" and "123" into all two-character strings. Generate expressions like "5 + 3" from numbers and operators. Find all pairs from two lists where the sum exceeds 10.</p>
+    <pre><code>Number-letter pairs: [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b'), (3, 'a'), (3, 'b')]
+Product combos: [('red', 'S', 'casual'), ('red', 'M', 'casual'), ...]
+Grid coords: [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (2, 0), (2, 1), (2, 2)]
+Char combos: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3']
+Expressions: ['5 + 3', '5 - 3', '5 * 3', '8 + 2', ...]
+Sum &gt; 10: [(5, 7), (6, 5), (6, 7), (7, 5), (7, 7)]</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Mixed Practice — Choose the Right Tool</h3>
+    <p>Determine which comprehension type (or explicit loop) fits each scenario: computing a running balance from transactions, finding duplicate values, building a word frequency dict (can a dict comprehension do this?), choosing list vs generator for summing squares of millions, merging two dicts with priority for the second, filtering valid IPv4 addresses, flattening a jagged 2D list, and comparing performance of list comp vs dict comp vs genexp using <code>timeit</code>.</p>
+    <pre><code>Running balance: [100, 50, 150, 50, 250]  (needs state — use a loop)
+Duplicates: {2, 4}  (set comprehension with condition)
+Word freq: {'the': 5, 'and': 3, ...}  (loop or Counter — dict comp can't accumulate)
+Sum of 10M squares: use generator (no intermediate list)
+Merged dict: {'a': 1, 'b': 99, 'c': 3}  (dict comprehension with fallback)
+Valid IPv4s: ['192.168.1.1', '10.0.0.1']
+Flattened jagged: [1, 2, 3, 4, 5, 6]
+Performance: genexp is fastest + most memory-efficient; list comp fast but memory-heavy</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What brackets/symbols delimit a list comprehension, dict comprehension, set comprehension, and generator expression?</li>
+    <li>How does a list comprehension differ from a generator expression in terms of evaluation (eager vs lazy) and memory usage?</li>
+    <li>What does a generator expression return? Can you index it or get its length?</li>
+    <li>Where does the <code>if</code> filter clause go in a comprehension? Where does a ternary <code>if-else</code> go?</li>
+    <li>How do you express an <code>if-elif-else</code> chain inside a comprehension?</li>
+    <li>When would you choose a generator expression over a list comprehension?</li>
+    <li>What happens when you nest three <code>for</code> clauses in a list comprehension? How many elements result?</li>
+    <li>How is <code>{x for x in ...}</code> different from <code>{x: x for x in ...}</code>?</li>
+    <li>What does the walrus operator allow in comprehensions that wasn't possible before? What scope leak does it create?</li>
+    <li>When should you NOT use a comprehension and use a regular <code>for</code> loop instead?</li>
+    <li>What's the output of <code>[x * 2 for x in range(5) if x > 2]</code>?</li>
+    <li>What's the output of <code>["even" if x % 2 == 0 else "odd" for x in [1, 2, 3]]</code>?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0011-sets.html">← Previous: Sets</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0014-error-handling.html">Next: Error Handling →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

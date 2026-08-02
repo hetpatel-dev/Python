@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 12: Functions in Depth</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 12: Functions in Depth — Reusable Blocks of Code</h1>
+
+  <p><span class="tag">concept</span> Functions</p>
+
+  <p>Functions are the primary way to organize and reuse code in Python. They are <strong>first-class objects</strong> — you can assign them to variables, pass them as arguments, and return them from other functions. This lesson covers everything from the official <a href="https://docs.python.org/3/tutorial/controlflow.html#defining-functions">Python tutorial on defining functions</a> and the <a href="https://docs.python.org/3/reference/compound_stmts.html#function-definitions">language reference on function definitions</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/controlflow.html#defining-functions">Tutorial — Defining Functions</a>, <a href="https://docs.python.org/3/tutorial/controlflow.html#more-on-defining-functions">More on Defining Functions</a>, <a href="https://docs.python.org/3/reference/compound_stmts.html#function-definitions">Reference — Function Definitions</a>, <a href="https://docs.python.org/3/library/functions.html">Built-in Functions</a>.</p>
+
+  <hr>
+
+  <h2>1. Defining Functions</h2>
+
+  <p>The <code>def</code> keyword introduces a function definition. It must be followed by the function name and parenthesized parameters. The body starts on the next line and must be indented. A function without a <code>return</code> statement implicitly returns <code>None</code>:</p>
+
+  <pre><code># Defining a function
+def greet():
+    print("Hello, World!")
+
+# Calling the function
+greet()  # Hello, World!
+
+# Function with parameters
+def greet_person(name):
+    print(f"Hello, {name}!")
+
+greet_person("Alice")  # Hello, Alice!
+
+# Placeholder — pass does nothing
+def placeholder():
+    pass
+
+# Function without return returns None
+def no_return():
+    x = 42
+
+result = no_return()
+print(result)  # None
+
+# Function with empty return
+def early_exit():
+    return  # also returns None
+
+# Returning a value
+def add(a, b):
+    return a + b
+
+print(add(3, 5))  # 8
+
+# A function definition creates a function object
+print(greet)       # &lt;function greet at 0x...&gt;
+print(type(greet)) # &lt;class 'function'&gt;</code></pre>
+
+  <div class="note">
+    <strong>💡 Functions are objects:</strong> When Python executes <code>def</code>, it creates a function object and binds it to the name. The body is not executed at definition time — only when the function is called. This is why you can call a function before its definition appears at runtime (as long as the definition runs before the call).
+  </div>
+
+  <h2>2. Return Values</h2>
+
+  <p>The <code>return</code> statement exits a function and optionally passes a value back to the caller. Without a value, <code>return</code> returns <code>None</code>. Functions can return multiple values as a tuple:</p>
+
+  <pre><code># Single return value
+def square(x):
+    return x * x
+
+print(square(5))  # 25
+
+# Early return (guard clause)
+def divide(a, b):
+    if b == 0:
+        return None  # guard: avoid division by zero
+    return a / b
+
+print(divide(10, 2))  # 5.0
+print(divide(10, 0))  # None
+
+# Multiple return values (packed as tuple)
+def min_max(numbers):
+    return min(numbers), max(numbers)
+
+result = min_max([3, 1, 7, 2, 9])
+print(result)       # (1, 9)
+print(type(result)) # &lt;class 'tuple'&gt;
+
+# Tuple unpacking on return
+low, high = min_max([3, 1, 7, 2, 9])
+print(f"Low: {low}, High: {high}")
+
+# Fall off the end = implicit None
+def no_return():
+    pass
+
+print(no_return())  # None</code></pre>
+
+  <div class="note">
+    <strong>💡 Multiple return values:</strong> Python doesn't actually return multiple values — it returns a single tuple containing all the values. Tuple unpacking on the caller side makes it look like multiple returns. This is the idiomatic way to return multiple results in Python (e.g., <code>divmod(a, b)</code> returns <code>(quotient, remainder)</code>).
+  </div>
+
+  <h2>3. Default Argument Values</h2>
+
+  <p>Default values let you call a function with fewer arguments. Defaults are evaluated <strong>once</strong> at function definition time, which leads to the infamous mutable default trap:</p>
+
+  <pre><code># Basic default values
+def greet(name="World"):
+    print(f"Hello, {name}!")
+
+greet()          # Hello, World!
+greet("Alice")   # Hello, Alice!
+
+# Multiple defaults
+def power(base, exponent=2):
+    return base ** exponent
+
+print(power(5))     # 25 (5^2)
+print(power(5, 3))  # 125 (5^3)
+
+# Defaults evaluated ONCE at definition time
+x = 5
+def show(arg=x):
+    print(arg)
+
+x = 10  # This does NOT affect the default!
+show()  # 5, not 10 — default was evaluated when def ran
+
+# THE MUTABLE DEFAULT TRAP
+def add_item(item, lst=[]):
+    lst.append(item)
+    return lst
+
+print(add_item(1))  # [1]
+print(add_item(2))  # [1, 2] — the SAME list was mutated!
+print(add_item(3))  # [1, 2, 3]
+
+# THE FIX: use None and create a new list each time
+def add_item_fixed(item, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(item)
+    return lst
+
+print(add_item_fixed(1))  # [1]
+print(add_item_fixed(2))  # [2] — fresh list each time!
+print(add_item_fixed(3))  # [3]
+
+# Same trap applies to dict and set defaults
+def track(key, value, cache=None):
+    if cache is None:
+        cache = {}
+    cache[key] = value
+    return cache</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Mutable default trap:</strong> Never use a mutable object (list, dict, set) as a default parameter value unless you intentionally want shared state across calls. The default is created once at definition time and reused for every call. Use the <code>None</code>-and-assign pattern instead: <code>def f(x, lst=None): if lst is None: lst = []</code>.
+  </div>
+
+  <h2>4. Keyword Arguments</h2>
+
+  <p>Functions can be called using <code>name=value</code> keyword arguments. Keyword arguments must follow positional arguments. No argument may receive a value more than once:</p>
+
+  <pre><code>def parrot(voltage, state='a stiff', action='voom', type='Norwegian Blue'):
+    print(f"-- This parrot wouldn't {action}")
+    print(f"if you put {voltage} volts through it.")
+    print(f"-- Lovely plumage, the {type}")
+    print(f"-- It's {state}!")
+
+# Valid calls:
+parrot(1000)                              # 1 positional
+parrot(voltage=1000)                      # 1 keyword
+parrot(voltage=1000000, action='VOOOOOM') # 2 keywords (order doesn't matter)
+parrot('a million', 'bereft of life')     # 2 positional
+parrot('a thousand', state='pushing up')  # 1 positional + 1 keyword
+
+# INVALID calls:
+# parrot()                        # TypeError: missing required arg
+# parrot(voltage=5.0, 'dead')     # SyntaxError: non-keyword after keyword
+# parrot(110, voltage=220)        # TypeError: duplicate value
+# parrot(actor='John')            # TypeError: unknown keyword
+
+# No argument may receive a value more than once
+def function(a):
+    pass
+# function(0, a=0)  # TypeError: got multiple values for argument 'a'</code></pre>
+
+  <h2>5. Special Parameters — Positional-Only and Keyword-Only</h2>
+
+  <p>Python lets you restrict how arguments can be passed using <code>/</code> and <code>*</code> markers. This is defined in <a href="https://docs.python.org/3/tutorial/controlflow.html#special-parameters">PEP 457 / Tutorial 4.9.3</a>:</p>
+
+  <pre><code>def f(pos1, pos2, /, pos_or_kwd, *, kwd1, kwd2):
+    #   |           |           |           |
+    #   |           |           |           +-- Keyword-only
+    #   |           |           +-- Positional-or-keyword
+    #   |           +-- Positional-only
+    #   +-- Positional-only
+    print(pos1, pos2, pos_or_kwd, kwd1, kwd2)
+
+# Positional-only: before /
+def pos_only(arg, /):
+    print(arg)
+
+pos_only(42)      # OK
+# pos_only(arg=42)  # TypeError!
+
+# Keyword-only: after *
+def kwd_only(*, arg):
+    print(arg)
+
+kwd_only(arg=42)  # OK
+# kwd_only(42)      # TypeError!
+
+# Combined example
+def combined(pos_only, /, standard, *, kwd_only):
+    print(pos_only, standard, kwd_only)
+
+combined(1, 2, kwd_only=3)           # OK
+combined(1, standard=2, kwd_only=3)  # OK
+# combined(pos_only=1, standard=2, kwd_only=3)  # TypeError
+
+# Practical use: positional-only avoids name collision with **kwargs
+def foo(name, /, **kwds):
+    return 'name' in kwds
+
+print(foo(1, **{'name': 2}))  # True — no collision!</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use each:</strong> Use positional-only (<code>/</code>) when parameter names have no meaning or you want to enforce argument order. Use keyword-only (<code>*</code>) when names add meaning and you want explicit, self-documenting calls. Many built-in functions use positional-only for parameters where the name is irrelevant (e.g., <code>abs(x, /)</code>).
+  </div>
+
+  <h2>6. <code>*args</code> and <code>**kwargs</code> — Arbitrary Argument Lists</h2>
+
+  <p>Functions can accept a variable number of arguments. <code>*args</code> collects extra positional arguments into a tuple. <code>**kwargs</code> collects extra keyword arguments into a dict:</p>
+
+  <pre><code># *args — arbitrary positional arguments
+def sum_all(*args):
+    total = 0
+    for n in args:
+        total += n
+    return total
+
+print(sum_all(1, 2, 3))       # 6
+print(sum_all(10, 20, 30, 40)) # 100
+print(sum_all())               # 0
+print(args)  # would be () inside the function
+
+# **kwargs — arbitrary keyword arguments
+def build_profile(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key}: {value}")
+
+build_profile(name="Alice", age=30, city="London")
+# name: Alice
+# age: 30
+# city: London
+
+# Combined with regular parameters
+def log_message(level, *messages, **metadata):
+    print(f"[{level}]", *messages)
+    for key, value in metadata.items():
+        print(f"  {key}: {value}")
+
+log_message("INFO", "Server started", "on port 8080", user="admin")
+# [INFO] Server started on port 8080
+#   user: admin
+
+# Forwarding pattern — pass *args and **kwargs to another function
+def wrapper(*args, **kwargs):
+    return target_function(*args, **kwargs)
+
+# Order: normal args, *args, **kwargs
+def example(a, b, *args, **kwargs):
+    print(f"a={a}, b={b}, args={args}, kwargs={kwargs}")
+
+example(1, 2, 3, 4, 5, x=10, y=20)
+# a=1, b=2, args=(3, 4, 5), kwargs={'x': 10, 'y': 20}</code></pre>
+
+  <div class="note">
+    <strong>💡 Naming convention:</strong> The names <code>args</code> and <code>kwargs</code> are conventions, not syntax. You can use any name after <code>*</code> and <code>**</code> — e.g., <code>*numbers</code> or <code>**options</code>. But <code>*args</code> and <code>**kwargs</code> are the universally recognized convention.
+  </div>
+
+  <h2>7. Unpacking Argument Lists</h2>
+
+  <p>The reverse of <code>*args</code>/<code>**kwargs</code>: you can unpack a list/tuple with <code>*</code> and a dict with <code>**</code> when <em>calling</em> a function:</p>
+
+  <pre><code>def add(a, b, c):
+    return a + b + c
+
+# Unpack a list into positional arguments
+numbers = [1, 2, 3]
+print(add(*numbers))  # 6 — same as add(1, 2, 3)
+
+# Unpack a tuple
+args = (10, 20, 30)
+print(add(*args))  # 60
+
+# Unpack a dict into keyword arguments
+def connect(host, port, protocol="http"):
+    return f"{protocol}://{host}:{port}"
+
+config = {"host": "localhost", "port": 8080, "protocol": "https"}
+print(connect(**config))  # https://localhost:8080
+
+# Mixed: positional + unpacked
+def repeat(word, times, uppercase=False):
+    result = (word.upper() if uppercase else word) + " "
+    return result * times
+
+args = (3,)
+kwargs = {"uppercase": True}
+print(repeat("hello", *args, **kwargs))  # HELLO HELLO HELLO
+
+# Range example — unpack list into range()
+list(range(3, 6))           # [3, 4, 5]
+args = [3, 6]
+list(range(*args))           # [3, 4, 5] — same result!
+
+# What happens if you unpack a dict with missing or extra keys?
+# Missing: TypeError (required argument missing)
+# Extra: TypeError (unexpected keyword argument)</code></pre>
+
+  <div class="note">
+    <strong>💡 Unpacking vs packing:</strong> <code>*args</code> in a function definition <em>packs</em> arguments into a tuple. <code>*iterable</code> in a function call <em>unpacks</em> the iterable into separate arguments. These are two sides of the same coin — the <code>*</code> operator works in both contexts.
+  </div>
+
+  <h2>8. Docstrings</h2>
+
+  <p>A docstring is a string literal as the first statement in a function. It becomes the <code>__doc__</code> attribute and is used by <code>help()</code>. Follow <a href="https://docs.python.org/3/tutorial/controlflow.html#documentation-strings">PEP 257 conventions</a>:</p>
+
+  <pre><code># One-line docstring
+def add(a, b):
+    """Return the sum of a and b."""
+    return a + b
+
+print(add.__doc__)  # Return the sum of a and b.
+# help(add)         # Shows the docstring in the interactive help
+
+# Multi-line docstring
+def calculate_bmi(weight, height):
+    """Calculate Body Mass Index.
+
+    Parameters
+    ----------
+    weight : float
+        Weight in kilograms.
+    height : float
+        Height in meters.
+
+    Returns
+    -------
+    float
+        The BMI value.
+    """
+    return weight / (height ** 2)
+
+print(calculate_bmi.__doc__)
+# help(calculate_bmi)
+
+# Docstrings are available via __doc__ on any function
+print(len.__doc__)    # Return the number of items in a container.
+print(print.__doc__)  # Prints the values to a stream, or sys.stdout by default.</code></pre>
+
+  <div class="note">
+    <strong>💡 Docstring conventions:</strong> First line: a short summary starting with a capital letter and ending with a period. Second line: blank. Subsequent lines: detailed description of parameters, return values, and side effects. Tools like Sphinx and IDEs use docstrings to generate documentation and provide tooltip help.
+  </div>
+
+  <h2>9. Function Annotations (Type Hints)</h2>
+
+  <p>Annotations are optional metadata about parameter types and return types. They're stored in <code>__annotations__</code> and have <strong>no effect</strong> on execution — Python does not enforce types. See <a href="https://docs.python.org/3/tutorial/controlflow.html#function-annotations">PEP 3107 and PEP 484</a>:</p>
+
+  <pre><code># Annotating parameters and return type
+def greet(name: str, age: int) -&gt; str:
+    return f"{name} is {age} years old."
+
+# Annotations are stored in __annotations__
+print(greet.__annotations__)
+# {'name': &lt;class 'str'&gt;, 'age': &lt;class 'int'&gt;, 'return': &lt;class 'str'&gt;}
+
+# Annotations + default values
+def repeat(message: str, times: int = 1) -&gt; list:
+    return [message] * times
+
+print(repeat.__annotations__)
+# {'message': &lt;class 'str'&gt;, 'times': &lt;class 'int'&gt;, 'return': &lt;class 'list'&gt;}
+
+# Python does NOT enforce types!
+greet(42, "hello")  # Runs fine — "42 is hello years old."
+
+# Type hints with standard library types
+from typing import List, Optional
+
+def process(items: List[int]) -&gt; Optional[int]:
+    if not items:
+        return None
+    return sum(items) // len(items)
+
+print(process.__annotations__)
+# {'items': list[int], 'return': int | None}</code></pre>
+
+  <div class="note">
+    <strong>💡 Annotations are optional hints:</strong> Type annotations are for documentation, IDEs, and static type checkers (like <code>mypy</code>). Python itself ignores them at runtime. They make code more readable and help catch bugs when used with a type checker, but they never affect how the code runs.
+  </div>
+
+  <h2>10. Functions as First-Class Objects</h2>
+
+  <p>In Python, functions are objects. You can assign them to variables, pass them as arguments, return them from other functions, and store them in data structures:</p>
+
+  <pre><code># Assigning to a variable
+def square(x):
+    return x * x
+
+f = square        # f now refers to the same function
+print(f(5))       # 25
+
+# Storing in a list
+def cube(x):
+    return x * x * x
+
+operations = [square, cube]
+for op in operations:
+    print(op(3))  # 9, 27
+
+# Passing as an argument
+def apply_all(func, numbers):
+    return [func(n) for n in numbers]
+
+print(apply_all(square, [1, 2, 3, 4]))  # [1, 4, 9, 16]
+
+# Returning a function
+def choose_operation(name):
+    if name == "square":
+        return square
+    elif name == "cube":
+        return cube
+    else:
+        return lambda x: x  # identity function
+
+op = choose_operation("cube")
+print(op(4))  # 64
+
+# Dict of functions
+math_ops = {
+    "add": lambda a, b: a + b,
+    "sub": lambda a, b: a - b,
+    "mul": lambda a, b: a * b,
+    "div": lambda a, b: a / b if b != 0 else None,
+}
+print(math_ops["add"](10, 5))   # 15
+print(math_ops["mul"](10, 5))   # 50
+
+# callable() checks if an object is callable
+print(callable(square))          # True
+print(callable(42))              # False
+print(callable("hello"))         # False
+print(callable(print))           # True
+print(callable([1, 2, 3]))       # False</code></pre>
+
+  <div class="note">
+    <strong>💡 First-class functions enable patterns:</strong> This property is the foundation for many powerful Python features: decorators, callbacks, functional programming tools like <code>map</code>/<code>filter</code>, and dependency injection. We'll explore decorators in Phase 2.
+  </div>
+
+  <h2>11. Lambda Expressions</h2>
+
+  <p>Lambda expressions create small anonymous functions. They're restricted to a <strong>single expression</strong> (no statements). Semantically equivalent to a <code>def</code> — just syntactic sugar:</p>
+
+  <pre><code># Basic lambda — assigned to a name (rarely useful)
+square = lambda x: x * x
+print(square(5))  # 25
+
+# Immediate invocation
+print((lambda a, b: a + b)(3, 4))  # 7
+
+# Lambda with sorted() key
+people = [("Alice", 30), ("Bob", 25), ("Charlie", 35)]
+people.sort(key=lambda person: person[1])  # sort by age
+print(people)  # [('Bob', 25), ('Alice', 30), ('Charlie', 35)]
+
+# Lambda with map()
+numbers = [1, 2, 3, 4, 5]
+squares = list(map(lambda x: x ** 2, numbers))
+print(squares)  # [1, 4, 9, 16, 25]
+
+# Lambda with filter()
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)  # [2, 4]
+
+# Lambda vs named function — readability matters
+# Hard to read:
+result = list(filter(lambda x: x % 3 == 0, range(100)))
+
+# Better with a name:
+def divisible_by_three(x):
+    return x % 3 == 0
+result = list(filter(divisible_by_three, range(100)))
+
+# Closures with lambda
+def make_multiplier(n):
+    return lambda x: x * n
+
+doubler = make_multiplier(2)
+tripler = make_multiplier(3)
+print(doubler(10))  # 20
+print(tripler(10))  # 30
+
+# Lambda with conditional expression
+max_val = lambda a, b: a if a &gt; b else b
+print(max_val(10, 20))  # 20
+
+# Lambda cannot contain statements — these are INVALID:
+# lambda x: return x + 1     # SyntaxError
+# lambda x: if x &gt; 0: x      # SyntaxError
+# lambda x: for i in x: i    # SyntaxError</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use lambdas:</strong> Lambdas shine as short, throwaway functions for <code>sorted(key=...)</code>, <code>map()</code>, <code>filter()</code>, and callbacks. If the logic is complex or needs to be reused, use a <code>def</code> instead. <strong>PEP 8</strong> recommends assigning lambdas to names only when the name is descriptive; otherwise, just use <code>def</code>.
+  </div>
+
+  <h2>12. Scope — The LEGB Rule</h2>
+
+  <p>Python resolves names using the LEGB rule: <strong>L</strong>ocal, <strong>E</strong>nclosing, <strong>G</strong>lobal, <strong>B</strong>uilt-in. When you assign to a variable inside a function, it becomes <strong>local</strong> by default. Use <code>global</code> and <code>nonlocal</code> to override this:</p>
+
+  <pre><code># LEGB rule — Python searches in this order:
+# 1. Local — inside the current function
+# 2. Enclosing — functions that contain this one (nested functions)
+# 3. Global — the module level
+# 4. Built-in — names like len, print, range
+
+# Global scope
+x = "global"
+
+def outer():
+    x = "enclosing"  # Enclosing scope
+
+    def inner():
+        x = "local"   # Local scope
+        print("inner:", x)
+
+    inner()
+    print("outer:", x)
+
+outer()
+print("global:", x)
+# inner: local
+# outer: enclosing
+# global: global
+
+# Reading a global inside a function works (no assignment)
+count = 0
+def show_count():
+    print(count)  # Reads global fine
+
+show_count()  # 0
+
+# But assigning creates a LOCAL variable unless you use global
+def increment_bad():
+    count += 1  # UnboundLocalError! Python sees assignment = local
+
+def increment_good():
+    global count
+    count += 1
+    return count
+
+increment_good()
+print(count)  # 1
+
+# nonlocal — for nested function scopes
+def make_counter():
+    count = 0
+    def counter():
+        nonlocal count  # Without this: UnboundLocalError
+        count += 1
+        return count
+    return counter
+
+c = make_counter()
+print(c())  # 1
+print(c())  # 2
+print(c())  # 3
+
+# nonlocal finds the nearest enclosing scope (not global)
+def outer():
+    x = "outer"
+    def middle():
+        x = "middle"
+        def inner():
+            nonlocal x  # binds to 'middle' x, not 'outer'
+            x = "modified"
+        inner()
+        print(x)  # modified
+    middle()
+    print(x)  # outer (middle's x was modified, not outer's)
+
+outer()</code></pre>
+
+  <div class="note">
+    <strong>⚠️ The assignment rule:</strong> In Python, if you have an assignment to a name anywhere in a function, that name is considered <strong>local</strong> throughout the entire function — even before the assignment. This is why <code>global</code> and <code>nonlocal</code> are needed: they tell Python "this name is not local, look elsewhere."
+  </div>
+
+  <h2>13. <code>map()</code>, <code>filter()</code>, and <code>reduce()</code></h2>
+
+  <p>Python provides three built-in functional programming tools. <code>map()</code> applies a function to every item in an iterable. <code>filter()</code> keeps items where the function returns true. <code>reduce()</code> (in <code>functools</code>) cumulatively applies a function:</p>
+
+  <pre><code># map() — transform each element
+numbers = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x ** 2, numbers))
+print(squared)  # [1, 4, 9, 16, 25]
+
+# map() with multiple iterables
+list1 = [1, 2, 3]
+list2 = [10, 20, 30]
+sums = list(map(lambda a, b: a + b, list1, list2))
+print(sums)  # [11, 22, 33]
+
+# map() with None — identity function
+nested = [[1, 2], [3, 4], [5, 6]]
+# map(None, nested)  # Not supported in Python 3 — use lambda
+
+# filter() — keep elements where function returns True
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+evens = list(filter(lambda x: x % 2 == 0, numbers))
+print(evens)  # [2, 4, 6, 8, 10]
+
+# filter() with None — removes falsy values
+values = [0, 1, "", "hello", None, [], [1, 2]]
+truthy = list(filter(None, values))
+print(truthy)  # [1, 'hello', [1, 2]]
+
+# reduce() — cumulative operation
+from functools import reduce
+
+numbers = [1, 2, 3, 4, 5]
+product = reduce(lambda a, b: a * b, numbers)
+print(product)  # 120 (1*2*3*4*5)
+
+sum_all = reduce(lambda a, b: a + b, numbers)
+print(sum_all)  # 15
+
+# reduce() with initial value
+product_with_init = reduce(lambda a, b: a * b, numbers, 10)
+print(product_with_init)  # 1200 (10*1*2*3*4*5)
+
+# Practical example: find the longest word
+words = ["short", "longer", "longest", "tiny"]
+longest = reduce(lambda a, b: a if len(a) &gt; len(b) else b, words)
+print(longest)  # longest
+
+# List comprehensions are often more readable than map/filter
+# These are equivalent:
+squares_lc = [x**2 for x in numbers]
+squares_map = list(map(lambda x: x**2, numbers))
+evens_lc = [x for x in numbers if x % 2 == 0]
+evens_filter = list(filter(lambda x: x % 2 == 0, numbers))</code></pre>
+
+  <div class="note">
+    <strong>💡 List comprehensions vs map/filter:</strong> In Python, list comprehensions are generally preferred over <code>map()</code> and <code>filter()</code> for readability. They're more explicit and often faster. However, <code>map()</code> and <code>filter()</code> are still useful when you have an existing function to apply (no lambda needed) or when working with large data (they return lazy iterators).
+  </div>
+
+  <h2>14. Recursion Basics</h2>
+
+  <p>A recursive function calls itself. Every recursive function needs a <strong>base case</strong> (stops the recursion) and a <strong>recursive case</strong> (calls itself with a smaller problem). Python has a recursion limit (default 1000):</p>
+
+  <pre><code># Factorial — classic recursion example
+def factorial(n):
+    """Return n! = n * (n-1) * (n-2) * ... * 1."""
+    if n &lt;= 1:
+        return 1  # Base case
+    return n * factorial(n - 1)  # Recursive case
+
+print(factorial(5))  # 120
+print(factorial(0))  # 1
+
+# Countdown
+def countdown(n):
+    if n &lt;= 0:
+        print("Blastoff!")
+        return
+    print(n)
+    countdown(n - 1)
+
+countdown(5)  # 5, 4, 3, 2, 1, Blastoff!
+
+# Sum a list recursively
+def sum_list(lst):
+    if not lst:  # Base case: empty list
+        return 0
+    return lst[0] + sum_list(lst[1:])  # Recursive case
+
+print(sum_list([1, 2, 3, 4, 5]))  # 15
+
+# Reverse a string recursively
+def reverse_string(s):
+    if len(s) &lt;= 1:  # Base case
+        return s
+    return reverse_string(s[1:]) + s[0]  # Recursive case
+
+print(reverse_string("hello"))  # olleh
+
+# Fibonacci (naive — very slow!)
+def fib(n):
+    if n &lt;= 1:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(6))   # 8
+# print(fib(35))  # Takes a while — exponential time!
+
+# Recursion limit
+import sys
+print(sys.getrecursionlimit())  # 1000 (default)
+
+def recurse_forever(n=0):
+    print(n)
+    recurse_forever(n + 1)  # Eventually hits RecursionError
+
+# Uncomment at your own risk:
+# recurse_forever()
+
+# Set recursion limit (use with caution)
+# sys.setrecursionlimit(2000)
+
+# Recursion vs iteration: anything recursive can be written iteratively
+def factorial_iterative(n):
+    result = 1
+    for i in range(2, n + 1):
+        result *= i
+    return result
+
+print(factorial_iterative(5))  # 120</code></pre>
+
+  <div class="note">
+    <strong>💡 Recursion trade-offs:</strong> Recursion can make code elegant for problems with a naturally recursive structure (trees, divide-and-conquer, backtracking). But Python doesn't optimize tail recursion, so deep recursion (past ~1000 frames) raises <code>RecursionError</code>. For deep recursion, use iteration. We'll revisit recursion in depth in Phase 3.
+  </div>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Defining and Calling Functions</h3>
+    <p>Define functions with different signatures: no parameters, one parameter, multiple parameters, and a <code>pass</code> placeholder. Call each function. Define a function without a <code>return</code> and print its result — confirm it's <code>None</code>. Define a function with a bare <code>return</code> and confirm the same. Print the type of the function object itself (not its return value).</p>
+    <pre><code>Hello, World!
+Hello, Alice!
+Sum: 8
+...
+Result of no-return function: None
+Result of bare return: None
+Type of function: &lt;class 'function'&gt;</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Return Values and Multiple Returns</h3>
+    <p>Write <code>square(n)</code> returning n², <code>is_even(n)</code> returning bool, <code>first_n(n)</code> returning a list <code>[1..n]</code>, and <code>min_max(lst)</code> returning <code>(min, max)</code>. Use tuple unpacking on <code>min_max</code>. Write <code>divide(a, b)</code> with a guard clause returning <code>None</code> for b=0. Write a function that returns multiple values without explicit tuple syntax and unpack them.</p>
+    <pre><code>square(5): 25
+is_even(4): True
+first_n(5): [1, 2, 3, 4, 5]
+min_max([3, 1, 7, 2, 9]): (1, 9)
+Low: 1, High: 9
+divide(10, 0): None
+name: Alice, age: 30</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Default Parameters and the Mutable Default Trap</h3>
+    <p>Write a function with default parameter values. Show that defaults are evaluated once at definition time (the <code>x=5</code> then <code>x=10</code> trick). Demonstrate the mutable default trap: a function with <code>lst=[]</code> that accumulates across calls. Then fix it using the <code>None</code> pattern. Repeat the same trap with a dict default.</p>
+    <pre><code>greet(): Hello, World!
+greet("Alice"): Hello, Alice!
+power(5): 25, power(5, 3): 125
+Default evaluated once: 5  (not 10)
+
+Mutable default trap:
+add_item(1) -&gt; [1]
+add_item(2) -&gt; [1, 2]  &lt;-- bug!
+add_item(3) -&gt; [1, 2, 3]  &lt;-- bug!
+
+Fixed version:
+add_item_fixed(1) -&gt; [1]
+add_item_fixed(2) -&gt; [2]  &lt;-- fixed!
+add_item_fixed(3) -&gt; [3]  &lt;-- fixed!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Keyword Arguments and Parameter Ordering</h3>
+    <p>Write a function <code>describe_person(name, age, city="Unknown", job="Unemployed")</code>. Call it in all valid ways. Then try invalid calls (missing required, non-keyword after keyword, duplicate value, unknown keyword) and note the errors. Implement a function with positional-only (<code>/</code>) parameters and another with keyword-only (<code>*</code>) parameters. Implement a combined version with all three parameter types.</p>
+    <pre><code>describe_person("Alice", 30)
+describe_person("Bob", 25, city="Paris")
+describe_person("Charlie", 35, job="Engineer", city="Berlin")
+
+Invalid calls (expect errors):
+parrot() (missing required) -&gt; TypeError
+parrot(voltage=5.0, 'dead') -&gt; SyntaxError
+parrot(110, voltage=220) -&gt; TypeError
+
+Positional-only: pos_only(42) OK, pos_only(arg=42) ERROR
+Keyword-only: kwd_only(arg=42) OK, kwd_only(42) ERROR</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: *args and **kwargs</h3>
+    <p>Write <code>sum_all(*args)</code>, <code>print_all(*args)</code>, <code>build_profile(**kwargs)</code>, and <code>log_message(level, *args, **kwargs)</code>. Create a wrapper function that forwards <code>*args</code> and <code>**kwargs</code> to another function. Try calling with different combinations and observe how args becomes a tuple and kwargs becomes a dict inside the function.</p>
+    <pre><code>sum_all(1, 2, 3): 6
+sum_all(): 0
+build_profile(name="Alice", age=30): name: Alice, age: 30
+log_message("INFO", "Server up", user="admin")
+  [INFO] Server up
+    user: admin
+
+Wrapper works:
+wrapper(1, 2, 3) calls target(1, 2, 3)
+wrapper(x=10, y=20) calls target(x=10, y=20)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Unpacking Arguments — * and ** in Calls</h3>
+    <p>Given <code>def add(a, b, c): return a + b + c</code>, unpack a list <code>[1, 2, 3]</code> into the call with <code>*</code>. Given <code>def connect(host, port, protocol="http")</code>, unpack a dict with <code>**</code>. Mix positional arguments with unpacked ones. What happens if you unpack a dict with missing keys? With extra keys?</p>
+    <pre><code>add(*[1, 2, 3]): 6
+connect(**{"host": "localhost", "port": 8080}): http://localhost:8080
+connect(**{"host": "localhost", "port": 8080, "protocol": "https"}): https://localhost:8080
+
+Missing key: TypeError (required positional argument)
+Extra key: TypeError (unexpected keyword argument)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Docstrings and Function Annotations</h3>
+    <p>Write a function with a one-line docstring and print <code>__doc__</code>. Write a multi-line docstring following PEP 257 conventions. Add type annotations to a function and inspect <code>__annotations__</code>. Test that Python does NOT enforce type hints (pass wrong types). Use <code>help()</code> on your function.</p>
+    <pre><code>add.__doc__: "Return the sum of a and b."
+calculate_bmi.__doc__:
+  Calculate Body Mass Index.
+  ...
+
+greet.__annotations__:
+  {'name': &lt;class 'str'&gt;, 'age': &lt;class 'int'&gt;, 'return': &lt;class 'str'&gt;}
+
+Passing wrong types works (no error):
+greet(42, "hello") -&gt; "42 is hello years old."</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Functions as First-Class Objects</h3>
+    <p>Define <code>square</code> and <code>cube</code>. Assign each to a new variable and call via the new name. Store both in a list and iterate, calling each. Write <code>apply_all(func, numbers)</code> that returns <code>[func(n) for n in numbers]</code>. Write <code>choose_operation(name)</code> that returns a function. Store operations in a dict and call by key. Use <code>callable()</code> on various objects.</p>
+    <pre><code>f = square; f(5): 25
+[op(3) for op in [square, cube]]: [9, 27]
+apply_all(square, [1, 2, 3, 4]): [1, 4, 9, 16]
+choose_operation("cube")(4): 64
+ops["add"](10, 5): 15
+callable(square): True, callable(42): False</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Lambda Functions</h3>
+    <p>Write a lambda for squaring and assign it. Use immediate invocation <code>(lambda x, y: x + y)(3, 4)</code>. Sort a list of tuples by the second element using <code>sorted(key=lambda ...)</code>. Use <code>map()</code> and <code>filter()</code> with lambdas. Create a closure factory <code>make_multiplier(n)</code> that returns <code>lambda x: x * n</code>. Compare writing the same logic as a lambda vs a named function.</p>
+    <pre><code>Immediate lambda: 7
+Sorted by age: [('Bob', 25), ('Alice', 30), ('Charlie', 35)]
+map squares: [1, 4, 9, 16, 25]
+filter evens: [2, 4, 6, 8, 10]
+
+doubler = make_multiplier(2): doubler(10) = 20
+tripler = make_multiplier(3): tripler(10) = 30</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Scope — global, nonlocal, and LEGB</h3>
+    <p>Demonstrate the LEGB rule with nested functions at all four levels. Show that reading a global works but ASSIGNMENT creates a local variable (<code>UnboundLocalError</code>). Fix it with <code>global</code>. Create a nested counter with <code>nonlocal</code>. Demonstrate that <code>nonlocal</code> binds to the nearest enclosing scope (not the global).</p>
+    <pre><code>LEGB demonstration:
+  inner: local
+  outer: enclosing
+  global: global
+  len (built-in): &lt;built-in function len&gt;
+
+Reading global works: 0
+Assignment without global: UnboundLocalError
+Using global: count = 1, count = 2
+
+Counter closure with nonlocal:
+  counter() = 1
+  counter() = 2
+  counter() = 3
+
+nonlocal binds to nearest enclosing scope (not the global)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: Recursion Basics</h3>
+    <p>Write recursive <code>factorial(n)</code>, <code>countdown(n)</code>, <code>sum_list(lst)</code>, <code>reverse_string(s)</code>, and <code>fibonacci(n)</code>. Verify base cases. Try <code>fibonacci(35)</code> and observe how slow it is (exponential). Check <code>sys.getrecursionlimit()</code>. Write a function that recurses infinitely and catch the <code>RecursionError</code>.</p>
+    <pre><code>factorial(5): 120
+factorial(0): 1
+countdown(5): 5, 4, 3, 2, 1, Blastoff!
+sum_list([1, 2, 3, 4, 5]): 15
+reverse_string("hello"): "olleh"
+fibonacci(6): 8
+fibonacci(35): 9227465 (may take a moment)
+
+Recursion limit: 1000
+Infinite recursion -&gt; RecursionError: maximum recursion depth exceeded</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Mixed Review — Building a Small Toolkit</h3>
+    <p>Combine everything: write a <code>calculate</code> function with <code>operation</code> param, <code>*args</code> for numbers, <code>**kwargs</code> for options, internal lambdas, docstring, and annotations. Write a recursive <code>flatten</code> function. Write a <code>create_counter</code> closure using <code>nonlocal</code>. Write <code>apply_twice(f, x)</code> that returns <code>f(f(x))</code>. Write <code>sort_by_criteria</code> using <code>sorted</code> with a lambda key. Debug and fix the <code>add_student</code> mutable default bug.</p>
+    <pre><code>calculate("add", 1, 2, 3): 6
+calculate("multiply", 2, 3, 4): 24
+calculate("add", 1, 2, 3, round_result=True, precision=1): 6.0
+
+flatten([1, [2, [3, 4]], 5]): [1, 2, 3, 4, 5]
+
+counter = create_counter()
+counter(): 1, counter(): 2, counter(): 3
+
+apply_twice(lambda x: x + 5, 10): 20
+
+sort_by_criteria(["apple", "kiwi", "banana", "pear"]): ['banana', 'apple', ...]
+
+add_student bug: Fixed using None pattern</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>What does a function return if it has no <code>return</code> statement?</li>
+    <li>How do you return multiple values from a function?</li>
+    <li>When are default argument values evaluated? What is the mutable default trap and how do you fix it?</li>
+    <li>What is the order rule for positional and keyword arguments in a call?</li>
+    <li>What do <code>/</code> and <code>*</code> mean in a function definition's parameter list?</li>
+    <li>What does <code>*args</code> collect? What type is it? What about <code>**kwargs</code>?</li>
+    <li>How do you unpack a list into separate arguments when calling a function?</li>
+    <li>How do you access a function's docstring programmatically?</li>
+    <li>What is stored in <code>__annotations__</code>? Does Python enforce type hints?</li>
+    <li>What does it mean that functions are "first-class objects" in Python?</li>
+    <li>What is a lambda? What are its restrictions compared to a <code>def</code>?</li>
+    <li>What does LEGB stand for? What do <code>global</code> and <code>nonlocal</code> do?</li>
+    <li>What does <code>map()</code> do? How is it different from a list comprehension?</li>
+    <li>What are the two essential parts of every recursive function?</li>
+    <li>What happens when a recursive function exceeds the recursion limit?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0011-sets.html">← Previous: Sets</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0013-comprehensions.html">Next: Comprehensions →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

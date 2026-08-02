@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 16: Modules &amp; Packages</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 16: Modules &amp; Packages — Organizing and Reusing Code</h1>
+
+  <p><span class="tag">concept</span> Modules &amp; Packages</p>
+
+  <p>As programs grow, putting everything in one file becomes unmanageable. Python's module and package system lets you split code across files, organize it into hierarchies, and reuse it across projects. This lesson covers the full import system from the official <a href="https://docs.python.org/3/tutorial/modules.html">Python tutorial on modules</a> and the <a href="https://docs.python.org/3/reference/import.html">import system reference</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/modules.html">Tutorial — Modules</a>, <a href="https://docs.python.org/3/tutorial/modulelife.html">Tutorial — Modules Expanded</a>, <a href="https://docs.python.org/3/reference/import.html">The import system</a>, <a href="https://docs.python.org/3/library/importlib.html">importlib — The implementaion of import</a>, <a href="https://docs.python.org/3/library/sys.html#sys.path">sys.path</a>, <a href="https://docs.python.org/3/library/sys.html#sys.modules">sys.modules</a>.</p>
+
+  <hr>
+
+  <h2>1. The <code>import</code> Statement — All Forms</h2>
+
+  <p>The <code>import</code> statement has several forms. Each one performs two operations: (1) search for the named module, and (2) bind a name in the local namespace.</p>
+
+  <h3>Form 1: <code>import x</code></h3>
+
+  <p>Binds the module name <code>x</code> in the current namespace. You must use the prefix to access anything inside it.</p>
+
+  <pre><code>import math
+math.sqrt(4)       # 2.0
+math.pi            # 3.141592653589793</code></pre>
+
+  <h3>Form 2: <code>import x.y.z</code></h3>
+
+  <p>Imports <code>x</code>, <code>x.y</code>, and <code>x.y.z</code> sequentially, but only binds <code>x</code> locally. Each intermediate package must exist.</p>
+
+  <pre><code>import os.path
+os.path.join("a", "b")   # "a/b"</code></pre>
+
+  <h3>Form 3: <code>from x import y</code></h3>
+
+  <p>Loads module <code>x</code>, then binds <code>y</code> directly in the current namespace. Works for submodules, functions, classes, and variables.</p>
+
+  <pre><code>from math import sqrt, pi
+sqrt(4)    # 2.0 — no prefix needed
+pi         # 3.141592653589793
+
+from os.path import join, exists
+join("a", "b")   # "a/b"</code></pre>
+
+  <h3>Form 4: <code>from x import *</code></h3>
+
+  <p>Imports <strong>all public names</strong> from module <code>x</code> into the current namespace. What counts as "public" is determined by <code>__all__</code> (covered later).</p>
+
+  <pre><code>from math import *
+sqrt(4)    # works
+pi         # works
+sin(0)     # works</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Danger:</strong> <code>from x import *</code> can silently overwrite existing names and makes it impossible to tell where a name came from. Use explicit imports instead. It's only allowed at <strong>module level</strong> — using it inside a class or function raises <code>SyntaxError</code>.
+  </div>
+
+  <h3>Form 5: <code>import x as y</code> and <code>from x import y as z</code></h3>
+
+  <p>The <code>as</code> keyword creates an alias. Essential for common abbreviations and avoiding name conflicts.</p>
+
+  <pre><code>import numpy as np
+from math import sqrt as square_root
+
+np.array([1, 2, 3])
+square_root(4)</code></pre>
+
+  <h3>Form 6: Relative Imports — <code>from . import y</code></h3>
+
+  <p>Uses leading dots to navigate relative to the current package. One dot = current package, two dots = parent, and so on.</p>
+
+  <pre><code># Inside package/submodule_a.py:
+from . import submodule_b        # import sibling module
+from .submodule_b import helper  # import specific name from sibling
+from .. import other_package     # import from parent package
+from ..other_package import foo  # import from sibling package</code></pre>
+
+  <div class="note">
+    <strong>💡 Key rule:</strong> Relative imports only work with the <code>from</code> form. Writing <code>import .module</code> is a <code>SyntaxError</code> because <code>.module</code> is not a valid expression.
+  </div>
+
+  <h3>Summary Table</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Form</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">What It Does</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import x</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Binds module name <code>x</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import math</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import x.y.z</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Imports dotted chain, binds <code>x</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import os.path</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from x import y</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Binds <code>y</code> directly</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from math import sqrt</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from x import *</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Imports all public names</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from math import *</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import x as y</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Aliased module name</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import numpy as np</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from . import y</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Relative import from current package</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from . import utils</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>2. Absolute vs Relative Imports</h2>
+
+  <h3>Absolute Imports</h3>
+
+  <p>Use the full dotted path from the top-level package. Always clear where the import comes from.</p>
+
+  <pre><code>from mypackage.subpackage import module_a
+import mypackage.subpackage.module_b</code></pre>
+
+  <h3>Relative Imports</h3>
+
+  <p>Use leading dots to traverse relative to the current module's package. Convenient within a package but can confuse readers.</p>
+
+  <pre><code># Given this layout:
+# mypackage/
+#     __init__.py
+#     subpackage_a/
+#         __init__.py
+#         module_x.py    ← this file
+#         module_y.py
+#     subpackage_b/
+#         __init__.py
+#         module_z.py
+
+# Inside subpackage_a/module_x.py:
+from . import module_y                        # same package
+from .module_y import helper                  # name from sibling
+from ..subpackage_b import module_z           # parent, then sibling package
+from ..subpackage_b.module_z import process   # name from sibling's submodule</code></pre>
+
+  <h3>When to Use Which</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Use Case</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Recommendation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Importing from standard library or third-party packages</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Always absolute</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Importing within your own package</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Either works; relative is shorter</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">The script being run directly (<code>__main__</code>)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><strong>Must use absolute</strong> — main has no package</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Maximum clarity for readers</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Absolute imports</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>⚠️ Main module restriction:</strong> The script you run directly (the "main module") has no package, so relative imports won't work there. If <code>main.py</code> does <code>from . import utils</code>, you'll get <code>ImportError: attempted relative import with no known parent package</code>.
+  </div>
+
+  <hr>
+
+  <h2>3. The <code>if __name__ == "__main__"</code> Pattern</h2>
+
+  <p>Every module has a <code>__name__</code> attribute. Its value depends on how the module is being used:</p>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">How It's Used</th>
+        <th style="border: 1px solid #ddd; padding: 8px;"><code>__name__</code> Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import fibo</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"fibo"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import mypackage.mymodule</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"mypackage.mymodule"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>python fibo.py</code> (run directly)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"__main__"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>python -m fibo</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"__main__"</code> (but <code>__spec__.name</code> is <code>"fibo"</code>)</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Interactive interpreter</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"__main__"</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The Pattern</h3>
+
+  <pre><code># fibo.py — Fibonacci module
+"""A module for computing Fibonacci numbers."""
+
+def fib(n):
+    """Print Fibonacci series up to n."""
+    a, b = 0, 1
+    while a < n:
+        print(a, end=" ")
+        a, b = b, a + b
+    print()
+
+def fib_list(n):
+    """Return Fibonacci list up to n."""
+    result = []
+    a, b = 0, 1
+    while a < n:
+        result.append(a)
+        a, b = b, a + b
+    return result
+
+# This code only runs when the file is executed directly
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        fib(int(sys.argv[1]))
+    else:
+        print("Usage: python fibo.py <number>")</code></pre>
+
+  <pre><code># When run as: python fibo.py 50
+# Output: 0 1 1 2 3 5 8 13 21 34
+
+# When imported from another file:
+# import fibo
+# fibo.fib(50)  → calls the function
+# The if __name__ block does NOT execute</code></pre>
+
+  <h3>Why It Exists</h3>
+
+  <ul>
+    <li><strong>Dual-use modules:</strong> A file can be both importable AND runnable as a script</li>
+    <li><strong>Testing:</strong> Run module-level tests when executed directly</li>
+    <li><strong>CLI interface:</strong> Provide command-line functionality</li>
+    <li><strong>Example scripts:</strong> Show usage when run, but don't execute when imported</li>
+  </ul>
+
+  <hr>
+
+  <h2>4. Creating Your Own Modules</h2>
+
+  <p>Any <code>.py</code> file is a module. The file name (minus <code>.py</code>) becomes the module name.</p>
+
+  <pre><code># mymodule.py — a custom module
+"""My custom module for demonstration."""
+
+VERSION = "1.0"
+
+def greet(name):
+    """Return a greeting string."""
+    return f"Hello, {name}!"
+
+class Animal:
+    """A simple Animal class."""
+    def __init__(self, name, sound):
+        self.name = name
+        self.sound = sound
+
+    def speak(self):
+        return f"{self.name} says {self.sound}!"</code></pre>
+
+  <pre><code># In another file (same directory):
+import mymodule
+
+print(mymodule.VERSION)       # "1.0"
+print(mymodule.greet("Alice"))  # "Hello, Alice!"
+
+cat = mymodule.Animal("Cat", "Meow")
+print(cat.speak())            # "Cat says Meow!"</code></pre>
+
+  <h3>Module Naming Conventions</h3>
+
+  <ul>
+    <li>Short, all lowercase, with underscores if helpful: <code>my_module.py</code></li>
+    <li>Avoid hyphens — <code>my-module.py</code> is invalid because <code>-</code> means subtraction</li>
+    <li>Don't shadow standard library modules (don't name yours <code>os.py</code> or <code>json.py</code>)</li>
+  </ul>
+
+  <h3>Each Module Has Its Own Namespace</h3>
+
+  <p>Functions in a module use the module's global namespace. This prevents accidental clashes with your own code:</p>
+
+  <pre><code># mymodule.py
+x = "module's x"   # this x lives in mymodule's namespace
+
+# main.py
+x = "my x"          # this x lives in main's namespace
+import mymodule
+print(x)            # "my x" — yours is unchanged
+print(mymodule.x)   # "module's x" — theirs is separate</code></pre>
+
+  <h3>Module-Level Code Runs Once</h3>
+
+  <p>Module-level statements execute only the <strong>first time</strong> the module is imported in a session. Subsequent imports return the cached version from <code>sys.modules</code>.</p>
+
+  <pre><code># mymodule.py
+print("Module initialized!")   # prints only once per session
+
+import mymodule   # prints "Module initialized!"
+import mymodule   # nothing printed (cached)</code></pre>
+
+  <hr>
+
+  <h2>5. Packages — <code>__init__.py</code> and Subpackages</h2>
+
+  <p>A <strong>package</strong> is a module that contains submodules or subpackages. By definition, any module with a <code>__path__</code> attribute is a package. All packages are modules, but not all modules are packages.</p>
+
+  <h3>Package Directory Structure</h3>
+
+  <pre><code>sound/                          # Top-level package
+    __init__.py                 # Initialize the sound package
+    formats/                    # Subpackage for file formats
+        __init__.py
+        wavread.py
+        aiffread.py
+    effects/                    # Subpackage for sound effects
+        __init__.py
+        echo.py
+        surround.py
+        reverse.py
+    filters/                    # Subpackage for filters
+        __init__.py
+        equalizer.py
+        vocoder.py</code></pre>
+
+  <h3>What <code>__init__.py</code> Does</h3>
+
+  <p><code>__init__.py</code> is executed when the package (or its submodules) are imported. It serves several purposes:</p>
+
+  <pre><code># sound/__init__.py
+"""The sound package — audio processing tools."""
+
+# Re-export commonly used items for convenience
+from .effects.echo import echofilter
+from .effects.surround import surroundfilter
+
+# Control what 'from sound import *' imports
+__all__ = ["echofilter", "surroundfilter", "formats", "effects"]</code></pre>
+
+  <pre><code># sound/effects/__init__.py
+"""Sound effects subpackage."""
+from .echo import echofilter
+from .surround import surroundfilter
+from .reverse import reverse</code></pre>
+
+  <h3>Using the Package</h3>
+
+  <pre><code>import sound
+sound.echofilter(...)           # works (re-exported in __init__.py)
+
+from sound import echofilter
+echofilter(...)                 # works
+
+from sound.effects import echo
+echo.echofilter(...)            # full path works
+
+from sound.effects.echo import echofilter
+echofilter(...)                 # direct import works</code></pre>
+
+  <h3>Empty <code>__init__.py</code></h3>
+
+  <p>The simplest package just needs an empty <code>__init__.py</code>. This makes Python treat the directory as a package without any initialization logic:</p>
+
+  <pre><code># mypackage/__init__.py
+# (empty — just makes the directory a package)</code></pre>
+
+  <h3>Namespace Packages (No <code>__init__.py</code>)</h3>
+
+  <p>Since Python 3.3, packages can exist <strong>without</strong> <code>__init__.py</code>. These are called <strong>namespace packages</strong> and allow a single package to be split across multiple directories:</p>
+
+  <pre><code># Directory structure:
+# project1/mypackage/module_a.py
+# project2/mypackage/module_b.py
+
+# Both directories are in sys.path
+# Python automatically creates a namespace package 'mypackage'
+# that spans both directories
+
+import mypackage.module_a   # works
+import mypackage.module_b   # works</code></pre>
+
+  <div class="note">
+    <strong>💡 Regular vs namespace packages:</strong> Regular packages (with <code>__init__.py</code>) are faster to import because Python finds and loads them immediately. Namespace packages require scanning ALL path entries before creation. Use regular packages unless you specifically need to split a package across directories.
+  </div>
+
+  <hr>
+
+  <h2>6. The Module Search Path</h2>
+
+  <p>When you write <code>import foo</code>, Python searches for <code>foo</code> in a specific order.</p>
+
+  <h3><code>sys.path</code> — The Search Path</h3>
+
+  <p><code>sys.path</code> is a list of directories that Python searches for modules. It is initialized from:</p>
+
+  <ol>
+    <li>The directory containing the input script (or the current directory)</li>
+    <li>The <code>PYTHONPATH</code> environment variable</li>
+    <li>The installation-dependent default (including <code>site-packages</code>)</li>
+  </ol>
+
+  <pre><code>import sys
+print(sys.path)
+# ['', '/usr/lib/python3.x', '/usr/lib/python3.x/lib-dynload',
+#  '/usr/lib/python3.x/site-packages']</code></pre>
+
+  <pre><code># Add custom paths at runtime:
+sys.path.append("/my/custom/path")
+sys.path.insert(0, "/my/priority/path")  # insert at beginning</code></pre>
+
+  <h3>The <code>PYTHONPATH</code> Environment Variable</h3>
+
+  <pre><code># Linux/macOS
+export PYTHONPATH="/my/modules:/another/path"
+
+# Windows
+set PYTHONPATH=C:\my\modules;C:\another\path</code></pre>
+
+  <h3><code>sys.modules</code> — The Import Cache</h3>
+
+  <p><code>sys.modules</code> is a dictionary mapping module names to module objects. It serves as a cache — the <strong>first place checked</strong> during import.</p>
+
+  <pre><code>import sys
+print("math" in sys.modules)    # True (if math was imported)
+
+# Deleting from the cache forces re-import:
+del sys.modules["mymodule"]
+import mymodule   # re-executes the module code</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Cache gotcha:</strong> If you delete a module from <code>sys.modules</code> and re-import it, you get a <strong>different</strong> module object. Use <code>importlib.reload()</code> instead if you want the same object with re-executed code.
+  </div>
+
+  <h3>The Complete Import Search Order</h3>
+
+  <ol>
+    <li>Check <code>sys.modules</code> cache → return immediately if found</li>
+    <li>Search <code>sys.meta_path</code> finders:
+      <ul>
+        <li><code>BuiltinImporter</code> — built-in modules (like <code>sys</code>, <code>math</code>)</li>
+        <li><code>FrozenImporter</code> — frozen modules</li>
+        <li><code>PathFinder</code> — searches <code>sys.path</code> entries</li>
+      </ul>
+    </li>
+    <li>For each <code>sys.path</code> entry, consult <code>sys.path_hooks</code></li>
+    <li>If nothing found → <code>ModuleNotFoundError</code></li>
+  </ol>
+
+  <pre><code># Example: import foo.bar.baz
+# 1. Check sys.modules for 'foo', 'foo.bar', 'foo.bar.baz'
+# 2. Find 'foo' as a package (has __path__)
+# 3. Search foo.__path__ for 'bar'
+# 4. Find 'foo.bar' as a package
+# 5. Search foo.bar.__path__ for 'baz'
+# 6. Found! Return foo.bar.baz</code></pre>
+
+  <hr>
+
+  <h2>7. <code>dir()</code> — Listing Names in a Module</h2>
+
+  <p>The built-in <code>dir()</code> function returns a sorted list of names. It's useful for exploring modules interactively.</p>
+
+  <pre><code>import math
+print(dir(math))
+# ['__doc__', '__loader__', '__name__', ..., 'ceil', 'comb',
+#  'copysign', 'cos', ..., 'pi', 'pow', ..., 'sqrt', ...]
+
+# Filter to just the public names:
+print([name for name in dir(math) if not name.startswith("_")])
+# ['ceil', 'comb', 'copysign', 'cos', 'degrees', ...]</code></pre>
+
+  <h3><code>dir()</code> Without Arguments</h3>
+
+  <p>Without arguments, <code>dir()</code> lists all names in the current local scope:</p>
+
+  <pre><code>x = 42
+import os
+print(dir())
+# ['__builtins__', '__name__', 'os', 'x']</code></pre>
+
+  <h3>Checking for Specific Names</h3>
+
+  <pre><code>import math
+
+# Check if a name exists in a module:
+print("sqrt" in dir(math))    # True
+print("cosine" in dir(math))  # False
+
+# A more practical check:
+print(hasattr(math, "sqrt"))   # True
+print(hasattr(math, "cosine")) # False</code></pre>
+
+  <hr>
+
+  <h2>8. <code>__all__</code> — Controlling Wildcard Imports</h2>
+
+  <p>When you write <code>from module import *</code>, Python checks if the module defines <code>__all__</code>. If it does, only those names are imported.</p>
+
+  <pre><code># mymodule.py
+__all__ = ["greet", "VERSION"]
+
+def greet(name):
+    return f"Hello, {name}!"
+
+VERSION = "1.0"
+
+def _internal_helper():   # underscore = always excluded
+    pass</code></pre>
+
+  <pre><code>from mymodule import *
+# greet and VERSION are imported
+# _internal_helper is NOT imported</code></pre>
+
+  <h3>When <code>__all__</code> Is NOT Defined</h3>
+
+  <p>Without <code>__all__</code>, <code>from module import *</code> imports all names that do <strong>not</strong> start with an underscore:</p>
+
+  <pre><code># mymodule.py
+# No __all__ defined
+
+public_var = 1
+_private_var = 2
+
+from mymodule import *
+# public_var is imported
+# _private_var is NOT imported</code></pre>
+
+  <h3>Shadowing Warning</h3>
+
+  <p>If <code>__all__</code> includes a name that also exists as a local definition in <code>__init__.py</code>, the local definition shadows the submodule:</p>
+
+  <pre><code># package/__init__.py
+__all__ = ["echo", "reverse"]
+
+# This function SHADOWS the 'reverse' submodule!
+def reverse(msg):
+    return msg[::-1]
+
+# Now 'from package import *' imports the FUNCTION reverse,
+# NOT the reverse.py submodule.</code></pre>
+
+  <hr>
+
+  <h2>9. Module Attributes</h2>
+
+  <p>Every imported module has several special attributes that provide metadata about the module.</p>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Attribute</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Description</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__name__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Fully qualified module name</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"json"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__file__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Path to the module's source file</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"/usr/lib/python3.x/json/__init__.py"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__package__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Package the module belongs to</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>""</code> (top-level) or <code>"json"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__spec__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>ModuleSpec</object> with all import info (recommended)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>ModuleSpec(name='json', ...)</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__path__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">List of paths where package looks for submodules</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>['/usr/lib/python3.x/json']</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__doc__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">The module's docstring (or <code>None</code>)</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>"JSON encoder and decoder"</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>__dict__</code></td>
+        <td style="border: 1px solid #ddd; padding: 8px;">The module's namespace dictionary</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Dict of all names in the module</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre><code>import json
+
+print(json.__name__)      # "json"
+print(json.__file__)       # "/usr/lib/python3.x/json/__init__.py"
+print(json.__path__)       # ['/usr/lib/python3.x/json'] — it's a package!
+
+# Using __spec__ (recommended):
+print(json.__spec__.name)      # "json"
+print(json.__spec__.origin)    # "/usr/lib/python3.x/json/__init__.py"
+print(json.__spec__.parent)    # "" (top-level, no parent package)</code></pre>
+
+  <div class="note">
+    <strong>💡 Prefer <code>__spec__</code>:</strong> The Python docs strongly recommend using <code>module.__spec__</code> and its attributes instead of the individual attributes like <code>__file__</code> and <code>__package__</code>, which are considered legacy.
+  </div>
+
+  <hr>
+
+  <h2>10. Re-exporting with <code>__all__</code></h2>
+
+  <p>Package authors use <code>__all__</code> in <code>__init__.py</code> to create a clean public API. This controls what downstream users see when they do <code>from package import *</code>.</p>
+
+  <pre><code># mypackage/__init__.py
+"""My package — a clean public API."""
+
+from .core import MyClass, helper_function
+from .utils import utility_one, utility_two
+from .submodule import SubModule
+
+# Public API — only these are exposed to 'from mypackage import *'
+__all__ = [
+    "MyClass",
+    "helper_function",
+    "utility_one",
+    "utility_two",
+    "SubModule",
+]</code></pre>
+
+  <h3>Explicit Re-export for Type Checkers</h3>
+
+  <p>For type checkers like <code>mypy</code> and <code>pyright</code> to recognize a re-exported name, you must either list it in <code>__all__</code> or use the <code>from X import Y as Y</code> pattern:</p>
+
+  <pre><code># Option 1: List in __all__
+from .core import MyClass
+__all__ = ["MyClass"]
+
+# Option 2: Use 'as' alias (signals explicit re-export)
+from .core import MyClass as MyClass</code></pre>
+
+  <hr>
+
+  <h2>11. <code>importlib</code> — Programmatic Imports</h2>
+
+  <p>The <code>importlib</code> module provides tools for importing modules from code, not just from <code>import</code> statements.</p>
+
+  <h3><code>importlib.import_module()</code></h3>
+
+  <p>The recommended way to import a module dynamically from a string name:</p>
+
+  <pre><code>import importlib
+
+# Import by string name:
+math = importlib.import_module("math")
+print(math.sqrt(4))   # 2.0
+
+# Relative import:
+utils = importlib.import_module(".utils", "mypackage")</code></pre>
+
+  <h3><code>importlib.reload()</code></h3>
+
+  <p>Re-execute a module's code without losing the module object. Useful during development:</p>
+
+  <pre><code>import importlib
+import mymodule
+
+# ... edit mymodule.py externally ...
+
+importlib.reload(mymodule)   # re-executes module code</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Reload caveats:</strong>
+    <ul>
+      <li>The module dictionary is <strong>retained</strong> — names not redefined keep old values</li>
+      <li>Existing <code>from X import Y</code> references are <strong>NOT</strong> updated — <code>Y</code> still points to the old object</li>
+      <li>Existing instances of classes continue using the old class definition</li>
+      <li>Not thread-safe</li>
+      <li>Not useful for built-in or C extension modules</li>
+    </ul>
+  </div>
+
+  <h3>Lazy Loading with <code>LazyLoader</code></h3>
+
+  <p>Postpone the actual import until the module is first used:</p>
+
+  <pre><code>import importlib.util
+import sys
+
+def lazy_import(name):
+    """Import a module lazily — actual loading deferred until first use."""
+    spec = importlib.util.find_spec(name)
+    loader = importlib.util.LazyLoader(spec.loader)
+    spec.loader = loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    loader.exec_module(module)
+    return module
+
+# This does NOT load typing into memory yet:
+lazy_typing = lazy_import("typing")
+
+# The actual import happens here, on first attribute access:
+print(lazy_typing.TYPE_CHECKING)</code></pre>
+
+  <hr>
+
+  <h2>12. Circular Imports</h2>
+
+  <p>Circular imports occur when two or more modules depend on each other, directly or indirectly.</p>
+
+  <h3>How They Happen</h3>
+
+  <pre><code># module_a.py
+import module_b          # tries to import module_b
+
+def func_a():
+    pass
+
+# module_b.py
+import module_a          # tries to import module_a (which is still loading!)
+
+def func_b():
+    module_a.func_a()    # OK — func_a is defined by the time func_b is called</code></pre>
+
+  <p>When <code>module_a</code> is imported:</p>
+
+  <ol>
+    <li>Python adds a <strong>partially-initialized</strong> <code>module_a</code> to <code>sys.modules</code></li>
+    <li>Python starts executing <code>module_a</code>'s code</li>
+    <li><code>module_a</code> hits <code>import module_b</code></li>
+    <li>Python starts executing <code>module_b</code>'s code</li>
+    <li><code>module_b</code> hits <code>import module_a</code></li>
+    <li>Python finds the partial <code>module_a</code> in <code>sys.modules</code> and returns it</li>
+    <li>If <code>module_b</code> tries to access something from <code>module_a</code> that hasn't been defined yet → <code>AttributeError</code></li>
+  </ol>
+
+  <h3>How to Avoid Circular Imports</h3>
+
+  <p><strong>Strategy 1: Refactor</strong> — Move shared code into a third module:</p>
+
+  <pre><code># Instead of A ↔ B, create C:
+# shared.py  ← contains the shared code
+# a.py       ← imports shared
+# b.py       ← imports shared</code></pre>
+
+  <p><strong>Strategy 2: Import inside functions</strong> — Delay the import to call time:</p>
+
+  <pre><code># module_b.py
+def func_b():
+    import module_a       # imported at call time, not load time
+    module_a.func_a()</code></pre>
+
+  <p><strong>Strategy 3: Restructure dependencies</strong> — Ensure definitions come before imports that need them:</p>
+
+  <pre><code># module_b.py
+# Put all definitions FIRST, then import what you need at the bottom
+def func_b():
+    pass
+
+import module_a   # at the bottom — module_a is fully defined by now</code></pre>
+
+  <hr>
+
+  <h2>13. Best Practices</h2>
+
+  <h3>Import Organization (PEP 8)</h3>
+
+  <p>Imports should be grouped in this order, separated by blank lines:</p>
+
+  <pre><code># 1. Standard library imports
+import os
+import sys
+from pathlib import Path
+from collections import defaultdict
+
+# 2. Third-party imports
+import numpy as np
+import pandas as pd
+
+# 3. Local application imports
+from mypackage import mymodule
+from . import utils</code></pre>
+
+  <h3>Module-Level Pitfalls to Avoid</h3>
+
+  <ul>
+    <li><strong><code>from x import *</code>:</strong> Namespace pollution, name shadowing, impossible to trace source of names. Use explicit imports.</li>
+    <li><strong>Module-level side effects:</strong> Code at module top level runs on import. Don't open files, set up logging, or modify global state at the top level.</li>
+    <li><strong><code>sys.modules</code> inconsistency:</strong> Deleting and re-importing gives a different object. Use <code>importlib.reload()</code> instead.</li>
+    <li><strong>Shadowing standard library:</strong> Never name your module <code>os.py</code>, <code>math.py</code>, etc. — it will shadow the real module.</li>
+  </ul>
+
+  <h3>Recommended Package Layout</h3>
+
+  <pre><code>myproject/
+    src/
+        mypackage/
+            __init__.py       # clean public API, __all__
+            core.py           # main functionality
+            utils.py          # utility helpers
+            subpackage/
+                __init__.py
+                module_a.py
+                module_b.py
+    tests/
+        __init__.py
+        test_core.py
+        test_utils.py
+    pyproject.toml</code></pre>
+
+  <h3><code>__init__.py</code> Guidelines</h3>
+
+  <ul>
+    <li>Keep it minimal — prefer selective imports over wildcard imports</li>
+    <li>Set <code>__all__</code> to define the clean public API</li>
+    <li>For lazy submodule access, use <code>__getattr__</code>:</li>
+  </ul>
+
+  <pre><code># mypackage/__init__.py
+def __getattr__(name):
+    if name == "heavy_submodule":
+        from . import heavy_submodule
+        return heavy_submodule
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")</code></pre>
+
+  <h3>Cheat Sheet</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th style="border: 1px solid #ddd; padding: 8px;">Task</th>
+        <th style="border: 1px solid #ddd; padding: 8px;">Approach</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Import a module</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import math</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Import a specific name</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from math import sqrt</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Alias a module</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>import numpy as np</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Import from same package</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>from . import sibling</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Import dynamically from string</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>importlib.import_module(name)</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Reload after edits</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>importlib.reload(module)</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Control wildcard imports</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Define <code>__all__</code> in your module</td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">List names in a module</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>dir(module)</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Check module metadata</td>
+        <td style="border: 1px solid #ddd; padding: 8px;"><code>module.__spec__</code></td>
+      </tr>
+      <tr>
+        <td style="border: 1px solid #ddd; padding: 8px;">Avoid circular imports</td>
+        <td style="border: 1px solid #ddd; padding: 8px;">Import inside functions, refactor shared code</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic Import Forms</h3>
+    <p>Experiment with all six forms of the <code>import</code> statement: <code>import x</code>, <code>import x.y.z</code>, <code>from x import y</code>, <code>from x import *</code>, <code>import x as y</code>, and <code>from x import y as z</code>. Print the results of each to verify they work.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Absolute vs Relative Imports</h3>
+    <p>Create a package structure with at least two subpackages. Use absolute imports in one module and relative imports in another. Verify that both approaches produce the same results. Intentionally try a relative import from a script (not a module) to see the error.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: The <code>if __name__ == "__main__"</code> Pattern</h3>
+    <p>Create a module with functions and an <code>if __name__ == "__main__"</code> block. (1) Import it from another file and verify the <code>if</code> block does NOT run. (2) Run it directly and verify the <code>if</code> block DOES run. (3) Print <code>__name__</code> in both scenarios.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Creating a Module</h3>
+    <p>Create a module called <code>geometry.py</code> with functions for <code>area_circle(r)</code>, <code>area_rectangle(w, h)</code>, and <code>area_triangle(b, h)</code>. Include a <code>VERSION</code> variable and a docstring. Import and use it from a separate file.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Package Structure</h3>
+    <p>Create a package called <code>mytools</code> with: <code>__init__.py</code> (that exports key names), <code>strings.py</code> (string utilities), and <code>numbers.py</code> (number utilities). Add an <code>__all__</code> to <code>__init__.py</code>. Verify that <code>from mytools import *</code> imports only the intended names.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: <code>sys.path</code> and Search Order</h3>
+    <p>Print <code>sys.path</code> and identify: (1) which entry is the current directory, (2) which entry contains site-packages. Add a custom directory to <code>sys.path</code>, then import a module from it. Also print <code>sys.builtin_module_names</code> to see which modules are built-in.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: <code>dir()</code> and Module Inspection</h3>
+    <p>Use <code>dir()</code> to explore the <code>os</code> module. Filter the output to show only names that don't start with <code>_</code>. Count how many public names there are. Also use <code>dir()</code> without arguments to see what's in your current scope after importing several modules.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: <code>__all__</code> and Wildcard Imports</h3>
+    <p>Create a module with <code>__all__ = ["public_func", "CONSTANT"]</code>. Define those names plus a private function. Use <code>from module import *</code> in another file and verify only the intended names are imported. Then remove <code>__all__</code> and verify the behavior changes (all non-underscore names imported).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Module Attributes</h3>
+    <p>Import the <code>json</code> module and print its <code>__name__</code>, <code>__file__</code>, <code>__doc__</code>, and <code>__path__</code>. Then access <code>__spec__</code> and print its <code>.name</code>, <code>.origin</code>, and <code>.parent</code>. Verify that <code>json</code> is a package by checking <code>__path__</code> is not <code>None</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Circular Import Resolution</h3>
+    <p>Create two modules that reference each other at module level and observe the error. Then fix the circular import using two strategies: (1) moving the import inside a function, and (2) refactoring shared code into a third module.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: <code>importlib.reload()</code> — Live Module Updates</h3>
+    <p>Create a module, import it, note the output of its function, then edit the module to change the function's behavior. Use <code>importlib.reload()</code> to reload it. Verify the function now returns the new value. Note: existing <code>from X import Y</code> references are NOT updated by reload.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Combined Challenge — Build a Package</h3>
+    <p>Build a complete package called <code>texttools</code> with: (1) A <code>wordcount.py</code> module with <code>count_words(text)</code> and <code>count_chars(text)</code>. (2) A <code>transform.py</code> module with <code>to_upper(text)</code>, <code>to_lower(text)</code>, and <code>reverse_words(text)</code>. (3) An <code>__init__.py</code> that re-exports all functions and sets <code>__all__</code>. (4) An <code>if __name__ == "__main__"</code> block in each module that demos its functions. (5) A <code>demo.py</code> outside the package that imports and uses everything. Verify that running <code>demo.py</code> works, and running each module directly also works.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What are the six forms of the <code>import</code> statement?</li>
+    <li>What's the difference between <code>import x</code> and <code>from x import y</code>?</li>
+    <li>Why is <code>from x import *</code> considered bad practice?</li>
+    <li>What determines which names are imported by <code>from x import *</code>?</li>
+    <li>What's the difference between an absolute import and a relative import?</li>
+    <li>Why can't you use relative imports in the main module (<code>__main__</code>)?</li>
+    <li>What does the <code>if __name__ == "__main__"</code> pattern do? When is each branch executed?</li>
+    <li>What is the difference between a module and a package?</li>
+    <li>What is <code>__init__.py</code> for? When is it required vs optional?</li>
+    <li>What are namespace packages?</li>
+    <li>How does <code>sys.path</code> determine where to search for modules?</li>
+    <li>What is <code>sys.modules</code> and how does caching work?</li>
+    <li>What happens if you delete a module from <code>sys.modules</code> and re-import it?</li>
+    <li>How do you list all names defined in a module?</li>
+    <li>What does <code>module.__spec__</code> provide? Why is it preferred over individual attributes?</li>
+    <li>What's the difference between a regular package and a namespace package?</li>
+    <li>How do you import a module dynamically from a string name?</li>
+    <li>What does <code>importlib.reload()</code> do? What are its limitations?</li>
+    <li>What is a circular import? How can you avoid one?</li>
+    <li>What is the correct import ordering according to PEP 8?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0015-file-io.html">← Previous: File I/O</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0017-iterators-and-generators.html">Next: Iterators &amp; Generators →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

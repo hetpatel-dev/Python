@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 11: Sets — set and frozenset</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 11: Sets — Python's Unordered Collection of Unique Elements</h1>
+
+  <p><span class="tag">concept</span> Sets</p>
+
+  <p>Sets (<code>set</code> and <code>frozenset</code>) are Python's built-in unordered collections of <strong>unique</strong>, <strong>hashable</strong> elements. They provide O(1) average-time membership testing, automatic deduplication, and support mathematical set operations like union, intersection, and difference. This lesson covers everything from the official <a href="https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset">Python docs on set types</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset">Python Docs — Set Types</a>, <a href="https://docs.python.org/3/tutorial/datastructures.html#sets">Data Structures Tutorial</a>, <a href="https://docs.python.org/3/library/stdtypes.html#frozenset">frozenset docs</a>.</p>
+
+  <hr>
+
+  <h2>1. Set Basics</h2>
+
+  <p>Sets are created with curly braces <code>{}</code> (but beware: <code>{}</code> creates an empty <strong>dict</strong>, not a set!) or the <code>set()</code> constructor. Elements must be <strong>hashable</strong> (immutable). Sets are <strong>unordered</strong> — iteration order is arbitrary and should not be relied upon:</p>
+
+  <pre><code># Set literal — duplicates are automatically removed
+  fruits = {"apple", "banana", "cherry", "apple", "date"}
+  print(fruits)  # {'banana', 'cherry', 'date', 'apple'} — order may vary
+
+  # set() constructor from any iterable
+  letters = set("abracadabra")
+  print(letters)  # {'a', 'b', 'r', 'c', 'd'} — each letter once
+
+  # set() from a list
+  numbers = set([1, 2, 3, 2, 4, 3, 5, 1])
+  print(numbers)  # {1, 2, 3, 4, 5}
+
+  # set() from range
+  evens = set(range(0, 20, 2))
+  print(evens)    # {0, 2, 4, 6, 8, 10, 12, 14, 16, 18}
+
+  # THE EMPTY SET TRAP
+  empty_set = set()      # Correct — empty set
+  not_a_set = {}         # This is an empty DICT, not a set!
+  print(type(empty_set))   # <class 'set'>
+  print(type(not_a_set))   # <class 'dict'>
+
+  # Elements must be hashable
+  # bad_set = {[1, 2], "hello"}  # TypeError: unhashable type: 'list'
+  good_set = {(1, 2), "hello", 42, 3.14}  # tuple is hashable
+
+  # Sets are unordered — don't rely on element order
+  print({"a", "b", "c"} == {"c", "b", "a"})  # True — equality ignores order
+
+  # Length of a set
+  print(len(fruits))  # 4 (duplicate "apple" was removed)
+
+  # Iteration (order is arbitrary)
+  for fruit in fruits:
+      print(fruit)
+
+  # Truthiness — empty set is falsy
+  print(bool(set()))        # False
+  print(bool({1, 2, 3}))    # True</code></pre>
+
+  <div class="note">
+    <strong>⚠️ <code>{}</code> is an empty dict, not a set:</strong> This is a common Python pitfall. To create an empty set, always use <code>set()</code>. The <code>{}</code> syntax creates an empty dictionary. However, a non-empty set literal like <code>{1, 2, 3}</code> works fine — Python knows it's a set because the contents are values (not key:value pairs).
+  </div>
+
+  <h2>2. Basic Methods — add, remove, discard, pop, clear, copy</h2>
+
+  <p>Sets provide mutation methods. The key distinction: <code>.remove()</code> raises <code>KeyError</code> if the element is missing, while <code>.discard()</code> silently does nothing:</p>
+
+  <pre><code>s = {"red", "blue", "green", "yellow"}
+
+  # add() — insert an element (no-op if already present)
+  s.add("purple")
+  s.add("red")    # already exists — silently ignored
+  print(s)        # {'red', 'blue', 'green', 'yellow', 'purple'}
+
+  # remove() — raises KeyError if missing
+  s.remove("blue")
+  # s.remove("pink")  # KeyError: 'pink'
+  print(s)        # {'red', 'green', 'yellow', 'purple'}
+
+  # discard() — safe remove, no error if missing
+  s.discard("yellow")
+  s.discard("pink")  # No error — silently does nothing
+  print(s)        # {'red', 'green', 'purple'}
+
+  # pop() — remove and return an ARBITRARY element
+  element = s.pop()
+  print(element)  # 'red' (or another — unpredictable!)
+  print(s)        # {'green', 'purple'} — one fewer element
+
+  # s.pop() on empty set raises KeyError
+  # empty = set()
+  # empty.pop()  # KeyError: 'pop from an empty set'
+
+  # clear() — remove all elements
+  temp = {1, 2, 3}
+  temp.clear()
+  print(temp)     # set()
+
+  # copy() — shallow copy
+  original = {1, 2, 3}
+  copied = original.copy()
+  print(copied)   # {1, 2, 3}</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>remove()</code> vs <code>discard()</code>:</strong> Use <code>discard()</code> when you don't care whether the element was present. Use <code>remove()</code> when the element should exist — the <code>KeyError</code> acts as a signal that something is wrong with your data or logic.
+  </div>
+
+  <h2>3. Membership & Deduplication</h2>
+
+  <p>Membership testing with <code>in</code> is the primary use case for sets. It runs in <strong>O(1) average time</strong> (hash-table based), compared to O(n) for lists. Sets also make deduplication trivial:</p>
+
+  <pre><code># O(1) membership testing
+  valid_codes = {200, 201, 204, 400, 401, 403, 404, 500}
+  print(200 in valid_codes)    # True
+  print(418 in valid_codes)    # False
+  print(404 not in valid_codes)  # False
+
+  # Deduplication — convert list to set and back
+  scores = [85, 92, 78, 92, 85, 95, 78, 92, 100]
+  unique_scores = list(set(scores))
+  print(sorted(unique_scores))  # [78, 85, 92, 95, 100] — duplicates removed
+
+  # Count unique characters
+  text = "the quick brown fox jumps over the lazy dog"
+  unique_chars = {ch for ch in text if ch != " "}
+  print(len(unique_chars))      # 26 — all alphabet letters
+  print(sorted(unique_chars))   # ['a', 'b', 'c', ..., 'z']
+
+  # Checking for uniqueness
+  def all_unique(items):
+      return len(items) == len(set(items))
+
+  print(all_unique([1, 2, 3, 4]))    # True
+  print(all_unique([1, 2, 3, 2]))    # False
+
+  # Finding duplicates
+  items = [1, 2, 3, 2, 4, 3, 5, 1]
+  seen = set()
+  duplicates = set()
+  for item in items:
+      if item in seen:
+          duplicates.add(item)
+      seen.add(item)
+  print(duplicates)  # {1, 2, 3} — items that appeared more than once</code></pre>
+
+  <div class="note">
+    <strong>💡 Set vs List membership:</strong> For membership checks, sets are dramatically faster than lists on large collections. A set check is O(1) (hash lookup), while a list check is O(n) (linear scan). If you only need to check "is this in the collection?" and don't need ordering, use a set.
+  </div>
+
+  <h2>4. Set Operations — Union, Intersection, Difference, Symmetric Difference</h2>
+
+  <p>Sets support mathematical set operations via operators and method equivalents. Both forms produce the same result — the operator form is often more readable:</p>
+
+  <pre><code>a = {1, 2, 3, 4, 5}
+  b = {4, 5, 6, 7, 8}
+
+  # UNION — elements in either set
+  print(a | b)   # {1, 2, 3, 4, 5, 6, 7, 8}
+  print(a.union(b))  # same result
+
+  # INTERSECTION — elements in both sets
+  print(a & b)   # {4, 5}
+  print(a.intersection(b))  # same result
+
+  # DIFFERENCE — elements in a but not in b
+  print(a - b)   # {1, 2, 3}
+  print(a.difference(b))  # same result
+  print(b - a)   # {8, 6, 7} — order matters!
+
+  # SYMMETRIC DIFFERENCE — elements in either set but not both
+  print(a ^ b)   # {1, 2, 3, 6, 7, 8}
+  print(a.symmetric_difference(b))  # same result
+
+  # Multiple set operations can be chained
+  x = {1, 2, 3}
+  y = {2, 3, 4}
+  z = {3, 4, 5}
+  print(x | y | z)   # {1, 2, 3, 4, 5}
+  print(x & y & z)   # {3} — only in all three
+  print(x - y - z)   # {1} — in x but not y nor z
+
+  # Practical example: tracking event attendees
+  event_a = {"Alice", "Bob", "Charlie", "Diana"}
+  event_b = {"Charlie", "Diana", "Frank", "Grace"}
+
+  both = event_a & event_b            # {'Charlie', 'Diana'}
+  either = event_a | event_b          # {'Alice', 'Bob', 'Charlie', 'Diana', 'Frank', 'Grace'}
+  only_a = event_a - event_b          # {'Alice', 'Bob'}
+  only_b = event_b - event_a          # {'Frank', 'Grace'}
+  exactly_one = event_a ^ event_b     # {'Alice', 'Bob', 'Frank', 'Grace'}</code></pre>
+
+  <div class="note">
+    <strong>💡 Operator vs method:</strong> Operators (<code>|</code>, <code>&amp;</code>, <code>-</code>, <code>^</code>) require both operands to be sets. Methods (<code>.union()</code>, <code>.intersection()</code>, etc.) accept any iterable as the argument: <code>{1, 2}.union([3, 4])</code> works, but <code>{1, 2} | [3, 4]</code> raises <code>TypeError</code>.
+  </div>
+
+  <h2>5. Set Comparison & Predicate Methods</h2>
+
+  <p>Sets can be compared using subset/superset operators and predicate methods for disjointness:</p>
+
+  <pre><code>a = {1, 2, 3, 4, 5}
+  b = {2, 4}
+  c = {1, 2, 3, 4, 5, 6}
+  d = {6, 7, 8}
+
+  # Subset: all elements of b are in a
+  print(b <= a)       # True — b is a subset of a
+  print(b.issubset(a))  # True
+
+  # Proper subset: b subset of a AND b != a
+  print(b < a)        # True — b is a proper subset of a
+  print(a < a)        # False — a is not a proper subset of itself
+
+  # Superset: a contains all elements of b
+  print(a >= b)       # True — a is a superset of b
+  print(a.issuperset(b))  # True
+
+  # Proper superset
+  print(a > b)        # True — a is a proper superset of b
+
+  # Disjoint — no common elements
+  print(a.isdisjoint(d))  # True
+  print(a.isdisjoint(b))  # False
+
+  # Equality — sets are equal if they have the same elements (order irrelevant)
+  print({1, 2, 3} == {3, 1, 2})  # True
+  print({1, 2, 3} == {1, 2})     # False
+
+  # Empty set is a subset of every set
+  empty = set()
+  print(empty <= a)   # True
+  print(empty < a)    # True (if a is non-empty)
+
+  # Checking if two sets are equal in a comparison chain
+  print(b <= a >= b)  # True — b is subset of a, a is superset of b</code></pre>
+
+  <h2>6. Set Update Operations — In-Place Mutations</h2>
+
+  <p>Each set operation has an in-place mutating equivalent. These modify the set rather than returning a new one:</p>
+
+  <pre><code># .update() or |= — add all elements from another set
+  inventory = {"sword", "shield", "potion"}
+  inventory.update({"helmet", "boots", "potion"})
+  print(inventory)  # {'sword', 'shield', 'potion', 'helmet', 'boots'}
+
+  inventory |= {"ring", "amulet"}
+  print(inventory)  # {'sword', 'shield', 'potion', 'helmet', 'boots', 'ring', 'amulet'}
+
+  # .intersection_update() or &= — keep only elements found in both
+  a = {1, 2, 3, 4, 5}
+  a.intersection_update({2, 4, 6, 8})
+  print(a)          # {2, 4}
+
+  b = {1, 2, 3, 4, 5}
+  b &= {2, 4, 6, 8}
+  print(b)          # {2, 4}
+
+  # .difference_update() or -= — remove elements found in the other set
+  c = {1, 2, 3, 4, 5}
+  c.difference_update({2, 4})
+  print(c)          # {1, 3, 5}
+
+  d = {1, 2, 3, 4, 5}
+  d -= {2, 4}
+  print(d)          # {1, 3, 5}
+
+  # .symmetric_difference_update() or ^= — keep elements in exactly one
+  e = {1, 2, 3, 4, 5}
+  e.symmetric_difference_update({4, 5, 6, 7})
+  print(e)          # {1, 2, 3, 6, 7}
+
+  f = {1, 2, 3, 4, 5}
+  f ^= {4, 5, 6, 7}
+  print(f)          # {1, 2, 3, 6, 7}
+
+  # All update methods return None (they mutate in place)
+  result = {1, 2}.update({3, 4})
+  print(result)     # None</code></pre>
+
+  <div class="note">
+    <strong>⚠️ Update methods mutate in place:</strong> All update methods (<code>.update()</code>, <code>|=</code>, <code>-=</code>, etc.) modify the original set and return <code>None</code>. This is consistent with Python's design principle: operations that modify a mutable object do not return it.
+  </div>
+
+  <h2>7. Set Comprehensions</h2>
+
+  <p>Set comprehensions use the same syntax as list comprehensions but with curly braces. They automatically deduplicate and are useful for building sets concisely:</p>
+
+  <pre><code># Basic set comprehension — squares of numbers 0-9
+  squares = {x**2 for x in range(10)}
+  print(squares)  # {0, 1, 4, 9, 16, 25, 36, 49, 64, 81}
+
+  # With condition — even squares only
+  even_squares = {x**2 for x in range(20) if x % 2 == 0}
+  print(even_squares)  # {0, 4, 16, 36, 64, 100, 144, 196, 256, 324}
+
+  # From a string — unique uppercase letters
+  text = "Hello World Python Programming"
+  uppercase = {ch for ch in text if ch.isupper()}
+  print(uppercase)  # {'H', 'W', 'P'} — order may vary
+
+  # Map/filter pattern — unique word lengths
+  words = ["apple", "banana", "cherry", "date", "elderberry", "fig"]
+  lengths = {len(w) for w in words}
+  print(lengths)  # {5, 6, 4, 9, 3}
+
+  # First characters of names (deduplicated)
+  names = ["Alice", "Bob", "Charlie", "Diana", "Alice"]
+  first_chars = {name[0] for name in names}
+  print(first_chars)  # {'A', 'B', 'C', 'D'} — no duplicate 'A'
+
+  # Find unique vowels in a sentence
+  sentence = "the quick brown fox jumps over the lazy dog"
+  vowels_in_sentence = {ch for ch in sentence.lower() if ch in "aeiou"}
+  print(sorted(vowels_in_sentence))  # ['a', 'e', 'i', 'o', 'u']
+
+  # Using set comprehension for data cleaning
+  raw_data = [1, 2, None, 3, None, 4, 5, None]
+  clean = {x for x in raw_data if x is not None}
+  print(clean)  # {1, 2, 3, 4, 5}
+
+  # Nested loops in set comprehensions
+  pairs = {(x, y) for x in range(3) for y in range(3) if x != y}
+  print(pairs)  # {(0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1)}</code></pre>
+
+  <div class="note">
+    <strong>💡 Set vs list comprehension:</strong> Set comprehensions use <code>{}</code> and produce a set (unique, unordered). List comprehensions use <code>[]</code> and produce a list (ordered, allows duplicates). Choose based on whether you need uniqueness and O(1) membership or ordered, duplicate-allowed storage.
+  </div>
+
+  <h2>8. <code>frozenset</code> — Immutable, Hashable Sets</h2>
+
+  <p><code>frozenset</code> is an immutable version of a set. It cannot be modified after creation, which makes it <strong>hashable</strong> — usable as a dictionary key or as an element of another set:</p>
+
+  <pre><code># Creating a frozenset
+  fs = frozenset([1, 2, 3, 2, 4, 3, 5])
+  print(fs)        # frozenset({1, 2, 3, 4, 5}) — duplicates removed
+
+  # frozensets support all non-mutating set operations
+  a = frozenset([1, 2, 3, 4])
+  b = frozenset([3, 4, 5, 6])
+
+  print(a | b)     # frozenset({1, 2, 3, 4, 5, 6})
+  print(a & b)     # frozenset({3, 4})
+  print(a - b)     # frozenset({1, 2})
+  print(a ^ b)     # frozenset({1, 2, 5, 6})
+
+  # frozensets do NOT support mutating methods
+  # fs.add(6)      # AttributeError: 'frozenset' object has no attribute 'add'
+  # fs.remove(1)   # AttributeError
+  # fs.pop()       # AttributeError
+
+  # frozensets are HASHABLE — can be dict keys!
+  lookup = {
+      frozenset(["admin", "write"]): "Editor",
+      frozenset(["read"]): "Viewer",
+      frozenset(["admin"]): "Admin",
+  }
+  user_perms = frozenset(["read"])
+  print(lookup.get(user_perms))  # Viewer
+
+  # frozensets can be elements of other sets (regular sets cannot)
+  valid_sets = {frozenset([1, 2]), frozenset([3, 4])}
+  print(valid_sets)  # {frozenset({1, 2}), frozenset({3, 4})}
+
+  # Regular sets are NOT hashable
+  # bad_set = {frozenset([1, 2]), {3, 4}}  # TypeError: unhashable type: 'set'
+
+  # frozenset from a string
+  frozen_letters = frozenset("abracadabra")
+  print(frozen_letters)  # frozenset({'a', 'b', 'r', 'c', 'd'})
+
+  # Frozenset of frozensets — nested immutable sets
+  nested = frozenset([frozenset([1, 2]), frozenset([3, 4])])
+  print(nested)    # frozenset({frozenset({3, 4}), frozenset({1, 2})})
+
+  # Copy is a no-op (immutable)
+  fs2 = fs.copy()  # exists for interface compatibility
+  print(fs is fs2)  # False (but they are equal)
+
+  # len(), in, iteration all work the same
+  print(len(fs))         # 5
+  print(3 in fs)         # True
+  for x in fs:
+      print(x)           # order is arbitrary</code></pre>
+
+  <div class="note">
+    <strong>💡 <code>frozenset</code> vs <code>set</code>:</strong> Use <code>set</code> for mutable collections that you need to modify. Use <code>frozenset</code> when you need an immutable, hashable set — for example, as dictionary keys, set elements, or when you want to guarantee that the data won't change. <code>frozenset</code> is also useful as a key in memoization/caching.
+  </div>
+
+  <h2>9. When to Use Sets</h2>
+
+  <p>Sets excel at specific tasks. Here's when to reach for a set vs other data structures:</p>
+
+  <pre><code># 1. MEMBERSHIP TESTING — O(1) average time
+  # Use a set when you only need to check "is this in the collection?"
+  # Instead of a list:
+  # if code in [200, 201, 204, 400, 401, 403, 404, 500]:  # O(n)
+  # Use a set:
+  valid_codes = {200, 201, 204, 400, 401, 403, 404, 500}
+  if code in valid_codes:  # O(1)
+      ...
+
+  # 2. DEDUPLICATION — remove duplicates from any iterable
+  duplicates = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+  unique = list(set(duplicates))
+
+  # 3. SET MATH — Venn diagram operations
+  python_skills = {"Alice", "Bob", "Charlie"}
+  sql_skills = {"Bob", "Diana", "Charlie"}
+  both = python_skills & sql_skills  # {'Bob', 'Charlie'}
+
+  # 4. DATA INTEGRITY — ensure no duplicates
+  tags = {"python", "beginner", "python", "tutorial"}  # 'python' is stored once
+  print(tags)  # {'python', 'beginner', 'tutorial'}
+
+  # 5. TRACKING SEEN ITEMS — in loops
+  def first_duplicate(items):
+      seen = set()
+      for item in items:
+          if item in seen:
+              return item
+          seen.add(item)
+      return None
+
+  # 6. EXCLUDING ITEMS
+  stop_words = {"the", "a", "an", "in", "of", "to", "is"}
+  words = ["the", "quick", "brown", "fox"]
+  meaningful = [w for w in words if w not in stop_words]
+  print(meaningful)  # ['quick', 'brown', 'fox']
+
+  # When NOT to use sets:
+  # - You need to preserve insertion order             → list
+  # - You need to store duplicates                     → list
+  # - You need random access by index                  → list
+  # - You have mutable elements (like lists)           → list of tuples
+  # - You need key-value associations                  → dict
+  # - You need to count occurrences (with duplicates)  → Counter or dict</code></pre>
+
+  <h2>10. Performance & Internals</h2>
+
+  <p>Sets are implemented as <strong>hash tables</strong> (like dictionaries). This gives them their performance characteristics and element restrictions:</p>
+
+  <pre><code>import sys
+
+  # Hash table — O(1) average, O(n) worst-case
+  # Best for: membership testing, deduplication
+  # Worst case: hash collisions (rare in practice)
+
+  # Set memory — more than a list for the same elements
+  lst = list(range(1000))
+  st = set(range(1000))
+  print(f"List size: {sys.getsizeof(lst)} bytes")
+  print(f"Set size: {sys.getsizeof(st)} bytes")
+  # Sets use more memory because of the hash table overhead
+
+  # Element requirement: ALL elements must be HASHABLE
+  # Hashable types: int, float, str, tuple (of hashables), frozenset
+  # Unhashable types: list, dict, set (mutable)
+  # TypeError: unhashable type: 'list'
+
+  # Sets cannot be indexed or sliced
+  s = {1, 2, 3}
+  # s[0]       # TypeError: 'set' object is not subscriptable
+  # s[1:3]     # TypeError: 'set' object is not subscriptable
+
+  # Sets cannot be sorted in place (no .sort() method)
+  # Use sorted() to get a sorted list: sorted_set = sorted(s)
+
+  # Set iteration is stable during a single run
+  # but should NOT be relied upon between runs
+
+  # Big-O cheat sheet:
+  # Operation   | Set (avg) | Set (worst) | List
+  # ------------|-----------|-------------|-------
+  # Membership  | O(1)      | O(n)        | O(n)
+  # Insert      | O(1)      | O(n)        | O(1) (append)
+  # Delete      | O(1)      | O(n)        | O(n) (.remove)
+  # Union       | O(n+m)    | O(n+m)      | N/A
+  # Intersection| O(min)    | O(n*m)      | N/A</code></pre>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Set Basics — Creating Sets and the Empty Set Trap</h3>
+    <p>Create sets using different methods: literal <code>{...}</code>, <code>set()</code> from a string, <code>set()</code> from a list, and <code>set()</code> from <code>range()</code>. Then demonstrate <strong>the empty set trap</strong>: create <code>{}</code> and check its type (it's a dict!), then use <code>set()</code> for a real empty set. Also try using a list as a set element and catch the <code>TypeError</code>.</p>
+    <pre><code>Set from string: {'a', 'r', 'b', 'c', 'd'}
+  Set from list: {1, 2, 3, 4, 5}
+  Set from range: {0, 2, 4, 6, 8, 10, 12, 14, 16, 18}
+
+  Empty dict type: <class 'dict'>
+  Empty set type: <class 'set'>
+
+  Trying list as element...
+  TypeError: unhashable type: 'list'</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Membership Testing & Deduplication</h3>
+    <p>Given a list of status codes, use a set to check membership for various codes (including one that doesn't exist). Then take a list with many duplicates, convert to a set to remove duplicates, convert back to a list, and sort. Count unique characters in a string (excluding spaces). Find common characters between two words using set intersection.</p>
+    <pre><code>200 is valid: True
+  418 is valid: False
+
+  Original: [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3]
+  Unique sorted: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+  Unique chars in "the quick brown fox...": 26
+  Common in "python" and "typhoon": {'o', 'n'}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Mutating Methods — add, remove, discard, pop, clear</h3>
+    <p>Start with <code>colors = {"red", "blue", "green", "yellow"}</code>. Practice each method: <code>.add()</code> (twice — once new, once duplicate), <code>.remove()</code> (existing and missing — handle the error), <code>.discard()</code> (existing and missing — note the difference from remove), <code>.pop()</code> (show the arbitrary element removed), and <code>.clear()</code>. Print the state after each operation.</p>
+    <pre><code>After add('purple'): {'red', 'blue', 'green', 'yellow', 'purple'}
+  Adding 'red' again: no change
+
+  remove('blue'): {'red', 'green', 'yellow', 'purple'}
+  remove('pink'): KeyError: 'pink'
+
+  discard('yellow'): {'red', 'green', 'purple'}
+  discard('pink'): no error (silently ignored)
+
+  pop() removed: 'red' (or another — unpredictable!)
+  After pop: {'green', 'purple'}
+
+  After clear: set()
+  Empty set is falsy: True</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Set Operations — Union, Intersection, Difference, Symmetric Difference</h3>
+    <p>Given <code>group_a = {"Alice", "Bob", "Charlie", "Diana", "Edward"}</code> and <code>group_b = {"Charlie", "Diana", "Frank", "Grace", "Henry"}</code>, compute: all unique students (<code>|</code>), students in both (<code>&amp;</code>), group_a only (<code>-</code>), exactly one group (<code>^</code>). Then repeat with operator methods (<code>.union()</code>, etc.).</p>
+    <pre><code>Union: {'Alice', 'Bob', 'Charlie', 'Diana', 'Edward', 'Frank', 'Grace', 'Henry'}
+  Intersection: {'Charlie', 'Diana'}
+  A - B: {'Alice', 'Bob', 'Edward'}
+  B - A: {'Frank', 'Grace', 'Henry'}
+  Symmetric diff: {'Alice', 'Bob', 'Edward', 'Frank', 'Grace', 'Henry'}
+
+  Method form produces same results: True</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: Set Comparisons — Subset, Superset, Disjoint</h3>
+    <p>Given <code>a = {1, 2, 3, 4, 5}</code>, <code>b = {2, 4}</code>, <code>c = {1, 2, 3, 4, 5, 6}</code>, <code>d = {6, 7, 8}</code>, <code>e = {1, 2, 3, 4, 5}</code>, test all comparison operators and predicate methods. Also test: empty set as subset, set as subset of itself (proper vs non-proper).</p>
+    <pre><code>b subset of a: True (b <= a)
+  a superset of b: True (a >= b)
+  b proper subset of a: True (b < a)
+  a proper subset of c: True (a < c)
+  a disjoint from d: True
+  a equal to e: True (order doesn't matter)
+
+  Empty set subset of a: True
+  a subset of itself: True
+  a proper subset of itself: False</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Set Update Operations — In-Place Mutations</h3>
+    <p>Start with <code>inventory = {"sword", "shield", "potion", "ring"}</code>. Use each update method in sequence: <code>.update()</code> (add items), <code>.intersection_update()</code> (keep only common), <code>.difference_update()</code> (remove items), <code>.symmetric_difference_update()</code> (keep items in exactly one). Print state after each. Then verify all return <code>None</code>.</p>
+    <pre><code>Initial: {'sword', 'shield', 'potion', 'ring'}
+  After update: {'sword', 'shield', 'potion', 'ring', 'helmet', 'boots'}
+  After intersection_update: {'sword', 'shield'}
+  After difference_update: {'shield'}
+  After sym_diff_update: {'shield', 'potion', 'amulet'}
+
+  update() returns: None
+  intersection_update() returns: None</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Set Comprehensions</h3>
+    <p>Use set comprehensions to solve: squares of numbers 0-9, even squares only (0-20), unique uppercase letters from a string, unique vowels in a sentence, unique word lengths, unique first characters of names, and unique types in a mixed list. Print each result sorted for readability.</p>
+    <pre><code>Squares: {0, 1, 4, 9, 16, 25, 36, 49, 64, 81}
+  Even squares: {0, 4, 16, 36, 64, 100, 144, 196, 256, 324}
+  Uppercase letters: {'H', 'W', 'P'}
+  Vowels in sentence: {'a', 'e', 'i', 'o', 'u'}
+  Word lengths: {3, 4, 5, 6, 9}
+  First characters: {'A', 'B', 'C', 'D'}
+  Types: {'int', 'str', 'float', 'bool'}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: frozenset — Immutable, Hashable Sets</h3>
+    <p>Create a frozenset from a list with duplicates. Demonstrate that it supports non-mutating operations (union, intersection, etc.) but NOT mutating methods (add, remove, etc. — catch the errors). Use a frozenset as a dictionary key. Create a set of frozensets. Try creating a set of regular sets and catch the TypeError.</p>
+    <pre><code>frozenset([1, 2, 3, 2, 4, 3, 5]): frozenset({1, 2, 3, 4, 5})
+  Union: frozenset({1, 2, 3, 4, 5, 6})
+  Intersection: frozenset({3, 4})
+
+  Trying add(): AttributeError: 'frozenset' object has no attribute 'add'
+  Trying remove(): AttributeError: 'frozenset' object has no attribute 'remove'
+
+  frozenset as dict key: {'admin': 'Admin', frozenset({'read'}): 'Viewer'}
+  Set of frozensets: {frozenset({1, 2}), frozenset({3, 4})}
+
+  Set of regular sets: TypeError: unhashable type: 'set'</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Real-World Set Scenarios</h3>
+    <p>Apply sets to four scenarios:</p>
+    <ul>
+      <li><strong>Event attendees:</strong> Given two event attendee sets, find: both events, either event, first only, second only</li>
+      <li><strong>Unique skills:</strong> Given a dict of applicants and their skills (as sets), find skills all have, skills anyone has, skills only Alice has, and who meets required skills {"Python", "SQL"}</li>
+      <li><strong>Product dedup:</strong> Given a list of purchased product IDs with duplicates, find unique products and products purchased more than once</li>
+      <li><strong>Mutual friends:</strong> Given two sets of friends, find mutual friends, exclusive friends, and the combined network</li>
+    </ul>
+    <pre><code>Both events: {'Charlie', 'Diana'}
+  Either event: {'Alice', 'Bob', 'Charlie', 'Diana', 'Edward', 'Frank', 'Grace', 'Henry', 'Isabella', 'Jack'}
+  Only A: {'Alice', 'Bob', 'Edward', 'Frank'}
+  Only B: {'Grace', 'Henry', 'Isabella', 'Jack'}
+
+  Skills ALL have: {'SQL'}
+  Skills ANY has: {'Python', 'SQL', 'Django', 'JavaScript', 'Java', 'Spring', 'React', 'CSS', 'HTML', 'Machine Learning', 'R'}
+  Unique to Alice: {'Django'}
+  Meets requirements: {'Alice', 'Bob', 'Diana'}
+
+  Unique products: 5
+  Duplicated: {101, 203, 405}
+
+  Mutual friends: {'Charlie'}
+  Alice only: {'Bob', 'Diana', 'Edward'}
+  Combined: {'Alice', 'Bob', 'Charlie', 'Diana', 'Edward', 'Frank', 'Grace'}</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: Mixed Review — Tag System with Sets</h3>
+    <p>Given a list of article dicts with titles and tags:</p>
+    <pre><code>articles = [
+      {"title": "Python Basics", "tags": ["python", "beginner", "programming"]},
+      {"title": "Data Structures", "tags": ["python", "algorithms", "data-structures"]},
+      {"title": "Web Development", "tags": ["javascript", "html", "css", "web"]},
+      {"title": "ML Intro", "tags": ["python", "machine-learning", "data-science"]},
+      {"title": "CSS Grid", "tags": ["css", "web", "design"]},
+  ]</code></pre>
+    <ul>
+      <li>Build a set of ALL unique tags across all articles</li>
+      <li>Find tags that appear in MORE THAN ONE article (use Counter or set logic)</li>
+      <li>Given <code>query_tags = {"python", "web"}</code>, find articles that match ANY query tag (use <code>.isdisjoint()</code>)</li>
+      <li>Find articles that match ALL query tags (use <code>.issuperset()</code> or <code>&lt;=</code>)</li>
+      <li>Suggest related tags: for "Python Basics", find tags from OTHER articles that share at least one tag</li>
+    </ul>
+    <pre><code>All unique tags: {'python', 'beginner', 'programming', 'algorithms', 'data-structures', 'javascript', 'html', 'css', 'web', 'machine-learning', 'data-science', 'design'}
+  Multi-article tags: {'python', 'css', 'web'}
+  Articles matching ANY query: ['Python Basics', 'Data Structures', 'Web Development', 'ML Intro', 'CSS Grid']
+  Articles matching ALL query: ['Web Development']  (must have both 'python' and 'web')
+  Related tags for 'Python Basics': {'algorithms', 'data-structures', 'machine-learning', 'data-science'}</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <p>You should be able to answer without looking:</p>
+  <ul>
+    <li>How do you create an empty set? Why isn't <code>{}</code> correct?</li>
+    <li>What is the requirement for a set element?</li>
+    <li>What is the difference between <code>.remove()</code> and <code>.discard()</code>?</li>
+    <li>Why is set membership testing faster than list membership testing?</li>
+    <li>What do <code>|</code>, <code>&amp;</code>, <code>-</code>, and <code>^</code> do on sets?</li>
+    <li>What is the difference between <code><=</code> and <code>&lt;</code> for set comparison?</li>
+    <li>What does <code>.isdisjoint()</code> check?</li>
+    <li>What is the difference between <code>.union()</code> and <code>.update()</code>?</li>
+    <li>How do you write a set comprehension?</li>
+    <li>What is a <code>frozenset</code>? Why would you use it instead of a regular set?</li>
+    <li>Can you use a set as a dictionary key? Can you use a frozenset?</li>
+    <li>When should you use a set vs a list vs a tuple?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0010-dictionaries-in-depth.html">← Previous: Dictionaries in Depth</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0012-functions-in-depth.html">Next: Functions in Depth →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

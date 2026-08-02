@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 14: Error Handling</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 14: Error Handling — Graceful Failure</h1>
+
+  <p><span class="tag">concept</span> Error Handling</p>
+
+  <p>Programs fail. Files are missing, users type "hello" when you asked for a number, networks drop. Python's error handling tools — <code>try</code>, <code>except</code>, <code>else</code>, <code>finally</code>, <code>raise</code>, <code>assert</code>, and <code>with</code> — let you write code that anticipates failure and responds gracefully. This lesson covers the full error handling toolkit from the official <a href="https://docs.python.org/3/tutorial/errors.html">Python tutorial on errors and exceptions</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/errors.html">Tutorial — Errors and Exceptions</a>, <a href="https://docs.python.org/3/library/exceptions.html">Built-in Exceptions</a>, <a href="https://docs.python.org/3/reference/compound_stmts.html#the-try-statement">Reference — The try Statement</a>, <a href="https://docs.python.org/3/reference/compound_stmts.html#the-with-statement">Reference — The with Statement</a>, <a href="https://docs.python.org/3/reference/simple_stmts.html#the-raise-statement">Reference — The raise Statement</a>.</p>
+
+  <hr>
+
+  <h2>1. Understanding Errors</h2>
+
+  <p>Python has two kinds of errors. <strong>Syntax errors</strong> (parsing errors) happen when the code can't even be parsed — you get a <code>SyntaxError</code> before the program runs. <strong>Exceptions</strong> are errors detected during execution — the code is valid Python but something went wrong at runtime.</p>
+
+  <pre><code># Syntax error — code never runs
+# while True print('hello')
+#   File "&lt;stdin&gt;", line 1
+#     while True print('hello')
+#                ^^^^^
+# SyntaxError: invalid syntax
+
+# Exception — code is valid but fails at runtime
+# 10 * (1/0)
+# ZeroDivisionError: division by zero
+# 4 + spam*3
+# NameError: name 'spam' is not defined
+# '2' + 2
+# TypeError: can only concatenate str (not "int") to str</code></pre>
+
+  <p>When an exception is raised, Python prints a <strong>traceback</strong> showing the call stack, the line that caused the error, and the exception type with a message.</p>
+
+  <h3>Common Built-in Exceptions</h3>
+
+  <pre><code>TypeError          # Operation on wrong type: '2' + 2
+ValueError         # Right type, wrong value: int("hello")
+IndexError         # List index out of range
+KeyError           # Dict key not found
+NameError          # Variable not defined
+AttributeError     # Object has no attribute
+ZeroDivisionError  # Division by zero
+FileNotFoundError  # File doesn't exist (OSError subclass)
+ImportError        # Module not found
+StopIteration      # No more items from iterator
+KeyboardInterrupt  # User pressed Ctrl+C
+SystemExit         # sys.exit() called</code></pre>
+
+  <h3>Exception Hierarchy</h3>
+
+  <p>All exceptions inherit from <code>BaseException</code>. The key branch is <code>Exception</code> — this is the base class for all non-fatal exceptions you should catch. <code>KeyboardInterrupt</code> and <code>SystemExit</code> inherit directly from <code>BaseException</code> to avoid being accidentally caught by <code>except Exception</code>.</p>
+
+  <pre><code>BaseException
+ ├── SystemExit         # sys.exit() — let it propagate
+ ├── KeyboardInterrupt  # Ctrl+C — let it propagate
+ ├── GeneratorExit      # Generator closing
+ └── Exception          # CATCH THIS ONE
+      ├── TypeError
+      ├── ValueError
+      ├── ArithmeticError
+      │    ├── ZeroDivisionError
+      │    ├── OverflowError
+      │    └── FloatingPointError
+      ├── LookupError
+      │    ├── IndexError
+      │    └── KeyError
+      ├── OSError
+      │    ├── FileNotFoundError
+      │    ├── PermissionError
+      │    └── ... (many more)
+      ├── RuntimeError, NameError, AttributeError, ImportError ...
+
+# Good practice: always catch Exception, never BaseException
+except Exception:     # 👍 catches all non-fatal errors
+except:               # 👎 bare except catches everything including Ctrl+C</code></pre>
+
+  <div class="note">
+    <strong>💡 BaseException vs Exception:</strong> Always use <code>except Exception:</code> instead of <code>except:</code>. A bare <code>except:</code> catches <code>KeyboardInterrupt</code> and <code>SystemExit</code>, making it impossible to kill your program with Ctrl+C. Only catch specific exception types when you can handle them.
+  </div>
+
+  <hr>
+
+  <h2>2. Handling Exceptions — try/except</h2>
+
+  <p>The <code>try</code> statement lets you catch and handle exceptions. Syntax: <code>try</code> block contains code that might raise. <code>except</code> block(s) handle specific exception types.</p>
+
+  <pre><code># Basic try/except
+try:
+    x = int(input("Enter a number: "))
+except ValueError:
+    print("That's not a valid number!")
+
+# Multiple except clauses — order matters (most specific first)
+try:
+    f = open("data.txt")
+    content = f.read()
+except FileNotFoundError:
+    print("File doesn't exist")
+except PermissionError:
+    print("No permission to read")
+except OSError as e:
+    print(f"OS error: {e}")
+
+# Catching multiple types in one clause
+try:
+    result = risky_operation()
+except (TypeError, ValueError) as e:
+    print(f"Type or Value error: {e}")
+
+# Binding the exception instance with 'as'
+try:
+    x = int("hello")
+except ValueError as e:
+    print(type(e).__name__)   # ValueError
+    print(e.args)             # ("invalid literal for int() with base 10: 'hello'",)
+    print(e)                  # __str__ prints the message
+
+# Bare except — USE WITH CAUTION (catches KeyboardInterrupt too!)
+try:
+    risky()
+except:  # 👎 catches BaseException — bad practice
+    print("Something went wrong")
+# Better: except Exception:
+
+# Nested try/except
+try:
+    f = open("data.txt")
+    try:
+        value = int(f.read())
+    except ValueError:
+        print("File doesn't contain a number")
+finally:
+    f.close()</code></pre>
+
+  <div class="note">
+    <strong>💡 Exception assignment is cleared:</strong> In <code>except ValueError as e:</code>, the variable <code>e</code> is <strong>deleted</strong> after the <code>except</code> block ends. This breaks the traceback reference cycle and helps garbage collection. If you need to keep the exception, assign it to another name: <code>exc = e</code>.
+  </div>
+
+  <hr>
+
+  <h2>3. The else and finally Clauses</h2>
+
+  <h3>else — runs when no exception occurred</h3>
+
+  <p>The <code>else</code> block runs <strong>only</strong> if the <code>try</code> block completed without raising an exception. This is better than putting all code in the <code>try</code> block because it avoids accidentally catching exceptions from code that wasn't supposed to be protected.</p>
+
+  <pre><code>try:
+    f = open("data.txt")
+except FileNotFoundError:
+    print("File not found")
+else:
+    # Only runs if open() succeeded
+    print(f.read())
+    f.close()
+
+# Without else — problematic: the read() and close() are also in try
+try:
+    f = open("data.txt")
+    print(f.read())   # What if this raises?
+    f.close()         # What if this raises?
+except FileNotFoundError:
+    print("File not found")
+# Any exception from read() or close() would ALSO be caught!</code></pre>
+
+  <h3>finally — always runs</h3>
+
+  <p>The <code>finally</code> block runs <strong>no matter what</strong> — whether the <code>try</code> block succeeds, fails, or control jumps out via <code>return</code>, <code>break</code>, or <code>continue</code>. It's for cleanup actions: closing files, releasing locks, closing network connections.</p>
+
+  <pre><code># finally always executes
+try:
+    print("trying...")
+    return 42
+finally:
+    print("finally!")  # Runs even though try returned!
+
+# Output:
+# trying...
+# finally!
+# (function returns 42)
+
+# Full pattern: try / except / else / finally
+try:
+    f = open("data.txt")
+    raw = f.read()
+except FileNotFoundError:
+    print("File not found")
+except OSError as e:
+    print(f"OS error: {e}")
+else:
+    # Only on success
+    print(f"Read {len(raw)} characters")
+finally:
+    # Always — close the file
+    if 'f' in locals():
+        f.close()</code></pre>
+
+  <div class="note">
+    <strong>⚠️ The return in finally trap:</strong> If <code>finally</code> has a <code>return</code> statement, it overrides any <code>return</code> or exception from <code>try</code> or <code>except</code>. Since Python 3.14, the compiler emits a <code>SyntaxWarning</code> for this (PEP 765). Never put <code>return</code>, <code>break</code>, or <code>continue</code> in a <code>finally</code> block.
+  </div>
+
+  <hr>
+
+  <h2>4. Raising Exceptions</h2>
+
+  <p>The <code>raise</code> statement deliberately triggers an exception. You can raise built-in exceptions or your own. Use it to signal that a function's preconditions were violated.</p>
+
+  <pre><code># Basic raise
+raise ValueError("something is wrong")
+
+# Raise with an instance
+raise ValueError()           # Same as above — no message
+raise ValueError("bad value")  # With message
+
+# Raise a class (implicitly instantiated)
+raise ValueError  # Creates ValueError() automatically
+
+# Re-raise the current exception (bare raise)
+try:
+    x = int("hello")
+except ValueError as e:
+    print("Logging error...")
+    raise  # Re-raises the SAME exception — preserves traceback
+
+# Raise in a validation function
+def set_age(age):
+    if not isinstance(age, (int, float)):
+        raise TypeError(f"Age must be a number, got {type(age).__name__}")
+    if age &lt; 0 or age &gt; 150:
+        raise ValueError(f"Age {age} must be between 0 and 150")
+    print(f"Age set to {age}")
+
+# Calling code catches and handles
+try:
+    set_age("twenty")
+except TypeError as e:
+    print(f"Invalid type: {e}")
+except ValueError as e:
+    print(f"Invalid value: {e}")</code></pre>
+
+  <div class="note">
+    <strong>💡 Raise or return None?</strong> Returning <code>None</code> on failure is common but can be ambiguous — <code>None</code> is also a valid result for some functions. Raising with a clear message forces the caller to handle the error explicitly. Use <code>return None</code> for expected edge cases (empty input); use <code>raise</code> for violations of a function's contract.
+  </div>
+
+  <hr>
+
+  <h2>5. Exception Chaining</h2>
+
+  <p>When an exception occurs while handling another exception, Python automatically chains them. You can also chain explicitly with <code>raise ... from ...</code> to preserve the original cause.</p>
+
+  <pre><code># Implicit chaining — automatic
+try:
+    open("missing.txt")
+except OSError:
+    raise RuntimeError("Failed to open config")
+# Traceback shows both:
+#   FileNotFoundError (the cause)
+#   RuntimeError (the consequence)
+
+# Explicit chaining — raise X from Y
+def load_user(user_id):
+    try:
+        return database.lookup(user_id)
+    except KeyError as e:
+        raise ValueError(f"User {user_id} not found") from e
+
+# Suppress context — raise X from None
+# Use when the original exception is an implementation detail
+def load_config():
+    try:
+        return json.load(open("config.json"))
+    except FileNotFoundError:
+        raise RuntimeError("Config file missing") from None
+        # The FileNotFoundError is hidden — only RuntimeError shows
+
+# Checking chain attributes
+try:
+    load_user(42)
+except ValueError as e:
+    print(e.__cause__)         # The original KeyError (from ...)
+    print(e.__context__)       # Auto-set when raised during another except
+    print(e.__suppress_context__)  # True if from None</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use from None:</strong> Use <code>raise X from None</code> when the original exception is not useful to the caller — for example, when you're wrapping a low-level <code>KeyError</code> into a domain-specific <code>UserNotFoundError</code>. Use <code>raise X from e</code> when you want to show both cause and effect in the traceback.
+  </div>
+
+  <hr>
+
+  <h2>6. The assert Statement</h2>
+
+  <p><code>assert</code> is a debugging aid that checks a condition and raises <code>AssertionError</code> if it's <code>False</code>. It's <strong>disabled</strong> when Python runs in optimized mode (<code>python -O</code>). Never use <code>assert</code> for validation that must always run — use <code>if/raise</code> instead.</p>
+
+  <pre><code># Basic assertion
+x = 5
+assert x > 0            # Passes silently
+assert x &lt; 0            # AssertionError
+assert x &lt; 0, "x must be positive"  # AssertionError: x must be positive
+
+# Assertions for invariants (preconditions)
+def calculate_bmi(weight_kg, height_m):
+    assert weight_kg > 0, f"Weight must be positive: {weight_kg}"
+    assert height_m > 0, f"Height must be positive: {height_m}"
+    return weight_kg / (height_m ** 2)
+
+# Assertions for type checks during development
+def process_items(items):
+    assert isinstance(items, list), "Expected a list"
+    assert all(isinstance(x, (int, float)) for x in items), "All items must be numbers"
+    return sum(items) / len(items)
+
+# assert is disabled with -O flag
+# Run: python -O script.py
+# All assert statements are skipped — do NOT use assert for security checks!</code></pre>
+
+  <div class="note">
+    <strong>💡 assert vs if/raise:</strong> <code>assert</code> is for catching bugs during development (internal invariants, type contracts). <code>if/raise</code> is for validating user input or external data that must always be checked. The <code>-O</code> flag removes all assertions — your program should not rely on them for correct operation.
+  </div>
+
+  <hr>
+
+  <h2>7. User-defined Exceptions</h2>
+
+  <p>Create custom exception classes by inheriting from <code>Exception</code> (or one of its subclasses). Custom exceptions make your code more expressive — callers can catch them specifically.</p>
+
+  <pre><code># Simple custom exception
+class SalaryError(Exception):
+    pass
+
+# Raise and catch it
+try:
+    raise SalaryError("Salary calculation failed")
+except SalaryError as e:
+    print(e)  # Salary calculation failed
+
+# Custom exception with attributes
+class InsufficientFundsError(Exception):
+    def __init__(self, balance, amount):
+        self.balance = balance
+        self.amount = amount
+        self.deficit = amount - balance
+        super().__init__(f"Need ${amount}, have ${balance} (${self.deficit} short)")
+
+    def __str__(self):
+        return f"Insufficient funds: need ${self.amount}, have ${self.balance}"
+
+# Using it
+try:
+    raise InsufficientFundsError(50, 100)
+except InsufficientFundsError as e:
+    print(e.balance)   # 50
+    print(e.amount)    # 100
+    print(e.deficit)   # 50
+
+# Exception hierarchy — more specific catches first
+class BookstoreError(Exception):
+    """Base for all bookstore exceptions."""
+    pass
+
+class BookNotFoundError(BookstoreError):
+    def __init__(self, isbn):
+        self.isbn = isbn
+        super().__init__(f"Book with ISBN {isbn} not found")
+
+class InsufficientStockError(BookstoreError):
+    def __init__(self, isbn, requested, available):
+        self.isbn = isbn
+        self.requested = requested
+        self.available = available
+        super().__init__(f"Only {available} copies available for ISBN {isbn}, requested {requested}")
+
+# Catch the base or specific
+try:
+    search(isbn)
+except BookNotFoundError:
+    print("That book doesn't exist")
+except BookstoreError:
+    print("Some bookstore error occurred")</code></pre>
+
+  <div class="note">
+    <strong>💡 Naming convention:</strong> Custom exceptions should end in "Error" (like built-in ones). Always inherit from <code>Exception</code>, not <code>BaseException</code>. Keep hierarchy shallow — one or two levels deep is usually enough.
+  </div>
+
+  <hr>
+
+  <h2>8. Context Managers — The with Statement</h2>
+
+  <p>A context manager guarantees that setup and cleanup code runs around a block — even if the block raises an exception. The <code>with</code> statement is the most Pythonic way to manage resources like files, locks, and database connections.</p>
+
+  <pre><code># Without with — must manually close
+f = open("data.txt")
+try:
+    data = f.read()
+finally:
+    f.close()  # Always runs
+
+# With with — auto-close guaranteed
+with open("data.txt") as f:
+    data = f.read()
+# f is automatically closed, even if read() raises
+
+# Multiple context managers
+with open("input.txt") as infile, open("output.txt", "w") as outfile:
+    for line in infile:
+        outfile.write(line.upper())
+
+# Parenthesized (Python 3.10+) — cleaner for multiple
+with (
+    open("input.txt") as infile,
+    open("output.txt", "w") as outfile,
+):
+    for line in infile:
+        outfile.write(line.upper())
+
+# The context manager protocol
+class ManagedFile:
+    def __init__(self, filename, mode="r"):
+        self.filename = filename
+        self.mode = mode
+
+    def __enter__(self):
+        self.file = open(self.filename, self.mode)
+        return self.file  # What 'as' binds to
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.file.close()
+        # Return False to propagate exceptions, True to suppress
+        return False  # Don't suppress — let exceptions propagate
+
+# Using our context manager
+with ManagedFile("data.txt") as f:
+    print(f.read())
+# File is closed here automatically
+
+# Suppressing specific exceptions
+class IgnoreFileNotFound:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return exc_type is FileNotFoundError  # Suppress only FileNotFoundError
+
+with IgnoreFileNotFound():
+    open("missing.txt").read()  # Silently ignored!
+
+# @contextmanager decorator (contextlib) — simpler for simple cases
+from contextlib import contextmanager
+
+@contextmanager
+def temp_change(obj, attr, new_value):
+    old = getattr(obj, attr)
+    setattr(obj, attr, new_value)
+    yield  # Block runs here
+    setattr(obj, attr, old)  # Restore on exit
+
+# Usage
+class Config:
+    debug = False
+
+with temp_change(Config, "debug", True):
+    print(Config.debug)  # True
+print(Config.debug)  # False — restored</code></pre>
+
+  <div class="note">
+    <strong>💡 contextlib utilities:</strong> The <code>contextlib</code> module provides useful context managers: <code>suppress()</code> to ignore specific exceptions, <code>redirect_stdout()</code>/<code>redirect_stderr()</code> for testing, <code>nullcontext()</code> as a no-op placeholder, and <code>closing()</code> for objects with a <code>close()</code> method but no context manager protocol.
+  </div>
+
+  <hr>
+
+  <h2>9. Advanced Topics &amp; Best Practices</h2>
+
+  <h3>ExceptionGroup and except* (Python 3.11+)</h3>
+
+  <p><code>ExceptionGroup</code> wraps multiple unrelated exceptions so they can be raised and handled together. <code>except*</code> selectively handles exceptions in a group by type.</p>
+
+  <pre><code># Raising multiple exceptions together
+def validate_all(items):
+    errors = []
+    for i, item in enumerate(items):
+        try:
+            validate(item)
+        except Exception as e:
+            errors.append(e)
+    if errors:
+        raise ExceptionGroup("Validation failed", errors)
+
+# Handling with except*
+try:
+    validate_all(data)
+except* TypeError as e:
+    print(f"Type errors: {e.exceptions}")
+except* ValueError as e:
+    print(f"Value errors: {e.exceptions}")
+
+# add_note() — enrich exceptions with context (3.11+)
+try:
+    raise TypeError("bad type")
+except Exception as e:
+    e.add_note("Happened during user import")
+    e.add_note("Check input file format")
+    raise  # Notes appear in the traceback</code></pre>
+
+  <h3>Best Practices</h3>
+
+  <pre><code># ✅ DO: Be specific about exception types
+try:
+    parse(data)
+except ValueError:
+    print("Invalid data format")
+
+# ❌ DON'T: Catch everything with bare except
+try:
+    parse(data)
+except:
+    pass  # Swallows KeyboardInterrupt, SystemExit too!
+
+# ❌ DON'T: Swallow exceptions silently
+try:
+    parse(data)
+except ValueError:
+    pass  # 👎 No message! Bug will be impossible to find
+
+# ✅ DO: Log exceptions when you catch them
+import logging
+try:
+    parse(data)
+except ValueError as e:
+    logging.error(f"Parse failed: {e}", exc_info=True)
+
+# ✅ DO: Use finally or with for resource cleanup
+f = open("data.txt")
+try:
+    process(f)
+finally:
+    f.close()
+# OR
+with open("data.txt") as f:
+    process(f)
+
+# ✅ DO: Fail fast — validate early
+def process_order(order_id, items):
+    if not order_id:
+        raise ValueError("order_id is required")
+    if not items:
+        raise ValueError("order must have at least one item")
+    # ... main logic
+
+# ✅ DO: Handle exceptions at the right level
+# Not too deep (in every tiny function)
+# Not too high (at the top level where context is lost)</code></pre>
+
+  <div class="note">
+    <strong>💡 EAFP vs LBYL:</strong> Python prefers <strong>E</strong>asier to <strong>A</strong>sk <strong>F</strong>orgiveness than <strong>P</strong>ermission — try the operation and handle failure (<code>try/except</code>), rather than checking preconditions first (<code>if/else</code>). EAFP is more robust because it avoids race conditions and covers cases you didn't anticipate checking.
+  </div>
+
+  <hr>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic try/except — Safe Integer Input</h3>
+    <p>Write code that repeatedly asks the user for an integer, catching <code>ValueError</code> for non-integer input and <code>KeyboardInterrupt</code> for Ctrl+C. Write <code>safe_divide(a, b)</code> that returns <code>None</code> on <code>ZeroDivisionError</code>. Write <code>get_list_item(lst, index)</code> that returns <code>None</code> on <code>IndexError</code>.</p>
+    <pre><code>Enter a number: hello
+Invalid input — try again.
+Enter a number: 42
+You entered: 42
+
+safe_divide(10, 2): 5.0
+safe_divide(10, 0): None
+
+get_list_item([1, 2, 3], 1): 2
+get_list_item([1, 2, 3], 10): None</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Multiple except Clauses — File Handling</h3>
+    <p>Ask the user for a filename. Try to open and read it. Handle <code>FileNotFoundError</code>, <code>PermissionError</code>, <code>IsADirectoryError</code>, and <code>OSError</code> with different messages. Add a catch-all unexpected error handler. After any error, ask for another filename.</p>
+    <pre><code>Enter filename: missing.txt
+File not found. Check the path.
+Enter filename: /root/secret.txt
+Permission denied.
+Enter filename: /home/user
+That's a directory, not a file.
+Enter filename: data.txt
+File contents: Hello, World!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Catching Multiple Exception Types in One except</h3>
+    <p>Write <code>process_data(data)</code> that sums numbers and computes average. Catch <code>TypeError</code> and <code>ValueError</code> in one clause and identify which type occurred. Write code that tries <code>int()</code>, <code>float()</code>, and <code>complex()</code> on input and catches both errors uniformly. Create <code>safe_cast(value, target_type)</code> that returns <code>None</code> on failure.</p>
+    <pre><code>process_data([1, 2, 3]): average = 2.0
+process_data([1, "two", 3]): Caught TypeError: unsupported operand type(s)...
+process_data([]): Caught ValueError: ...
+
+safe_cast("42", int): 42
+safe_cast("hello", int): None</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: The else Clause — Separating Success Path</h3>
+    <p>Read a number from a file: open in <code>try</code>, convert to int in <code>try</code>, print its square in <code>else</code>. Write <code>divide_and_format(a, b)</code> with <code>else</code> returning formatted result and <code>finally</code> logging the attempt. Verify that <code>else</code> doesn't run when <code>try</code> raises.</p>
+    <pre><code>File contains "25":
+Number: 25, Square: 625
+
+File missing:
+File not found
+
+divide_and_format(10, 2): Result: 5.0
+  [finally] Division attempted
+divide_and_format(10, 0):  [finally] Division attempted</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: The finally Clause — Guaranteed Cleanup</h3>
+    <p>Write <code>divide_with_log(a, b)</code> with finally that always runs. Open a file in try, process in else, close in finally. Demonstrate that finally runs even through <code>return</code>, <code>break</code>, and unhandled exceptions. Test the return-in-finally trap and observe what value wins.</p>
+    <pre><code>divide_with_log(10, 2):
+  Result: 5.0
+  [finally] Division operation complete
+
+divide_with_log(10, 0):
+  Cannot divide by zero
+  [finally] Division operation complete
+
+The trap:
+  def trap():
+      try:
+          return "try"
+      finally:
+          return "finally"
+  trap(): "finally"  &lt;-- overrides try! (SyntaxWarning in 3.14+)</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: Raising Exceptions</h3>
+    <p>Write <code>set_age(age)</code> that raises <code>TypeError</code> for non-numeric and <code>ValueError</code> for out-of-range. Write <code>withdraw(balance, amount)</code> that raises <code>ValueError</code> for negative amount and <code>RuntimeError</code> for insufficient funds. Test that <code>raise ValueError</code> and <code>raise ValueError()</code> are equivalent.</p>
+    <pre><code>set_age(25): Age set to 25
+set_age("twenty"): TypeError: Age must be a number, got str
+set_age(200): ValueError: Age 200 must be between 0 and 150
+
+withdraw(100, 50): New balance: 50
+withdraw(100, -10): ValueError: Cannot withdraw negative amount
+withdraw(50, 100): RuntimeError: Insufficient funds</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: Re-raising Exceptions</h3>
+    <p>Write <code>process_file(filename)</code> that catches <code>FileNotFoundError</code>, prints a warning, and re-raises. Write <code>divider(a, b)</code> that catches <code>ZeroDivisionError</code>, adds a note, and re-raises. Write <code>safe_execute(func, *args)</code> that catches any exception, logs the type, and re-raises.</p>
+    <pre><code>try:
+    process_file("missing.txt")
+except FileNotFoundError:
+    print("Caller handled missing file")
+# Output:
+#   Warning: missing.txt not found — re-raising
+#   Caller handled missing file
+
+try:
+    divider(5, 0)
+except ZeroDivisionError as e:
+    print(e.__notes__)  # ['Attempted division by zero']
+    # or in traceback: ZeroDivisionError ...
+    #                   Attempted division by zero</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Exception Chaining — raise ... from ...</h3>
+    <p>Write <code>load_config(filename)</code> that wraps <code>FileNotFoundError</code> in <code>RuntimeError</code> using explicit chaining. Write <code>fetch_user_data(user_id)</code> that wraps <code>KeyError</code> in <code>ValueError</code> using <code>from None</code>. Compare the traceback output of: explicit chain, suppressed chain, and implicit context.</p>
+    <pre><code># Explicit chain — both shown:
+load_config("missing.json")
+#   FileNotFoundError: ... (cause)
+#   RuntimeError: Config failed (consequence)
+
+# Suppressed chain — only the new exception:
+fetch_user_data(999)
+#   ValueError: User 999 not found  (KeyError is hidden)
+
+# Implicit chaining — both shown (as context, not cause):
+# During handling of the above exception, another exception occurred:</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Assert — Debugging Aid</h3>
+    <p>Write <code>calculate_bmi(weight_kg, height_m)</code> with assertions for positive inputs. Write <code>sort_numbers_desc(numbers)</code> with type assertions. Verify <code>AssertionError</code> fires on invalid inputs. Test with <code>python -O</code> to see assertions disabled. Compare <code>assert</code> vs <code>if/raise</code> — when is each appropriate?</p>
+    <pre><code>calculate_bmi(70, 1.75): 22.86
+calculate_bmi(-70, 1.75): AssertionError: Weight must be positive: -70
+calculate_bmi(70, -1): AssertionError: Height must be positive: -1
+
+sort_numbers_desc([3, 1, 2]): [3, 2, 1]
+sort_numbers_desc("hello"): AssertionError: Expected a list
+
+python -O script.py  # Assertions are SKIPPED — no errors!</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: User-defined Exceptions</h3>
+    <p>Create a <code>BookstoreError</code> hierarchy with <code>BookNotFoundError</code>, <code>InsufficientStockError</code>, and <code>InvalidISBNError</code>, each with relevant attributes. Build a <code>Bookstore</code> class with <code>find_book</code>, <code>purchase_book</code>, and <code>add_book</code> methods that raise these exceptions. Test each path.</p>
+    <pre><code>store = Bookstore()
+store.add_book("978-3-16-148410-0", "Python 101")
+# InvalidISBNError: ISBN 123 is not 10 or 13 digits
+store.find_book("978-3-16-148410-0")
+# Book: Python 101
+store.find_book("0000000000000")
+# BookNotFoundError: Book with ISBN 0000000000000 not found
+store.purchase_book("978-3-16-148410-0", 100)
+# InsufficientStockError: Only 5 copies available for ISBN 978-3-16-148410-0, requested 100</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: Context Managers — The with Statement</h3>
+    <p>Use <code>with open()</code> to read and write files; verify <code>f.closed</code> after. Use two context managers in one <code>with</code> (copy file). Create a <code>Timer</code> context manager class. Create a <code>FileManager</code> class that suppresses <code>FileNotFoundError</code>. Use <code>@contextmanager</code> to temporarily change and restore an attribute.</p>
+    <pre><code>with Timer():
+    sum(range(1000000))
+# Elapsed: 0.023 seconds
+
+with FileManager("missing.txt") as f:
+    print(f.read())
+# No crash — FileNotFoundError suppressed
+
+with temp_change(config, "debug", True):
+    print(config.debug)  # True
+print(config.debug)      # False — restored</code></pre>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: Mixed Practice — Robust Calculator</h3>
+    <p>Build a command-line calculator with custom <code>CalculatorError</code> hierarchy (<code>InvalidExpressionError</code>, <code>DivisionByZeroError</code>). Implement <code>parse_expression()</code> with assertions, <code>calculate()</code> with raises, and a main loop with <code>try/except/else/finally</code> and a <code>Timer</code> context manager. Log errors to a file.</p>
+    <pre><code>Enter expression: 5 + 3
+Result: 8 (0.001s)
+---
+Enter expression: 10 / 0
+Error: Division by zero
+---
+Enter expression: hello
+Error: Invalid expression format
+---
+Enter expression: quit
+Goodbye!
+---
+(Errors also logged to calculator_errors.log)</code></pre>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What's the difference between a syntax error and an exception?</li>
+    <li>Why should you use <code>except Exception:</code> instead of a bare <code>except:</code>?</li>
+    <li>What happens when you catch multiple exception types in one clause: <code>except (TypeError, ValueError) as e:</code>?</li>
+    <li>When does the <code>else</code> clause in a try statement execute? Why is it better than putting code in the <code>try</code> block?</li>
+    <li>Does <code>finally</code> execute if <code>try</code> has a <code>return</code>? What if <code>finally</code> has a <code>return</code>?</li>
+    <li>What's the difference between <code>raise</code>, <code>raise ValueError</code>, <code>raise ValueError()</code>, and <code>raise ValueError("msg")</code>?</li>
+    <li>What does a bare <code>raise</code> do inside an <code>except</code> block?</li>
+    <li>How does <code>raise X from Y</code> differ from <code>raise X from None</code>?</li>
+    <li>When should you use <code>assert</code> vs <code>if/raise ValueError</code>?</li>
+    <li>What base class should user-defined exceptions inherit from? What naming convention should they follow?</li>
+    <li>What does the <code>with</code> statement guarantee? What two methods form the context manager protocol?</li>
+    <li>What is <code>ExceptionGroup</code> used for? How does <code>except*</code> differ from <code>except</code>?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0013-comprehensions.html">← Previous: Comprehensions</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0015-file-io.html">Next: File I/O →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>

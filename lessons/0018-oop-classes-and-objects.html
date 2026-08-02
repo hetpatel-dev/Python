@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lesson 18: OOP — Classes &amp; Objects</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <a href="../index.html" class="mission-link">← Home</a>
+
+  <h1>Lesson 18: OOP — Classes &amp; Objects</h1>
+
+  <p><span class="tag">concept</span> Object-Oriented Programming, Classes, Instances, Methods, Properties</p>
+
+  <p>Object-Oriented Programming (OOP) is a programming paradigm that organizes code around <strong>objects</strong> — bundles of data and behavior. Classes are the blueprints for creating objects. This lesson covers the official <a href="https://docs.python.org/3/tutorial/classes.html">Python tutorial on classes</a>, <a href="https://docs.python.org/3/reference/datamodel.html#data-model">data model</a>, and <a href="https://docs.python.org/3/howto/descriptor.html">descriptor protocol</a>.</p>
+
+  <p>Primary sources: <a href="https://docs.python.org/3/tutorial/classes.html#class-objects">Tutorial — Classes</a>, <a href="https://docs.python.org/3/tutorial/classes.html#instance-objects">Instance Objects</a>, <a href="https://docs.python.org/3/tutorial/classes.html#method-objects">Method Objects</a>, <a href="https://docs.python.org/3/tutorial/classes.html#class-and-instance-variables">Class and Instance Variables</a>, <a href="https://docs.python.org/3/library/functions.html#classmethod">classmethod</a>, <a href="https://docs.python.org/3/library/functions.html#staticmethod">staticmethod</a>, <a href="https://docs.python.org/3/library/functions.html#property">property</a>, <a href="https://docs.python.org/3/reference/datamodel.html#slots">__slots__</a>, <a href="https://docs.python.org/3/library/dataclasses.html">dataclasses</a>, <a href="https://docs.python.org/3/howto/descriptor.html">Descriptor HowTo Guide</a>.</p>
+
+  <hr>
+
+  <h2>1. Introduction to Object-Oriented Programming</h2>
+
+  <p>OOP is a programming paradigm that organizes code around <strong>objects</strong> rather than functions and logic. An object bundles data (attributes) and behavior (methods) into a single unit.</p>
+
+  <h3>What is OOP?</h3>
+
+  <ul>
+    <li><strong>Blueprints and houses:</strong> A class is like a blueprint; an instance is like a house built from that blueprint.</li>
+    <li><strong>Encapsulation:</strong> Grouping related data and functions together.</li>
+    <li><strong>Abstraction:</strong> Hiding complex implementation details behind simple interfaces.</li>
+    <li><strong>Code reuse:</strong> Classes can be extended and composed to build complex systems.</li>
+  </ul>
+
+  <h3>Why Use Classes?</h3>
+
+  <ul>
+    <li><strong>Organization:</strong> Related data and functions live together.</li>
+    <li><strong>Maintainability:</strong> Changes to one class don't ripple everywhere.</li>
+    <li><strong>Modeling:</strong> Natural way to represent real-world entities (BankAccount, Employee, Car).</li>
+    <li><strong>Extensibility:</strong> Inheritance and composition let you build on existing code.</li>
+  </ul>
+
+  <h3>Python as Multi-Paradigm</h3>
+
+  <p>Python supports procedural, functional, and object-oriented programming. In Python, <strong>everything is an object</strong> — integers, strings, lists, functions, even classes themselves.</p>
+
+  <pre><code># Everything is an object
+print(type(42))          # &lt;class 'int'&gt;
+print(type("hello"))     # &lt;class 'str'&gt;
+print(type([1, 2, 3]))   # &lt;class 'list'&gt;
+print(type(print))       # &lt;class 'builtin_function_or_method'&gt;</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use classes vs functions:</strong> Use classes when you need to maintain state across multiple operations or when you have related data and behavior. Use functions for stateless operations and simple transformations.
+  </div>
+
+  <hr>
+
+  <h2>2. Class Definition and Instantiation</h2>
+
+  <p>A class is defined with the <code>class</code> keyword. The class body contains attributes and methods.</p>
+
+  <h3>Basic Class Definition</h3>
+
+  <pre><code>class Dog:
+    """A simple Dog class."""
+    pass
+
+# Creating instances
+buddy = Dog()
+rex = Dog()
+print(buddy)            # &lt;__main__.Dog object at 0x...&gt;
+print(type(buddy))      # &lt;class '__main__.Dog'&gt;</code></pre>
+
+  <h3>Class Body and Namespace</h3>
+
+  <p>The class body creates a namespace (a dictionary). You can inspect it:</p>
+
+  <pre><code>class MyClass:
+    x = 10
+    def method(self):
+        pass
+
+print(MyClass.__dict__.keys())
+# dict_keys(['__module__', '__dict__', '__weakref__', '__doc__', 'x', 'method'])</code></pre>
+
+  <h3>Attribute References</h3>
+
+  <pre><code>class Circle:
+    pi = 3.14159  # Class attribute
+
+c = Circle()
+print(Circle.pi)        # 3.14159 (class access)
+print(c.pi)             # 3.14159 (instance access - falls back to class)</code></pre>
+
+  <h3>Multiple Instances</h3>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p1 = Point(1, 2)
+p2 = Point(3, 4)
+print(p1.x, p1.y)      # 1 2
+print(p2.x, p2.y)      # 3 4
+
+# Each instance has its own namespace
+print(p1.__dict__)      # {'x': 1, 'y': 2}
+print(p2.__dict__)      # {'x': 3, 'y': 4}</code></pre>
+
+  <h3>Classes Are First-Class Objects</h3>
+
+  <pre><code>class Animal:
+    pass
+
+# Assign to variables
+MyClass = Animal
+
+# Pass as arguments
+def create_instance(cls):
+    return cls()
+
+obj = create_instance(Animal)
+
+# Store in data structures
+classes = [Animal, Point, Circle]</code></pre>
+
+  <hr>
+
+  <h2>3. The <code>__init__</code> Constructor</h2>
+
+  <p>The <code>__init__</code> method initializes a newly created instance. It's called automatically when you instantiate a class.</p>
+
+  <h3>Basic <code>__init__</code></h3>
+
+  <pre><code>class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+alice = Person("Alice", 30)
+print(alice.name)       # Alice
+print(alice.age)        # 30</code></pre>
+
+  <h3>Default Parameter Values</h3>
+
+  <pre><code>class Student:
+    def __init__(self, name, grade="A"):
+        self.name = name
+        self.grade = grade
+
+s1 = Student("Bob")
+s2 = Student("Charlie", "B")
+print(s1.grade)         # A
+print(s2.grade)         # B</code></pre>
+
+  <h3>The Mutable Default Argument Trap</h3>
+
+  <pre><code># BAD: Shared list across all instances!
+class Bad:
+    def __init__(self, items=[]):
+        self.items = items
+
+a = Bad()
+b = Bad()
+a.items.append(1)
+print(b.items)          # [1] — OOPS! b shares a's list
+
+# GOOD: Create new list each time
+class Good:
+    def __init__(self, items=None):
+        self.items = items if items is not None else []
+
+c = Good()
+d = Good()
+c.items.append(1)
+print(d.items)          # [] — Correct! Independent lists</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Mutable default argument trap:</strong> Default values are evaluated once when the function is defined, not each time it's called. Mutable defaults (lists, dicts, sets) are shared across all calls. Always use <code>None</code> as the default and create the mutable object inside the function.
+  </div>
+
+  <h3><code>__init__</code> vs <code>__new__</code></h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Method</th><th style="border: 1px solid #ddd; padding: 8px;">Purpose</th><th style="border: 1px solid #ddd; padding: 8px;">Called When</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>__new__</code></td><td style="border: 1px solid #ddd; padding: 8px;">Creates the instance</td><td style="border: 1px solid #ddd; padding: 8px;">Before <code>__init__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>__init__</code></td><td style="border: 1px solid #ddd; padding: 8px;">Initializes the instance</td><td style="border: 1px solid #ddd; padding: 8px;">After <code>__new__</code></td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>class Singleton:
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self):
+        self.value = "initialized"
+
+a = Singleton()
+b = Singleton()
+print(a is b)           # True — same instance!</code></pre>
+
+  <hr>
+
+  <h2>4. The <code>self</code> Parameter</h2>
+
+  <p><code>self</code> is the first parameter of instance methods. It represents the instance being operated on.</p>
+
+  <h3>Why <code>self</code> Is Explicit</h3>
+
+  <pre><code>class Dog:
+    def __init__(self, name):
+        self.name = name  # self.name is an instance attribute
+    
+    def bark(self):       # self is required
+        return f"{self.name} says Woof!"
+
+buddy = Dog("Buddy")
+print(buddy.bark())      # Buddy says Woof!</code></pre>
+
+  <h3>How Python Passes <code>self</code></h3>
+
+  <pre><code>class Dog:
+    def __init__(self, name):
+        self.name = name
+    
+    def bark(self):
+        return f"{self.name} says Woof!"
+
+buddy = Dog("Buddy")
+
+# This:
+buddy.bark()
+
+# Is equivalent to:
+Dog.bark(buddy)          # Python passes buddy as self automatically</code></pre>
+
+  <h3><code>self</code> Is Just a Convention</h3>
+
+  <pre><code>class Dog:
+    def __init__(this, name):  # Works, but don't do this!
+        this.name = name
+    
+    def bark(this):
+        return f"{this.name} says Woof!"
+
+buddy = Dog("Buddy")
+print(buddy.bark())      # Buddy says Woof!</code></pre>
+
+  <div class="note">
+    <strong>💡 Convention:</strong> Always use <code>self</code> for instance methods and <code>cls</code> for class methods. This is the Python community standard and makes code readable.
+  </div>
+
+  <h3>Accessing Attributes via <code>self</code></h3>
+
+  <pre><code>class Counter:
+    count = 0  # Class attribute
+    
+    def __init__(self):
+        self.value = 0  # Instance attribute
+    
+    def increment(self):
+        self.value += 1  # Access instance attribute
+        Counter.count += 1  # Access class attribute
+
+c1 = Counter()
+c2 = Counter()
+c1.increment()
+c1.increment()
+c2.increment()
+print(c1.value)          # 2
+print(c2.value)          # 1
+print(Counter.count)     # 3</code></pre>
+
+  <hr>
+
+  <h2>5. Instance Attributes vs Class Attributes</h2>
+
+  <p>Understanding the difference between instance and class attributes is crucial for proper OOP design.</p>
+
+  <h3>Instance Attributes</h3>
+
+  <ul>
+    <li>Unique to each instance</li>
+    <li>Stored in the instance's <code>__dict__</code></li>
+    <li>Created in <code>__init__</code> or other methods</li>
+    <li>Accessed via <code>self.attr</code></li>
+  </ul>
+
+  <pre><code>class Person:
+    def __init__(self, name):
+        self.name = name  # Instance attribute
+
+p1 = Person("Alice")
+p2 = Person("Bob")
+print(p1.__dict__)      # {'name': 'Alice'}
+print(p2.__dict__)      # {'name': 'Bob'}</code></pre>
+
+  <h3>Class Attributes</h3>
+
+  <ul>
+    <li>Shared across all instances</li>
+    <li>Stored in the class's <code>__dict__</code></li>
+    <li>Defined directly in the class body</li>
+    <li>Accessed via <code>ClassName.attr</code> or <code>self.attr</code></li>
+  </ul>
+
+  <pre><code>class Dog:
+    species = "Canis familiaris"  # Class attribute
+    
+    def __init__(self, name):
+        self.name = name  # Instance attribute
+
+buddy = Dog("Buddy")
+rex = Dog("Rex")
+
+print(buddy.species)    # Canis familiaris (from class)
+print(rex.species)      # Canis familiaris (from class)
+print(Dog.species)      # Canis familiaris</code></pre>
+
+  <h3>Attribute Lookup Order</h3>
+
+  <p>Python looks up attributes in this order:</p>
+  <ol>
+    <li>Instance attributes (<code>self.__dict__</code>)</li>
+    <li>Class attributes (<code>ClassName.__dict__</code>)</li>
+    <li>Parent class attributes (if inherited)</li>
+    <li><code>__getattr__</code> if defined</li>
+  </ol>
+
+  <pre><code>class MyClass:
+    x = 10  # Class attribute
+
+obj = MyClass()
+print(obj.x)            # 10 (from class)
+
+obj.x = 20              # Creates instance attribute
+print(obj.x)            # 20 (from instance - shadows class attribute)
+print(MyClass.x)        # 10 (class attribute unchanged)
+
+del obj.x               # Remove instance attribute
+print(obj.x)            # 10 (falls back to class attribute)</code></pre>
+
+  <h3>Modifying Class Attributes</h3>
+
+  <pre><code>class Dog:
+    species = "Canis familiaris"
+    count = 0
+    
+    def __init__(self, name):
+        self.name = name
+        Dog.count += 1  # Modify class attribute
+
+buddy = Dog("Buddy")
+rex = Dog("Rex")
+print(Dog.count)        # 2
+
+# Modifying class attribute affects all instances
+Dog.species = "Canis lupus familiaris"
+print(buddy.species)    # Canis lupus familiaris
+print(rex.species)      # Canis lupus familiaris</code></pre>
+
+  <h3>The Mutable Class Attribute Pitfall</h3>
+
+  <pre><code># DANGEROUS: Shared mutable state
+class Bad:
+    items = []  # All instances share this list!
+    
+    def add(self, item):
+        self.items.append(item)  # Modifies the shared list
+
+a = Bad()
+b = Bad()
+a.add(1)
+print(b.items)          # [1] — OOPS! b sees a's change
+
+# SAFE: Create in __init__
+class Good:
+    def __init__(self):
+        self.items = []  # Each instance gets its own list
+    
+    def add(self, item):
+        self.items.append(item)
+
+c = Good()
+d = Good()
+c.add(1)
+print(d.items)          # [] — Correct! Independent lists</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Mutable class attributes:</strong> If a class attribute is mutable (list, dict, set) and you modify it via an instance, you're modifying the shared object. Create mutable attributes in <code>__init__</code> instead.
+  </div>
+
+  <h3>When to Use Each</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Attribute Type</th><th style="border: 1px solid #ddd; padding: 8px;">Use Case</th><th style="border: 1px solid #ddd; padding: 8px;">Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Instance</td><td style="border: 1px solid #ddd; padding: 8px;">Unique data per object</td><td style="border: 1px solid #ddd; padding: 8px;"><code>self.name</code>, <code>self.balance</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Class</td><td style="border: 1px solid #ddd; padding: 8px;">Shared constants, counters</td><td style="border: 1px solid #ddd; padding: 8px;"><code>species</code>, <code>count</code>, <code>MAX_SIZE</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>6. Instance Methods</h2>
+
+  <p>Instance methods are functions defined inside a class that operate on instance data.</p>
+
+  <h3>Definition and Calling</h3>
+
+  <pre><code>class BankAccount:
+    def __init__(self, owner, balance=0):
+        self.owner = owner
+        self.balance = balance
+    
+    def deposit(self, amount):
+        """Add money to the account."""
+        if amount > 0:
+            self.balance += amount
+            return True
+        return False
+    
+    def withdraw(self, amount):
+        """Remove money from the account."""
+        if 0 < amount <= self.balance:
+            self.balance -= amount
+            return True
+        return False
+    
+    def get_balance(self):
+        """Return current balance."""
+        return self.balance
+
+acc = BankAccount("Alice", 1000)
+acc.deposit(500)
+print(acc.get_balance())  # 1500
+acc.withdraw(200)
+print(acc.get_balance())  # 1300</code></pre>
+
+  <h3>Method Chaining</h3>
+
+  <pre><code>class Builder:
+    def __init__(self):
+        self.parts = []
+    
+    def add_part(self, part):
+        self.parts.append(part)
+        return self  # Enable chaining
+    
+    def build(self):
+        return "-".join(self.parts)
+
+# Method chaining
+result = (Builder()
+    .add_part("engine")
+    .add_part("wheels")
+    .add_part("body")
+    .build())
+print(result)            # engine-wheels-body</code></pre>
+
+  <h3>The <code>__dict__</code> Attribute</h3>
+
+  <pre><code>class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+p = Person("Alice", 30)
+print(p.__dict__)       # {'name': 'Alice', 'age': 30}
+
+# Add attribute dynamically
+p.email = "alice@example.com"
+print(p.__dict__)       # {'name': 'Alice', 'age': 30, 'email': 'alice@example.com'}</code></pre>
+
+  <hr>
+
+  <h2>7. Class Methods (<code>@classmethod</code>)</h2>
+
+  <p>Class methods receive the class (<code>cls</code>) as the first parameter instead of the instance (<code>self</code>).</p>
+
+  <h3>Basic Syntax</h3>
+
+  <pre><code>class MyClass:
+    class_attr = "shared"
+    
+    @classmethod
+    def class_method(cls):
+        return f"Class: {cls.__name__}, attr: {cls.class_attr}"
+
+# Can be called on class or instance
+print(MyClass.class_method())  # Class: MyClass, attr: shared
+obj = MyClass()
+print(obj.class_method())      # Class: MyClass, attr: shared</code></pre>
+
+  <h3>Alternative Constructors / Factory Methods</h3>
+
+  <pre><code>import time
+from datetime import datetime
+
+class Date:
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
+    
+    def __repr__(self):
+        return f"Date({self.year}, {self.month}, {self.day})"
+    
+    @classmethod
+    def today(cls):
+        """Create Date from today's date."""
+        now = datetime.now()
+        return cls(now.year, now.month, now.day)
+    
+    @classmethod
+    def from_string(cls, date_str):
+        """Create Date from 'YYYY-MM-DD' string."""
+        year, month, day = map(int, date_str.split("-"))
+        return cls(year, month, day)
+    
+    @classmethod
+    def is_leap_year(cls, year):
+        """Check if a year is a leap year."""
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
+
+# Usage
+d1 = Date(2024, 1, 15)
+d2 = Date.today()
+d3 = Date.from_string("2024-12-25")
+print(d1)                # Date(2024, 1, 15)
+print(d2)                # Date(2025, 7, 19)
+print(Date.is_leap_year(2024))  # True</code></pre>
+
+  <h3>Inheritance Behavior</h3>
+
+  <pre><code>class Animal:
+    def __init__(self, name):
+        self.name = name
+    
+    @classmethod
+    def create(cls, name):
+        return cls(name)  # cls refers to the actual class
+
+class Dog(Animal):
+    def speak(self):
+        return f"{self.name} says Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return f"{self.name} says Meow!"
+
+# cls refers to the subclass
+dog = Dog.create("Rex")
+cat = Cat.create("Whiskers")
+print(dog.speak())       # Rex says Woof!
+print(cat.speak())       # Whiskers says Meow!</code></pre>
+
+  <hr>
+
+  <h2>8. Static Methods (<code>@staticmethod</code>)</h2>
+
+  <p>Static methods are regular functions that live inside a class's namespace. They don't receive <code>self</code> or <code>cls</code>.</p>
+
+  <h3>Basic Syntax</h3>
+
+  <pre><code>class MathUtils:
+    @staticmethod
+    def is_even(n):
+        return n % 2 == 0
+    
+    @staticmethod
+    def factorial(n):
+        if n < 0:
+            raise ValueError("Negative numbers not allowed")
+        result = 1
+        for i in range(2, n + 1):
+            result *= i
+        return result
+
+# Can be called on class or instance
+print(MathUtils.is_even(4))    # True
+print(MathUtils.factorial(5))  # 120
+
+obj = MathUtils()
+print(obj.is_even(7))          # False</code></pre>
+
+  <h3>When to Use Static Methods</h3>
+
+  <pre><code>class EmailValidator:
+    @staticmethod
+    def is_valid(email):
+        """Validate email format."""
+        return "@" in email and "." in email.split("@")[-1]
+    
+    @staticmethod
+    def get_domain(email):
+        """Extract domain from email."""
+        return email.split("@")[-1]
+
+# Usage
+print(EmailValidator.is_valid("user@example.com"))  # True
+print(EmailValidator.get_domain("user@example.com"))  # example.com</code></pre>
+
+  <h3>Static Methods vs Module Functions</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Aspect</th><th style="border: 1px solid #ddd; padding: 8px;">Static Method</th><th style="border: 1px solid #ddd; padding: 8px;">Module Function</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Namespace</td><td style="border: 1px solid #ddd; padding: 8px;">Inside class</td><td style="border: 1px solid #ddd; padding: 8px;">Module level</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Organization</td><td style="border: 1px solid #ddd; padding: 8px;">Grouped with class</td><td style="border: 1px solid #ddd; padding: 8px;">Standalone</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Testing</td><td style="border: 1px solid #ddd; padding: 8px;">Test with class</td><td style="border: 1px solid #ddd; padding: 8px;">Test separately</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Use when</td><td style="border: 1px solid #ddd; padding: 8px;">Logic belongs to class</td><td style="border: 1px solid #ddd; padding: 8px;">General utility</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>9. String Representations: <code>__str__</code> vs <code>__repr__</code></h2>
+
+  <p>Python uses special methods to convert objects to strings. Having good representations is essential for debugging and user output.</p>
+
+  <h3>The Problem</h3>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+print(p)                # &lt;__main__.Point object at 0x...&gt; — Not helpful!</code></pre>
+
+  <h3><code>__repr__</code>: Developer-Friendly</h3>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __repr__(self):
+        return f"Point(x={self.x}, y={self.y})"
+
+p = Point(1, 2)
+print(repr(p))          # Point(x=1, y=2)
+# In interactive mode, this is what you see</code></pre>
+
+  <h3><code>__str__</code>: Human-Readable</h3>
+
+  <pre><code>class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+    
+    def __repr__(self):
+        return f"Point(x={self.x}, y={self.y})"
+
+p = Point(1, 2)
+print(p)                # (1, 2) — uses __str__
+print(f"{p}")           # (1, 2) — uses __str__
+print(f"{p!r}")         # Point(x=1, y=2) — uses __repr__</code></pre>
+
+  <h3>Fallback Behavior</h3>
+
+  <pre><code>class OnlyRepr:
+    def __init__(self, value):
+        self.value = value
+    
+    def __repr__(self):
+        return f"OnlyRepr({self.value})"
+
+obj = OnlyRepr(42)
+print(str(obj))         # OnlyRepr(42) — falls back to __repr__
+print(repr(obj))        # OnlyRepr(42)</code></pre>
+
+  <h3>When Each Is Used</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Context</th><th style="border: 1px solid #ddd; padding: 8px;">Method Used</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>print(obj)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>__str__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>str(obj)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>__str__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>f"{obj}"</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>__str__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>f"{obj!r}"</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>__repr__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>repr(obj)</code></td><td style="border: 1px solid #ddd; padding: 8px;"><code>__repr__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Interactive display</td><td style="border: 1px solid #ddd; padding: 8px;"><code>__repr__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Debugging/logging</td><td style="border: 1px solid #ddd; padding: 8px;"><code>__repr__</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>💡 Best practice:</strong> Always define <code>__repr__</code>. It's used in debugging, logging, and interactive mode. <code>__str__</code> is optional but nice to have for user-facing output.
+  </div>
+
+  <hr>
+
+  <h2>10. Public, Private, and Name Mangling</h2>
+
+  <p>Python uses naming conventions to indicate attribute visibility, not access modifiers like other languages.</p>
+
+  <h3>Public Attributes (No Prefix)</h3>
+
+  <pre><code>class Public:
+    def __init__(self, name):
+        self.name = name  # Public attribute
+
+obj = Public("Alice")
+print(obj.name)         # Alice — accessible anywhere</code></pre>
+
+  <h3>Protected Convention: <code>_attr</code></h3>
+
+  <pre><code>class Protected:
+    def __init__(self, name):
+        self._name = name  # Protected (convention only)
+    
+    def get_name(self):
+        return self._name
+
+obj = Protected("Bob")
+print(obj._name)        # Bob — works, but signals "internal use"
+print(obj.get_name())   # Bob — preferred access</code></pre>
+
+  <h3>Name Mangling: <code>__attr</code></h3>
+
+  <pre><code>class Base:
+    def __init__(self):
+        self.__private = 1  # Name mangled to _Base__private
+
+class Derived(Base):
+    def __init__(self):
+        super().__init__()
+        self.__private = 2  # Name mangled to _Derived__private
+
+base = Base()
+derived = Derived()
+
+# print(base.__private)  # AttributeError!
+print(base._Base__private)  # 1 — Access mangled name
+print(derived._Derived__private)  # 2</code></pre>
+
+  <h3>Why Name Mangling Exists</h3>
+
+  <pre><code>class Mapping:
+    def __init__(self, iterable):
+        self.items_list = []
+        self.__update(iterable)
+    
+    def update(self, iterable):
+        for item in iterable:
+            self.items_list.append(item)
+    
+    __update = update  # Private copy of update
+
+class MappingSubclass(Mapping):
+    def update(self, keys, values):
+        # This doesn't conflict with Mapping's __update
+        for item in zip(keys, values):
+            self.items_list.append(item)</code></pre>
+
+  <h3>Name Mangling Is NOT Access Control</h3>
+
+  <pre><code>class Secret:
+    def __init__(self):
+        self.__password = "secret123"
+
+obj = Secret()
+# obj.__password  # AttributeError
+print(obj._Secret__password)  # secret123 — Anyone can access!</code></pre>
+
+  <div class="warning">
+    <strong>⚠️ Name mangling is not security:</strong> It's designed to prevent accidental name collisions in inheritance, not to hide data. Anyone can access mangled names by prefixing with <code>_ClassName</code>.
+  </div>
+
+  <h3>When to Use Each</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Prefix</th><th style="border: 1px solid #ddd; padding: 8px;">Convention</th><th style="border: 1px solid #ddd; padding: 8px;">Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">None</td><td style="border: 1px solid #ddd; padding: 8px;">Public</td><td style="border: 1px solid #ddd; padding: 8px;">Part of the public API</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>_</code></td><td style="border: 1px solid #ddd; padding: 8px;">Protected</td><td style="border: 1px solid #ddd; padding: 8px;">Internal implementation</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;"><code>__</code></td><td style="border: 1px solid #ddd; padding: 8px;">Name mangled</td><td style="border: 1px solid #ddd; padding: 8px;">Prevent inheritance conflicts</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>11. The <code>@property</code> Decorator</h2>
+
+  <p>Properties provide a way to define methods that are accessed like attributes. They allow validation, computation, and controlled access.</p>
+
+  <h3>Getter: <code>@property</code></h3>
+
+  <pre><code>class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def radius(self):
+        """Get the radius."""
+        return self._radius
+
+c = Circle(5)
+print(c.radius)         # 5 — Looks like attribute access</code></pre>
+
+  <h3>Setter: <code>@name.setter</code></h3>
+
+  <pre><code>class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def radius(self):
+        return self._radius
+    
+    @radius.setter
+    def radius(self, value):
+        if value < 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+
+c = Circle(5)
+c.radius = 10           # Works
+# c.radius = -1         # ValueError: Radius cannot be negative</code></pre>
+
+  <h3>Deleter: <code>@name.deleter</code></h3>
+
+  <pre><code>class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def radius(self):
+        return self._radius
+    
+    @radius.setter
+    def radius(self, value):
+        if value < 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+    
+    @radius.deleter
+    def radius(self):
+        del self._radius
+
+c = Circle(5)
+del c.radius            # Deletes _radius</code></pre>
+
+  <h3>Read-Only Properties</h3>
+
+  <pre><code>class Temperature:
+    def __init__(self, celsius):
+        self._celsius = celsius
+    
+    @property
+    def celsius(self):
+        return self._celsius
+    
+    @property
+    def fahrenheit(self):
+        """Read-only computed property."""
+        return self._celsius * 9/5 + 32
+
+t = Temperature(100)
+print(t.fahrenheit)     # 212.0
+# t.fahrenheit = 100    # AttributeError: can't set attribute</code></pre>
+
+  <h3>Validation in Setters</h3>
+
+  <pre><code>class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade  # Uses setter
+    
+    @property
+    def grade(self):
+        return self._grade
+    
+    @grade.setter
+    def grade(self, value):
+        if value not in "ABCDF":
+            raise ValueError(f"Invalid grade: {value}")
+        self._grade = value
+
+s = Student("Alice", "A")
+s.grade = "B"           # Works
+# s.grade = "X"         # ValueError: Invalid grade: X</code></pre>
+
+  <h3>Properties vs Getters/Setters</h3>
+
+  <pre><code># Java-style (verbose)
+class JavaStyle:
+    def get_name(self):
+        return self._name
+    
+    def set_name(self, value):
+        self._name = value
+
+# Python-style (clean)
+class PythonStyle:
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+# Usage
+obj = PythonStyle()
+obj.name = "Alice"      # Clean attribute syntax
+print(obj.name)         # Clean access</code></pre>
+
+  <h3>Property Inheritance</h3>
+
+  <pre><code>class Base:
+    def __init__(self, value):
+        self._value = value
+    
+    @property
+    def value(self):
+        return self._value
+
+class Derived(Base):
+    @property
+    def value(self):
+        """Override with additional logic."""
+        return f"Derived: {super().value}"
+
+obj = Derived(42)
+print(obj.value)        # Derived: 42</code></pre>
+
+  <h3>Caching with Properties</h3>
+
+  <pre><code>from functools import cached_property
+
+class DataAnalyzer:
+    def __init__(self, data):
+        self.data = data
+    
+    @cached_property
+    def expensive_computation(self):
+        """Compute once, cache forever."""
+        print("Computing...")
+        return sum(x ** 2 for x in self.data)
+
+analyzer = DataAnalyzer(range(1000))
+print(analyzer.expensive_computation)  # Computes...
+print(analyzer.expensive_computation)  # Returns cached value</code></pre>
+
+  <hr>
+
+  <h2>12. Advanced Topics</h2>
+
+  <h3>12a. <code>__slots__</code> for Memory Optimization</h3>
+
+  <p><code>__slots__</code> restricts attribute creation and eliminates the per-instance dictionary, saving memory.</p>
+
+  <h4>Basic Syntax</h4>
+
+  <pre><code>class Point:
+    __slots__ = ('x', 'y')
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+print(p.x, p.y)        # 1 2
+# p.z = 3              # AttributeError: 'Point' object has no attribute 'z'</code></pre>
+
+  <h4>Memory Savings</h4>
+
+  <pre><code>import sys
+
+class RegularPoint:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class SlottedPoint:
+    __slots__ = ('x', 'y')
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+regular = RegularPoint(1, 2)
+slotted = SlottedPoint(1, 2)
+
+print(sys.getsizeof(regular))       # 48 bytes (approx)
+print(sys.getsizeof(regular.__dict__))  # 64 bytes (approx)
+print(sys.getsizeof(slotted))      # 40 bytes (approx)
+# SlottedPoint has no __dict__!</code></pre>
+
+  <h4>Limitations</h4>
+
+  <pre><code>class Point:
+    __slots__ = ('x', 'y')
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+p = Point(1, 2)
+# p.z = 3              # AttributeError: 'Point' object has no attribute 'z'
+# print(p.__dict__)    # AttributeError: 'Point' object has no attribute '__dict__'</code></pre>
+
+  <h4><code>__slots__</code> with Inheritance</h4>
+
+  <pre><code>class Base:
+    __slots__ = ('a',)
+
+class Derived(Base):
+    __slots__ = ('b',)
+
+obj = Derived()
+obj.a = 1               # From Base
+obj.b = 2               # From Derived
+print(obj.a, obj.b)     # 1 2</code></pre>
+
+  <div class="note">
+    <strong>💡 When to use <code>__slots__</code>:</strong> Use when you have many instances of the same class and memory is critical. Trade-off: less flexibility (no dynamic attributes) for memory savings.
+  </div>
+
+  <h3>12b. Dataclasses</h3>
+
+  <p>Dataclasses reduce boilerplate for classes that primarily store data.</p>
+
+  <h4>Basic Syntax</h4>
+
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+p = Point(1.0, 2.0)
+print(p)                # Point(x=1.0, y=2.0) — auto __repr__
+print(p.x, p.y)        # 1.0 2.0</code></pre>
+
+  <h4>Auto-Generated Methods</h4>
+
+  <pre><code>from dataclasses import dataclass
+
+@dataclass
+class Student:
+    name: str
+    grade: str
+    gpa: float
+
+# Auto-generated __init__
+s1 = Student("Alice", "A", 3.9)
+
+# Auto-generated __repr__
+print(s1)                # Student(name='Alice', grade='A', gpa=3.9)
+
+# Auto-generated __eq__
+s2 = Student("Alice", "A", 3.9)
+print(s1 == s2)          # True — value equality</code></pre>
+
+  <h4>Field Customization</h4>
+
+  <pre><code>from dataclasses import dataclass, field
+
+@dataclass
+class Student:
+    name: str
+    grades: list = field(default_factory=list)
+    gpa: float = 0.0
+
+s1 = Student("Alice")
+s2 = Student("Bob", [3.5, 4.0])
+print(s1.grades)        # []
+print(s2.grades)        # [3.5, 4.0]</code></pre>
+
+  <h4>When to Use Dataclasses</h4>
+
+  <ul>
+    <li>Data containers (records, configs)</li>
+    <li>Classes with mostly data, little behavior</li>
+    <li>When you need <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code></li>
+    <li>Replace simple <code>namedtuple</code> usage</li>
+  </ul>
+
+  <h3>12c. Descriptor Protocol</h3>
+
+  <p>Descriptors are objects that define <code>__get__</code>, <code>__set__</code>, or <code>__delete__</code> methods. They control attribute access.</p>
+
+  <h4>Basic Descriptor</h4>
+
+  <pre><code>class Validated:
+    def __set_name__(self, owner, name):
+        self.public_name = name
+        self.private_name = '_' + name
+    
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            return self
+        return getattr(obj, self.private_name, None)
+    
+    def __set__(self, obj, value):
+        self._validate(value)
+        setattr(obj, self.private_name, value)
+    
+    def _validate(self, value):
+        pass  # Override in subclass
+
+class PositiveNumber(Validated):
+    def _validate(self, value):
+        if not isinstance(value, (int, float)) or value <= 0:
+            raise ValueError(f"{self.public_name} must be positive")
+
+class Temperature:
+    celsius = PositiveNumber()
+    
+    def __init__(self, celsius):
+        self.celsius = celsius
+
+t = Temperature(100)
+print(t.celsius)        # 100
+# t.celsius = -10       # ValueError: celsius must be positive</code></pre>
+
+  <h4>Data Descriptors vs Non-Data Descriptors</h4>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Type</th><th style="border: 1px solid #ddd; padding: 8px;">Defines</th><th style="border: 1px solid #ddd; padding: 8px;">Priority</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Data descriptor</td><td style="border: 1px solid #ddd; padding: 8px;"><code>__set__</code> (and <code>__get__</code>)</td><td style="border: 1px solid #ddd; padding: 8px;">Higher than instance dict</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Non-data descriptor</td><td style="border: 1px solid #ddd; padding: 8px;">Only <code>__get__</code></td><td style="border: 1px solid #ddd; padding: 8px;">Lower than instance dict</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code>class DataDescriptor:
+    def __get__(self, obj, objtype=None):
+        return "data descriptor"
+    
+    def __set__(self, obj, value):
+        pass
+
+class NonDataDescriptor:
+    def __get__(self, obj, objtype=None):
+        return "non-data descriptor"
+
+class MyClass:
+    data = DataDescriptor()
+    non_data = NonDataDescriptor()
+
+obj = MyClass()
+obj.non_data = "instance value"  # Overrides non-data descriptor
+print(obj.non_data)        # instance value
+print(obj.data)            # data descriptor (can't override)</code></pre>
+
+  <hr>
+
+  <h2>13. Practical Examples</h2>
+
+  <h3>Complete <code>BankAccount</code> Class</h3>
+
+  <pre><code>class BankAccount:
+    """A complete bank account implementation."""
+    
+    _account_count = 0
+    
+    def __init__(self, owner, balance=0.0):
+        self._owner = owner
+        self._balance = balance
+        self._transactions = []
+        BankAccount._account_count += 1
+        self._account_number = f"ACC{BankAccount._account_count:06d}"
+    
+    @property
+    def owner(self):
+        return self._owner
+    
+    @property
+    def balance(self):
+        return self._balance
+    
+    @property
+    def account_number(self):
+        return self._account_number
+    
+    def deposit(self, amount):
+        if amount <= 0:
+            raise ValueError("Deposit amount must be positive")
+        self._balance += amount
+        self._transactions.append(("DEPOSIT", amount))
+        return self
+    
+    def withdraw(self, amount):
+        if amount <= 0:
+            raise ValueError("Withdrawal amount must be positive")
+        if amount > self._balance:
+            raise ValueError("Insufficient funds")
+        self._balance -= amount
+        self._transactions.append(("WITHDRAWAL", amount))
+        return self
+    
+    def transfer(self, other, amount):
+        self.withdraw(amount)
+        other.deposit(amount)
+        self._transactions.append(("TRANSFER", -amount, other.account_number))
+        return self
+    
+    @classmethod
+    def from_dict(cls, data):
+        """Create account from dictionary."""
+        return cls(data['owner'], data.get('balance', 0))
+    
+    @staticmethod
+    def validate_amount(amount):
+        """Validate that amount is a positive number."""
+        return isinstance(amount, (int, float)) and amount > 0
+    
+    def __repr__(self):
+        return f"BankAccount(owner='{self._owner}', balance={self._balance:.2f})"
+    
+    def __str__(self):
+        return f"{self._owner}'s account ({self._account_number}): ${self._balance:.2f}"
+    
+    def __len__(self):
+        return len(self._transactions)
+
+# Usage
+acc1 = BankAccount("Alice", 1000)
+acc2 = BankAccount.from_dict({"owner": "Bob", "balance": 500})
+acc1.deposit(200).withdraw(100).transfer(acc2, 50)
+print(acc1)             # Alice's account (ACC000001): $1050.00
+print(acc2)             # Bob's account (ACC000002): $550.00
+print(len(acc1))        # 3 transactions</code></pre>
+
+  <h3>Complete <code>Vector</code> Class</h3>
+
+  <pre><code>import math
+
+class Vector:
+    """A 2D vector class with mathematical operations."""
+    
+    __slots__ = ('x', 'y')
+    
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    @property
+    def magnitude(self):
+        """Return the magnitude (length) of the vector."""
+        return math.sqrt(self.x ** 2 + self.y ** 2)
+    
+    @property
+    def normalized(self):
+        """Return a unit vector in the same direction."""
+        mag = self.magnitude
+        if mag == 0:
+            return Vector(0, 0)
+        return Vector(self.x / mag, self.y / mag)
+    
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def __sub__(self, other):
+        return Vector(self.x - other.x, self.y - other.y)
+    
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar)
+    
+    def __rmul__(self, scalar):
+        return self.__mul__(scalar)
+    
+    def __abs__(self):
+        return self.magnitude
+    
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+    
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+    
+    def dot(self, other):
+        """Return dot product of two vectors."""
+        return self.x * other.x + self.y * other.y
+    
+    def cross(self, other):
+        """Return cross product (z-component) of two vectors."""
+        return self.x * other.y - self.y * other.x
+
+# Usage
+v1 = Vector(3, 4)
+v2 = Vector(1, 2)
+print(v1 + v2)         # (4, 6)
+print(v1 - v2)         # (2, 2)
+print(v1 * 2)          # (6, 8)
+print(3 * v1)          # (9, 12)
+print(abs(v1))         # 5.0
+print(v1.magnitude)    # 5.0
+print(v1.normalized)   # (0.6, 0.8)
+print(v1.dot(v2))      # 11
+print(v1.cross(v2))    # 2</code></pre>
+
+  <h3>Best Practices Summary</h3>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Practice</th><th style="border: 1px solid #ddd; padding: 8px;">Recommendation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Default visibility</td><td style="border: 1px solid #ddd; padding: 8px;">Public by default</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Internal implementation</td><td style="border: 1px solid #ddd; padding: 8px;">Single underscore (<code>_attr</code>)</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Inheritance conflicts</td><td style="border: 1px solid #ddd; padding: 8px;">Double underscore (<code>__attr</code>)</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">String representation</td><td style="border: 1px solid #ddd; padding: 8px;">Always <code>__repr__</code>, optional <code>__str__</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Attribute validation</td><td style="border: 1px solid #ddd; padding: 8px;">Use <code>@property</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Factory methods</td><td style="border: 1px solid #ddd; padding: 8px;">Use <code>@classmethod</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Utility functions</td><td style="border: 1px solid #ddd; padding: 8px;">Use <code>@staticmethod</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Memory optimization</td><td style="border: 1px solid #ddd; padding: 8px;">Use <code>__slots__</code> for many instances</td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Data containers</td><td style="border: 1px solid #ddd; padding: 8px;">Consider <code>@dataclass</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Cheat Sheet</h2>
+
+  <table style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr><th style="border: 1px solid #ddd; padding: 8px;">Concept</th><th style="border: 1px solid #ddd; padding: 8px;">Syntax</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Define class</td><td style="border: 1px solid #ddd; padding: 8px;"><code>class MyClass:</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Constructor</td><td style="border: 1px solid #ddd; padding: 8px;"><code>def __init__(self, ...):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Instance method</td><td style="border: 1px solid #ddd; padding: 8px;"><code>def method(self):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Class method</td><td style="border: 1px solid #ddd; padding: 8px;"><code>@classmethod</code> <code>def method(cls):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Static method</td><td style="border: 1px solid #ddd; padding: 8px;"><code>@staticmethod</code> <code>def method():</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Property getter</td><td style="border: 1px solid #ddd; padding: 8px;"><code>@property</code> <code>def attr(self):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Property setter</td><td style="border: 1px solid #ddd; padding: 8px;"><code>@attr.setter</code> <code>def attr(self, value):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">String representation</td><td style="border: 1px solid #ddd; padding: 8px;"><code>def __repr__(self):</code> <code>def __str__(self):</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Slots</td><td style="border: 1px solid #ddd; padding: 8px;"><code>__slots__ = ('attr1', 'attr2')</code></td></tr>
+      <tr><td style="border: 1px solid #ddd; padding: 8px;">Dataclass</td><td style="border: 1px solid #ddd; padding: 8px;"><code>@dataclass</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Basic Class Definition</h3>
+    <p>Create a <code>Car</code> class with <code>make</code>, <code>model</code>, <code>year</code> attributes. Add an <code>__init__</code> method. Instantiate three different cars. Print each car's attributes. Add a <code>describe()</code> method that returns a formatted string like <code>"2024 Toyota Camry"</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: The <code>__init__</code> Constructor</h3>
+    <p>Create a <code>Student</code> class with <code>name</code>, <code>grades</code> (list), and <code>student_id</code>. Handle the mutable default argument trap. Add an <code>add_grade(grade)</code> method. Add an <code>average_grade</code> computed property.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Instance Methods</h3>
+    <p>Create a <code>BankAccount</code> class with <code>owner</code>, <code>balance</code>. Methods: <code>deposit(amount)</code>, <code>withdraw(amount)</code>, <code>get_balance()</code>, <code>transfer(other, amount)</code>. Include validation (no negative amounts, sufficient funds).</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 4: Class Attributes</h3>
+    <p>Create a <code>Dog</code> class with <code>species</code> class attribute and <code>name</code>, <code>breed</code> instance attributes. Track <code>total_dogs</code> class attribute (increment on creation). Demonstrate class attribute modification affects all instances.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 5: <code>@classmethod</code></h3>
+    <p>Create a <code>Date</code> class with <code>year</code>, <code>month</code>, <code>day</code>. Add class methods: <code>today()</code> (using <code>datetime.now()</code>), <code>from_string("2024-01-15")</code>, <code>is_leap_year(year)</code>. Test all methods.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 6: <code>@staticmethod</code></h3>
+    <p>Create a <code>MathUtils</code> class with static methods: <code>is_even(n)</code>, <code>factorial(n)</code>, <code>fibonacci(n)</code>, <code>is_prime(n)</code>. Demonstrate calling from class and instance.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 7: <code>__str__</code> and <code>__repr__</code></h3>
+    <p>Create a <code>Point</code> class with <code>x</code>, <code>y</code>. Implement <code>__repr__</code> (unambiguous: <code>Point(x=1, y=2)</code>) and <code>__str__</code> (human-readable: <code>(1, 2)</code>). Test with <code>print()</code>, <code>repr()</code>, and interactive display.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 8: Public and Private Attributes</h3>
+    <p>Create a <code>PasswordManager</code> class with public <code>username</code> and protected <code>_password</code> (single underscore). Add methods: <code>check_password(password)</code>, <code>change_password(old, new)</code>. Demonstrate access from outside.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 9: Name Mangling</h3>
+    <p>Create a <code>BaseClass</code> with <code>__private_attr</code> and <code>DerivedClass</code> that inherits and tries to define same attribute. Show how name mangling prevents conflicts. Access mangled name from outside.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 10: <code>@property</code> with Validation</h3>
+    <p>Create a <code>Temperature</code> class with <code>celsius</code> property. Validate in setter (no below -273.15). Add computed <code>fahrenheit</code> property (read-only). Add <code>kelvin</code> property with getter/setter.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 11: <code>@property</code> for Computed Values</h3>
+    <p>Create a <code>Circle</code> class with <code>radius</code> property. Add computed <code>area</code> and <code>circumference</code> properties. Consider using <code>functools.cached_property</code> for performance.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 12: <code>__slots__</code> Memory Optimization</h3>
+    <p>Create two classes: <code>RegularPoint</code> (no slots) and <code>SlottedPoint</code> (with <code>__slots__</code>). Compare memory usage with <code>sys.getsizeof()</code>. Demonstrate inability to add dynamic attributes to slotted class.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 13: Dataclasses Introduction</h3>
+    <p>Create a <code>Product</code> dataclass with <code>name</code>, <code>price</code>, <code>quantity</code>. Show auto-generated <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>. Customize with <code>field(default_factory=list)</code> for tags.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 14: Complete Class Design</h3>
+    <p>Create a <code>Vector</code> class for 2D vectors. Include: <code>__init__</code>, <code>__repr__</code>, <code>__str__</code>, <code>__add__</code>, <code>__mul__</code>, <code>__abs__</code>, <code>magnitude</code> property, <code>normalize()</code> method. Use properties for <code>x</code>, <code>y</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 15: Combined Challenge — Bank Account System</h3>
+    <p>Build a complete banking system: <code>Account</code> class with properties, validation, <code>__repr__</code>. <code>SavingsAccount</code> subclass (basic inheritance preview). <code>@classmethod</code> for creating from dictionary. <code>@staticmethod</code> for validation. <code>__slots__</code> for memory efficiency. Proper encapsulation.</p>
+  </div>
+
+  <hr>
+
+  <h2>Mastery Check</h2>
+  <ul>
+    <li>What is the difference between a class and an instance?</li>
+    <li>What does <code>__init__</code> do? When is it called?</li>
+    <li>Why must <code>self</code> be the first parameter of instance methods?</li>
+    <li>Can you call a method without an instance? How?</li>
+    <li>What is the difference between <code>__init__</code> and <code>__new__</code>?</li>
+    <li>What is the difference between instance attributes and class attributes?</li>
+    <li>What happens if you assign to an attribute that doesn't exist?</li>
+    <li>How does Python look up attributes? What is the attribute resolution order?</li>
+    <li>What is the mutable default argument trap? How do you avoid it?</li>
+    <li>Why are class attributes shared while instance attributes are unique?</li>
+    <li>When would you use a <code>@classmethod</code> instead of an <code>@staticmethod</code>?</li>
+    <li>How does <code>@classmethod</code> behave with inheritance?</li>
+    <li>What problem do static methods solve?</li>
+    <li>Can you call a class method on an instance? What happens?</li>
+    <li>What is the difference between <code>__str__</code> and <code>__repr__</code>?</li>
+    <li>When does Python use <code>__str__</code> vs <code>__repr__</code>?</li>
+    <li>Why should <code>__repr__</code> ideally return a valid Python expression?</li>
+    <li>What does a single underscore prefix (<code>_attr</code>) indicate?</li>
+    <li>How does name mangling work with double underscores (<code>__attr</code>)?</li>
+    <li>Is name mangling a security feature? Why or why not?</li>
+    <li>How do you access a name-mangled attribute from outside the class?</li>
+    <li>What is the <code>@property</code> decorator used for?</li>
+    <li>How do you create a read-only property?</li>
+    <li>Can you inherit properties? What happens if you override a property?</li>
+    <li>What does <code>__slots__</code> do? What are its limitations?</li>
+    <li>When would you use a dataclass instead of a regular class?</li>
+    <li>What is the descriptor protocol? How do properties use it?</li>
+    <li>What are data descriptors vs non-data descriptors?</li>
+  </ul>
+
+  <hr>
+
+  <p style="margin-top: 2rem;">
+    <a href="../lessons/0017-iterators-and-generators.html">← Previous: Iterators &amp; Generators</a>
+  </p>
+  <p style="margin-top: 1rem;">
+    <a href="../lessons/0019-oop-inheritance-and-polymorphism.html">Next: OOP — Inheritance &amp; Polymorphism →</a>
+  </p>
+  <p><a href="../index.html">🏠 Home</a> | <a href="../reference/glossary.html">📚 Glossary</a></p>
+  <script src="../assets/theme-toggle.js"></script>
+</body>
+</html>
