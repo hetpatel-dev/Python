@@ -12,7 +12,30 @@
   <h1>Python Glossary</h1>
   <p>Essential Python terminology. Updated as new concepts are learned.</p>
 
-  <h2>Core Concepts</h2>
+  <nav>
+    <strong>Sections:</strong>
+    <a href="#core-concepts">Core Concepts</a> &middot;
+    <a href="#operators">Operators</a> &middot;
+    <a href="#operator-concepts">Operator Concepts</a> &middot;
+    <a href="#control-flow">Control Flow</a> &middot;
+    <a href="#loops">Loops</a> &middot;
+    <a href="#strings">Strings</a> &middot;
+    <a href="#lists">Lists</a> &middot;
+    <a href="#tuples">Tuples</a> &middot;
+    <a href="#dictionaries">Dictionaries</a> &middot;
+    <a href="#sets">Sets</a> &middot;
+    <a href="#functions">Functions</a> &middot;
+    <a href="#comprehensions">Comprehensions</a> &middot;
+    <a href="#error-handling">Error Handling</a> &middot;
+    <a href="#file-io">File I/O</a> &middot;
+    <a href="#modules-and-packages">Modules &amp; Packages</a> &middot;
+    <a href="#iterators-and-generators">Iterators &amp; Generators</a> &middot;
+    <a href="#oop-classes-objects">OOP — Classes &amp; Objects</a> &middot;
+    <a href="#oop-inheritance-polymorphism">OOP — Inheritance &amp; Polymorphism</a> &middot;
+    <a href="#oop-magic-methods-protocols">OOP — Magic Methods &amp; Protocols</a>
+  </nav>
+
+  <h2 id="core-concepts">Core Concepts</h2>
 
   <dl>
     <dt><strong>Variable</strong></dt>
@@ -112,7 +135,9 @@
     <dd>Code ignored by Python. Starts with <code>#</code>. Used for notes.</dd>
   </dl>
 
-  <h2>Operators</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="operators">Operators</h2>
 
   <table>
     <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
@@ -142,7 +167,9 @@
     <tr><td><code>&gt;&gt;</code></td><td>Right shift</td><td><code>5 &gt;&gt; 1</code> → <code>2</code></td></tr>
   </table>
 
-  <h2>Operator Concepts</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="operator-concepts">Operator Concepts</h2>
 
   <dl>
     <dt><strong>Short-Circuit Evaluation</strong></dt>
@@ -161,7 +188,9 @@
     <dd>Some operators evaluate right-to-left. <code>**</code> is right-associative: <code>2 ** 3 ** 2</code> = <code>2 ** (3 ** 2)</code> = <code>2 ** 9</code> = <code>512</code>.</dd>
   </dl>
 
-  <h2>Control Flow</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="control-flow">Control Flow</h2>
 
   <dl>
     <dt><strong><code>if</code> Statement</strong></dt>
@@ -182,9 +211,13 @@
     <dt><strong>Guard</strong></dt>
     <dd>An extra condition in a <code>match</code>/<code>case</code> pattern: <code>case (x, y) if x == y:</code>. Must be true for the case to match.</dd>
 
+    <dt><strong><code>pass</code></strong></dt>
+    <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement. Also useful in loop bodies you haven't implemented yet.</dd>
   </dl>
 
-  <h2>Loops</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="loops">Loops</h2>
 
   <dl>
     <dt><strong><code>for</code> Loop</strong></dt>
@@ -236,14 +269,9 @@
     <dd>An object capable of returning its elements one at a time. Examples: list, string, tuple, dict, set, range, file handle. Can be used in a <code>for</code> loop or with <code>iter()</code>.</dd>
   </dl>
 
-  <h2>Control Flow (continued)</h2>
+  <p><a href="#">↑ Top</a></p>
 
-  <dl>
-    <dt><strong><code>pass</code></strong></dt>
-    <dd>No-op statement. Does nothing. Used as a placeholder where syntax requires a statement. Also useful in loop bodies you haven't implemented yet.</dd>
-  </dl>
-
-  <h2>Strings</h2>
+  <h2 id="strings">Strings</h2>
 
   <dl>
     <dt><strong>String indexing</strong></dt>
@@ -349,7 +377,9 @@
     <dd><code>\u00e9</code> → é (16-bit), <code>\U0001F600</code> → 😀 (32-bit), <code>\N{GREEK SMALL LETTER PI}</code> → π (named). Used in normal and raw strings to represent characters by their code point.</dd>
   </dl>
 
-  <h2>Lists</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="lists">Lists</h2>
 
   <dl>
     <dt><strong>List (<code>list</code>)</strong></dt>
@@ -425,7 +455,9 @@
     <dd>A memory-efficient array of typed values. Type codes: <code>'i'</code> (int), <code>'f'</code> (float), <code>'d'</code> (double), etc. Supports most list operations but stores values compactly. Best for large numeric datasets. Not for heterogeneous data.</dd>
   </dl>
 
-  <h2>Tuples</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="tuples">Tuples</h2>
 
   <dl>
     <dt><strong>Tuple (<code>tuple</code>)</strong></dt>
@@ -486,7 +518,9 @@
     <dd>Class attribute — a dict mapping field names to their default values. Defaults are applied to the rightmost fields. <code>Account._field_defaults</code> → <code>{'balance': 0}</code>.</dd>
   </dl>
 
-  <h2>Dictionaries</h2>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="dictionaries">Dictionaries</h2>
 
   <dl>
     <dt><strong>Dictionary (<code>dict</code>)</strong></dt>
@@ -594,18 +628,857 @@
     <dt><strong><code>collections.OrderedDict</code></strong></dt>
     <dd>A dict subclass that remembers insertion order (now mostly redundant with Python 3.7+ dicts). Unique features: <code>move_to_end(key, last=True)</code>, order-sensitive equality (regular dicts ignore order), <code>popitem(last=False)</code> (pop from beginning), reinserting a key moves it to the end.</dd>
 
-    <dt><strong><code>OrderedDict.move_to_end(key, last=True)</strong></dt>
+    <dt><strong><code>OrderedDict.move_to_end(key, last=True)</code></strong></dt>
     <dd>Moves an existing key to the end (if <code>last=True</code>) or to the beginning (if <code>last=False</code>). Raises <code>KeyError</code> if the key is missing. Useful for implementing LRU caches.</dd>
 
-    <dt><strong><code>OrderedDict.popitem(last=True)</strong></dt>
+    <dt><strong><code>OrderedDict.popitem(last=True)</code></strong></dt>
     <dd>Removes and returns a <code>(key, value)</code> pair. With <code>last=True</code> (default), pops from the end (LIFO). With <code>last=False</code>, pops from the beginning (FIFO). On a regular dict, <code>popitem()</code> always pops from the end.</dd>
 
     <dt><strong>Mutating during dict iteration</strong></dt>
     <dd>Adding or removing keys while iterating over a dict raises <code>RuntimeError: dictionary changed size during iteration</code>. Fix: iterate over a copy: <code>for k in list(d):</code> or <code>for k in d.copy():</code>.</dd>
   </dl>
 
-  <p><em>Last updated with Lesson 10: Dictionaries in Depth.</em></p>
-  <p><a href="../index.html">🏠 Home</a> | <a href="../lessons/0001-python-basics.html">Lesson 1</a> | <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> | <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> | <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> | <a href="../lessons/0005-conditionals.html">Lesson 5</a> | <a href="../lessons/0006-loops.html">Lesson 6</a> | <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> | <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a> | <a href="../lessons/0009-tuples.html">Lesson 9</a> | <a href="../lessons/0010-dictionaries-in-depth.html">Lesson 10</a></p>
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="sets">Sets</h2>
+
+  <dl>
+    <dt><strong>Set (<code>set</code>)</strong></dt>
+    <dd>An unordered collection of unique, hashable elements. Mutable. Supports O(1) membership testing and mathematical set operations. Created with <code>{1, 2, 3}</code> or <code>set()</code>. The empty set must be created with <code>set()</code> — <code>{}</code> creates an empty dict.</dd>
+
+    <dt><strong><code>frozenset</code></strong></dt>
+    <dd>An immutable version of a set. Created with <code>frozenset(iterable)</code>. Supports all non-mutating set operations (<code>|</code>, <code>&amp;</code>, <code>-</code>, <code>^</code>, <code>&lt;=</code>, etc.) but not <code>.add()</code>, <code>.remove()</code>, etc. Hashable — usable as dict keys and set members.</dd>
+
+    <dt><strong>Hashable element requirement</strong></dt>
+    <dd>Set elements must be hashable (immutable). <code>int</code>, <code>float</code>, <code>str</code>, <code>tuple</code> (of hashables), and <code>frozenset</code> are allowed. <code>list</code>, <code>dict</code>, and <code>set</code> are not hashable and cannot be set elements.</dd>
+
+    <dt><strong>Empty set trap</strong></dt>
+    <dd><code>{}</code> creates an empty <strong>dictionary</strong>, not a set. To create an empty set, use <code>set()</code>. A non-empty set literal like <code>{1, 2, 3}</code> works correctly because Python distinguishes it from a dict by the absence of colons.</dd>
+
+    <dt><strong><code>.add(x)</code></strong></dt>
+    <dd>Adds element <code>x</code> to the set. If <code>x</code> already exists, the set is unchanged (no error). Returns <code>None</code>.</dd>
+
+    <dt><strong><code>.remove(x)</code></strong></dt>
+    <dd>Removes element <code>x</code> from the set. Raises <code>KeyError</code> if <code>x</code> is not present. Use when the element is expected to exist.</dd>
+
+    <dt><strong><code>.discard(x)</code></strong></dt>
+    <dd>Removes element <code>x</code> from the set if present. Does NOT raise an error if <code>x</code> is missing. Use when absence is acceptable.</dd>
+
+    <dt><strong><code>.pop()</code></strong></dt>
+    <dd>Removes and returns an <strong>arbitrary</strong> element from the set. Since sets are unordered, you cannot predict which element is removed. Raises <code>KeyError</code> on an empty set.</dd>
+
+    <dt><strong>Set union (<code>|</code>)</strong></dt>
+    <dd>Returns a new set with all elements from both sets. <code>{1, 2, 3} | {3, 4, 5}</code> → <code>{1, 2, 3, 4, 5}</code>. Method form: <code>.union(other)</code> accepts any iterable.</dd>
+
+    <dt><strong>Set intersection (<code>&amp;</code>)</strong></dt>
+    <dd>Returns a new set with elements common to both sets. <code>{1, 2, 3} &amp; {2, 3, 4}</code> → <code>{2, 3}</code>. Method form: <code>.intersection(other)</code>.</dd>
+
+    <dt><strong>Set difference (<code>-</code>)</strong></dt>
+    <dd>Returns a new set with elements in the left set but not in the right. <code>{1, 2, 3} - {2, 4}</code> → <code>{1, 3}</code>. Order matters. Method form: <code>.difference(other)</code>.</dd>
+
+    <dt><strong>Symmetric difference (<code>^</code>)</strong></dt>
+    <dd>Returns a new set with elements in either set but not both. <code>{1, 2, 3} ^ {3, 4, 5}</code> → <code>{1, 2, 4, 5}</code>. Method form: <code>.symmetric_difference(other)</code>.</dd>
+
+    <dt><strong>Subset (<code>&lt;=</code>)</strong></dt>
+    <dd><code>a &lt;= b</code> is <code>True</code> if all elements of <code>a</code> are in <code>b</code>. Method form: <code>.issubset(b)</code>.</dd>
+
+    <dt><strong>Proper subset (<code>&lt;</code>)</strong></dt>
+    <dd><code>a &lt; b</code> is <code>True</code> if <code>a &lt;= b</code> and <code>a != b</code>. A set is NOT a proper subset of itself.</dd>
+
+    <dt><strong>Superset (<code>&gt;=</code>)</strong></dt>
+    <dd><code>a &gt;= b</code> is <code>True</code> if all elements of <code>b</code> are in <code>a</code>. Method form: <code>.issuperset(b)</code>.</dd>
+
+    <dt><strong><code>.isdisjoint(other)</code></strong></dt>
+    <dd>Returns <code>True</code> if the set has no elements in common with <code>other</code>. The sets are "disjoint" if their intersection is empty.</dd>
+
+    <dt><strong>Set update (<code>.update()</code> / <code>|=</code>)</strong></dt>
+    <dd>Adds all elements from another set (or iterable) to this set. Mutates in place. Returns <code>None</code>. The <code>|=</code> operator requires a set operand; <code>.update()</code> accepts any iterable.</dd>
+
+    <dt><strong>Set comprehension</strong></dt>
+    <dd>Concise syntax for creating sets: <code>{expression for item in iterable if condition}</code>. Automatically deduplicates. Example: <code>{x**2 for x in range(10)}</code> creates a set of squares.</dd>
+
+    <dt><strong>Set iterability</strong></dt>
+    <dd>Looping over a set yields elements in arbitrary order. Use <code>sorted(myset)</code> for deterministic ordered iteration: <code>for x in sorted(myset):</code>.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="functions">Functions</h2>
+
+  <dl>
+    <dt><strong>Function definition (<code>def</code>)</strong></dt>
+    <dd>A compound statement that creates a function object and binds it to a name: <code>def name(params): body</code>. The body is not executed at definition time — only when the function is called.</dd>
+
+    <dt><strong>Function call (<code>()</code>)</strong></dt>
+    <dd>Executes a function by appending parentheses to the function name: <code>func()</code>. Arguments are passed inside the parentheses: <code>func(arg1, arg2)</code>.</dd>
+
+    <dt><strong>Parameter</strong></dt>
+    <dd>A variable listed in the function definition's parentheses. Receives the argument value when the function is called. Parameters are local to the function.</dd>
+
+    <dt><strong>Argument</strong></dt>
+    <dd>A value passed to a function when calling it. Arguments are assigned to the function's parameters. Can be positional or keyword.</dd>
+
+    <dt><strong>Positional argument</strong></dt>
+    <dd>An argument passed in the order of the function's parameters: <code>f(1, 2, 3)</code>. The position determines which parameter receives it.</dd>
+
+    <dt><strong>Keyword argument</strong></dt>
+    <dd>An argument passed with an explicit parameter name: <code>f(name="Alice", age=30)</code>. Order doesn't matter. Must follow positional arguments in a call.</dd>
+
+    <dt><strong>Default argument value</strong></dt>
+    <dd>A value specified in the function definition that is used when the argument is omitted: <code>def f(x=10):</code>. Evaluated <strong>once</strong> at definition time — hence the mutable default trap.</dd>
+
+    <dt><strong>Mutable default trap</strong></dt>
+    <dd>A bug where a mutable default argument (like <code>lst=[]</code>) is shared across all calls because it's created once at function definition time. Fix: use <code>lst=None</code> and assign a new list inside the function.</dd>
+
+    <dt><strong>Positional-only parameter (<code>/</code>)</strong></dt>
+    <dd>Parameters before <code>/</code> in the function definition cannot be passed as keyword arguments: <code>def f(a, b, /, c):</code>. Useful when parameter names have no semantic meaning or for API stability.</dd>
+
+    <dt><strong>Keyword-only parameter (<code>*</code>)</strong></dt>
+    <dd>Parameters after <code>*</code> in the function definition must be passed as keyword arguments: <code>def f(*, a, b):</code>. Only <code>f(a=1, b=2)</code> is valid; <code>f(1, 2)</code> raises <code>TypeError</code>.</dd>
+
+    <dt><strong><code>*args</code></strong></dt>
+    <dd>Captures extra positional arguments into a tuple inside the function. Convention, not a keyword. Can be named anything (<code>*numbers</code>, etc.). Must appear before <code>**kwargs</code>.</dd>
+
+    <dt><strong><code>**kwargs</code></strong></dt>
+    <dd>Captures extra keyword arguments into a dict inside the function. Convention, not a keyword. Access values with <code>kwargs["key"]</code> or iterate <code>kwargs.items()</code>.</dd>
+
+    <dt><strong>Argument unpacking (<code>*</code> / <code>**</code> in calls)</strong></dt>
+    <dd>Unpacks an iterable into positional arguments (<code>f(*lst)</code>) or a dict into keyword arguments (<code>f(**d)</code>) when calling a function. The reverse of <code>*args</code>/<code>**kwargs</code> in definitions.</dd>
+
+    <dt><strong>Forwarding pattern</strong></dt>
+    <dd>A wrapper function that accepts <code>*args, **kwargs</code> and passes them through to another function: <code>def wrapper(*args, **kwargs): return target(*args, **kwargs)</code>.</dd>
+
+    <dt><strong>Docstring</strong></dt>
+    <dd>A string literal as the first statement in a function. Accessible via <code>func.__doc__</code> and <code>help(func)</code>. PEP 257: one-line summary, blank line, then details. Triple-quoted strings are conventional.</dd>
+
+    <dt><strong>Function annotation (type hint)</strong></dt>
+    <dd>Optional metadata for parameter and return types: <code>def f(x: int) -> str:</code>. Stored in <code>__annotations__</code>. NOT enforced at runtime — used by linters, IDEs, and type checkers like <code>mypy</code>.</dd>
+
+    <dt><strong>First-class function</strong></dt>
+    <dd>Functions are objects. They can be assigned to variables, passed as arguments, returned from other functions, and stored in data structures. This enables decorators, callbacks, and higher-order functions.</dd>
+
+    <dt><strong><code>callable()</code></strong></dt>
+    <dd>Built-in function that returns <code>True</code> if the argument appears callable: <code>callable(func)</code> → <code>True</code>, <code>callable(42)</code> → <code>False</code>. Classes and objects with <code>__call__</code> are also callable.</dd>
+
+    <dt><strong>Lambda expression</strong></dt>
+    <dd>An anonymous inline function: <code>lambda x: x * 2</code>. Restricted to a single expression (no statements or annotations). Used for short throwaway functions, especially with <code>sorted(key=...)</code>, <code>map()</code>, <code>filter()</code>.</dd>
+
+    <dt><strong>Closure</strong></dt>
+    <dd>A function that remembers variables from its enclosing scope even after that scope has finished executing. Created when a nested function references a variable from the enclosing function. Used for factory functions and decorators.</dd>
+
+    <dt><strong>LEGB rule</strong></dt>
+    <dd>Python's name resolution order: <strong>L</strong>ocal (current function), <strong>E</strong>nclosing (outer functions), <strong>G</strong>lobal (module level), <strong>B</strong>uilt-in (names like <code>print</code>, <code>len</code>). Python searches in this order when looking up a name.</dd>
+
+    <dt><strong><code>global</code></strong></dt>
+    <dd>A statement that tells Python a name refers to a global (module-level) variable: <code>global x; x = 10</code>. Required only when ASSIGNING to a global variable inside a function — reading globals works without it.</dd>
+
+    <dt><strong><code>nonlocal</code></strong></dt>
+    <dd>A statement that tells Python a name refers to a variable in the nearest enclosing function scope (not global): <code>nonlocal count; count += 1</code>. Used in nested functions. Required only when reassigning the enclosing variable.</dd>
+
+    <dt><strong><code>map()</code></strong></dt>
+    <dd>Built-in that applies a function to every item in an iterable, returning a lazy iterator: <code>map(func, iterable)</code>. Often replaced by list comprehensions for readability, but useful with existing functions (no lambda) and for lazy evaluation.</dd>
+
+    <dt><strong><code>filter()</code></strong></dt>
+    <dd>Built-in that returns items from an iterable where the function returns <code>True</code>: <code>filter(func, iterable)</code>. With <code>None</code>, removes falsy values: <code>filter(None, items)</code>.</dd>
+
+    <dt><strong><code>functools.reduce()</code></strong></dt>
+    <dd>A function that cumulatively applies a function to items of an iterable, reducing it to a single value: <code>reduce(lambda a, b: a * b, [1, 2, 3, 4])</code> returns <code>24</code>. Lives in the <code>functools</code> module (not built-in in Python 3).</dd>
+
+    <dt><strong>Recursion</strong></dt>
+    <dd>A function that calls itself. Every recursive function needs a <strong>base case</strong> (stops the recursion) and a <strong>recursive case</strong> (calls itself with a smaller problem). Examples: factorial, tree traversal, divide-and-conquer algorithms.</dd>
+
+    <dt><strong>Recursion limit</strong></dt>
+    <dd>Python's limit on the number of nested function calls (default 1000). Exceeding it raises <code>RecursionError</code>. Check with <code>sys.getrecursionlimit()</code>, change with <code>sys.setrecursionlimit(n)</code>. Python does not optimize tail recursion.</dd>
+
+    <dt><strong>Call stack</strong></dt>
+    <dd>The data structure that tracks function calls. Each call pushes a frame (with local variables) onto the stack. When a function returns, its frame is popped. The call stack has a limited depth (see recursion limit).</dd>
+  </dl>
+
+  <h2 id="comprehensions">Comprehensions</h2>
+
+  <dl>
+    <dt><strong>Comprehension</strong></dt>
+    <dd>A concise syntax for creating collections from iterables. Python has three comprehension types (list, dict, set) plus generator expressions. All follow the pattern: <code>expression for variable in iterable if condition</code>.</dd>
+
+    <dt><strong>List comprehension</strong></dt>
+    <dd>Syntax: <code>[expr for var in iterable if cond]</code>. Creates a new list eagerly by mapping/filtering an iterable. More Pythonic than <code>map()</code>/<code>filter()</code> for simple cases. Example: <code>[x**2 for x in range(10) if x % 2 == 0]</code>.</dd>
+
+    <dt><strong>Dict comprehension</strong></dt>
+    <dd>Syntax: <code>{key_expr: val_expr for var in iterable if cond}</code>. Creates a new dict. Example: <code>{word: len(word) for word in words}</code>.</dd>
+
+    <dt><strong>Set comprehension</strong></dt>
+    <dd>Syntax: <code>{expr for var in iterable if cond}</code>. Creates a new set (deduplicated, unordered). Example: <code>{len(w) for w in words}</code>.</dd>
+
+    <dt><strong>Generator expression (genexp)</strong></dt>
+    <dd>Syntax: <code>(expr for var in iterable if cond)</code>. Returns a lazy iterator that produces values on demand — NOT a collection. Memory-efficient for large data. Single-use (exhausted after iteration). Example: <code>sum(x**2 for x in range(10_000_000))</code>.</dd>
+
+    <dt><strong>Lazy evaluation</strong></dt>
+    <dd>Computing values only when needed, not in advance. Generator expressions use lazy evaluation — they produce one value at a time as requested, instead of building an entire collection in memory. Opposite of eager evaluation (list comprehensions).</dd>
+
+    <dt><strong>Nested comprehension</strong></dt>
+    <dd>A comprehension whose expression is itself a comprehension. Used for 2D data: <code>[[row[i] for row in matrix] for i in range(4)]</code> transposes a matrix. Also refers to comprehensions with multiple <code>for</code> clauses: <code>[(x, y) for x in [1, 2] for y in [3, 4]]</code>.</dd>
+
+    <dt><strong>Walrus operator (<code>:=</code>)</strong></dt>
+    <dd>Assignment expression operator (Python 3.8+). Allows assigning a value within an expression. In comprehensions, useful for computing a value once and reusing it in both the filter and the output: <code>[n for x in data if (n := expensive(x)) &gt; 10]</code>.</dd>
+
+    <dt><strong>Cartesian product</strong></dt>
+    <dd>In comprehensions, using multiple <code>for</code> clauses produces the Cartesian product of the iterables. Each element of the first is paired with every element of the second, and so on. Total elements = product of all iterable lengths.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="error-handling">Error Handling</h2>
+
+  <dl>
+    <dt><strong>Exception</strong></dt>
+    <dd>An event that disrupts normal program flow. Python raises exceptions when it encounters an error. If unhandled, the program terminates with a traceback. All exceptions inherit from <code>BaseException</code>.</dd>
+
+    <dt><strong>Traceback</strong></dt>
+    <dd>The report Python prints when an unhandled exception terminates a program. Shows the call stack from most recent to oldest, with file paths, line numbers, and the lines of code that led to the error. Read from bottom to top — the last line is the root cause.</dd>
+
+    <dt><strong><code>try</code>/<code>except</code></strong></dt>
+    <dd>Catches exceptions. Code in the <code>try</code> block runs first; if an exception occurs, the matching <code>except</code> block runs. Can catch specific exception types: <code>except ValueError:</code>. Multiple <code>except</code> blocks are checked in order.</dd>
+
+    <dt><strong><code>except</code> as <code>e</code></strong></dt>
+    <dd>Binds the caught exception to a variable for inspection: <code>except ValueError as e:</code>. The variable is scoped to the <code>except</code> block (Python 3.12+) or leaks afterward (older Python). Use <code>type(e).__name__</code> and <code>e.args</code> for details.</dd>
+
+    <dt><strong><code>try</code>/<code>else</code></strong></dt>
+    <dd>The <code>else</code> block runs if the <code>try</code> block completed <strong>without</strong> raising an exception. It does NOT run if an exception was caught or if the <code>try</code> block had a <code>return</code>/<code>break</code>/<code>continue</code>.</dd>
+
+    <dt><strong><code>try</code>/<code>finally</code></strong></dt>
+    <dd>The <code>finally</code> block always runs — whether an exception occurred or not, and even if <code>return</code>, <code>break</code>, or <code>continue</code> was executed. Used for cleanup (close files, release locks). Python 3.14 warns if <code>return</code> appears in <code>finally</code> (PEP 765).</dd>
+
+    <dt><strong><code>raise</code></strong></dt>
+    <dd>Explicitly triggers an exception. Forms: <code>raise ValueError("msg")</code> (new exception), <code>raise</code> (re-raise current exception in except block), <code>raise X from Y</code> (chain exceptions, sets <code>__cause__</code>).</dd>
+
+    <dt><strong>Exception chaining (<code>raise ... from</code>)</strong></dt>
+    <dd>Preserves the original exception as the <code>__cause__</code> of the new one. Both exceptions appear in the traceback. <code>raise ... from None</code> suppresses the original traceback, useful when the new exception is more meaningful.</dd>
+
+    <dt><strong><code>assert</code></strong></dt>
+    <dd>Debugging aid that raises <code>AssertionError</code> if the condition is <code>False</code>: <code>assert x &gt; 0, "x must be positive"</code>. Disabled with <code>-O</code> flag. Not for validation that must always run — use a regular <code>if</code> + <code>raise</code> instead.</dd>
+
+    <dt><strong>Custom exception</strong></dt>
+    <dd>A user-defined exception class inheriting from <code>Exception</code> (or a more specific built-in). Convention: name ends with <code>Error</code> for runtime errors. Should provide a sensible <code>__init__</code> that accepts relevant context.</dd>
+
+    <dt><strong>EAFP (Easier to Ask Forgiveness than Permission)</strong></dt>
+    <dd>A Python coding style: try the operation and handle exceptions if they occur. More idiomatic than LBYL in Python. Example: <code>try: d["key"] except KeyError:</code> instead of <code>if "key" in d:</code>.</dd>
+
+    <dt><strong>LBYL (Look Before You Leap)</strong></dt>
+    <dd>The opposite of EAFP: check conditions before performing an operation. More common in C/Java. In Python, EAFP is preferred because it avoids TOCTOU (Time of Check to Time of Use) races and duplicate lookups.</dd>
+
+    <dt><strong>Bare <code>except:</code></strong></dt>
+    <dd>An <code>except</code> clause without an exception type. Catches ALL exceptions, including <code>KeyboardInterrupt</code> and <code>SystemExit</code> (which inherit from <code>BaseException</code>, not <code>Exception</code>). Use <code>except Exception:</code> instead to avoid catching system-exit signals.</dd>
+
+    <dt><strong><code>ExceptionGroup</code> / <code>except*</code></strong></dt>
+    <dd>Python 3.11+. <code>ExceptionGroup</code> wraps multiple unrelated exceptions into one. <code>except*</code> handles exceptions by type within a group, letting different handlers handle different exceptions from the same <code>try</code> block. Unhandled exceptions propagate as a new <code>ExceptionGroup</code>.</dd>
+
+    <dt><strong><code>BaseException.add_note()</code></strong></dt>
+    <dd>Python 3.11+. Attaches extra context text to an exception instance. Notes appear below the traceback when the exception is printed: <code>e.add_note("context")</code>. Multiple notes can be added and are shown in order.</dd>
+
+    <dt><strong>Context manager</strong></dt>
+    <dd>An object that sets up a resource and tears it down automatically, used via the <code>with</code> statement. Implements <code>__enter__</code> (setup, returns resource) and <code>__exit__</code> (teardown, handles exceptions). Examples: file handles via <code>open()</code>, locks, database connections.</dd>
+
+    <dt><strong><code>with</code> statement</strong></dt>
+    <dd>Syntax for using a context manager: <code>with open("file.txt") as f:</code>. The manager's <code>__enter__</code> is called, the body runs, then <code>__exit__</code> is called even if the body raised an exception. Supports multiple managers (Python 3.10+): <code>with A() as a, B() as b:</code>.</dd>
+
+    <dt><strong><code>__enter__</code> / <code>__exit__</code></strong></dt>
+    <dd>Magic methods for context managers. <code>__enter__(self)</code> sets up and returns the resource. <code>__exit__(self, exc_type, exc_val, exc_tb)</code> tears down and decides whether to suppress exceptions (return <code>True</code> to suppress).</dd>
+
+    <dt><strong><code>@contextmanager</code></strong></dt>
+    <dd>A decorator from <code>contextlib</code> that turns a generator function into a context manager. Code before <code>yield</code> is <code>__enter__</code>, the yielded value is the <code>as</code> target, code after <code>yield</code> is <code>__exit__</code>. Any exception in the body is re-raised at the <code>yield</code> point.</dd>
+
+    <dt><strong><code>contextlib.suppress</code></strong></dt>
+    <dd>A context manager that suppresses specified exceptions: <code>with suppress(FileNotFoundError): os.remove("file")</code>. More explicit than <code>try/except: pass</code> — it makes the intent clear that you expect and ignore certain errors.</dd>
+
+    <dt><strong>PEP 765 — <code>return</code> in <code>finally</code></strong></dt>
+    <dd>Python 3.14 introduces a <code>SyntaxWarning</code> when <code>return</code> appears inside a <code>finally</code> block. This is dangerous because it can silently swallow exceptions — the <code>return</code> value takes precedence over any pending exception, hiding bugs.</dd>
+  </dl>
+
+  <h2 id="file-io">File I/O</h2>
+
+  <dl>
+    <dt><strong><code>open()</code></strong></dt>
+    <dd>Built-in function that returns a file object. Syntax: <code>open(filename, mode='r', encoding=None)</code>. Modes: <code>r</code> (read), <code>w</code> (write, truncates), <code>a</code> (append), <code>x</code> (exclusive create), <code>b</code> (binary), <code>+</code> (read+write). Always use with <code>with</code> statement.</dd>
+
+    <dt><strong>Context manager (<code>with</code> statement)</strong></dt>
+    <dd>Guarantees file is closed after the block, even if exceptions occur. Syntax: <code>with open("file.txt") as f:</code>. The <code>f.close()</code> is called automatically. Always use this instead of manual close.</dd>
+
+    <dt><strong>File modes</strong></dt>
+    <dd><code>r</code>: read (default, file must exist). <code>w</code>: write (truncates existing). <code>a</code>: append (adds to end). <code>x</code>: exclusive create (fails if exists). <code>b</code>: binary mode. <code>+</code>: read+write. Combine: <code>rb</code>, <code>w+</code>, <code>ab</code>.</dd>
+
+    <dt><strong>Text vs binary mode</strong></dt>
+    <dd>Text mode (default): reads/writes strings, applies encoding/decoding, translates newlines. Binary mode (<code>b</code>): reads/writes bytes objects, no encoding, no newline translation. Use binary for images, audio, or any non-text data.</dd>
+
+    <dt><strong>Encoding</strong></dt>
+    <dd>The character encoding used for text files. Always specify <code>encoding="utf-8"</code> explicitly. Default is platform-dependent (locale encoding). Python 3.15+ makes UTF-8 the default (PEP 686).</dd>
+
+    <dt><strong><code>f.read(size)</code></strong></dt>
+    <dd>Reads from file. Without argument: entire file. With <code>size</code>: up to that many characters (text) or bytes (binary). Returns empty string/bytes at EOF.</dd>
+
+    <dt><strong><code>f.readline()</code></strong></dt>
+    <dd>Reads one line from the file. Includes trailing <code>\n</code> (except possibly last line). Returns empty string at EOF. Blank lines return <code>'\n'</code>, not empty string.</dd>
+
+    <dt><strong><code>f.readlines()</code></strong></dt>
+    <dd>Reads all lines and returns a list of strings. Each element includes trailing <code>\n</code>. Memory-intensive for large files — prefer iteration.</dd>
+
+    <dt><strong><code>f.write(string)</code></strong></dt>
+    <dd>Writes string to file. Returns number of characters written (text mode) or bytes written (binary mode). Does NOT add newlines — you must include <code>\n</code> explicitly.</dd>
+
+    <dt><strong><code>f.writelines(lines)</code></strong></dt>
+    <dd>Writes a sequence of strings to the file. Does NOT add newlines between items — each string should include <code>\n</code> if needed.</dd>
+
+    <dt><strong><code>f.tell()</code></strong></dt>
+    <dd>Returns current position in file (bytes from beginning). In text mode, position is opaque but can be used with <code>seek()</code>.</dd>
+
+    <dt><strong><code>f.seek(offset, whence)</code></strong></dt>
+    <dd>Moves file position. <code>whence=0</code>: from beginning (default). <code>whence=1</code>: from current. <code>whence=2</code>: from end. In text mode, only <code>seek(0)</code> and <code>seek(0, 2)</code> are guaranteed safe.</dd>
+
+    <dt><strong><code>f.flush()</code></strong></dt>
+    <dd>Forces buffered data to be written to disk. Files are buffered for efficiency. <code>flush()</code> writes the buffer without closing the file. Called automatically by <code>close()</code>.</dd>
+
+    <dt><strong><code>f.closed</code></strong></dt>
+    <dd>Returns <code>True</code> if the file is closed, <code>False</code> otherwise. Check after exiting <code>with</code> block to verify closure.</dd>
+
+    <dt><strong>Newlines</strong></dt>
+    <dd>Line endings differ by platform: <code>\n</code> (Unix), <code>\r\n</code> (Windows), <code>\r</code> (old Mac). Python's universal newlines (default) translate all to <code>\n</code> on read. <code>newline=''</code> disables translation. CSV files require <code>newline=''</code>.</dd>
+
+    <dt><strong><code>pathlib.Path</code></strong></dt>
+    <dd>Object-oriented path representation (Python 3.4+). Preferred over <code>os.path</code>. Create: <code>Path("file.txt")</code>. Join with <code>/</code>: <code>Path("dir") / "file.txt"</code>. Properties: <code>.name</code>, <code>.stem</code>, <code>.suffix</code>, <code>.parent</code>.</dd>
+
+    <dt><strong><code>Path.read_text()</code> / <code>Path.write_text()</code></strong></dt>
+    <dd>Convenience methods for reading/writing text files. <code>p.read_text(encoding="utf-8")</code> reads entire file. <code>p.write_text("content")</code> writes string. Also available: <code>read_bytes()</code>, <code>write_bytes()</code>.</dd>
+
+    <dt><strong><code>Path.glob()</code> / <code>Path.rglob()</code></strong></dt>
+    <dd>Find files by pattern. <code>glob("*.py")</code> matches in current directory. <code>rglob("*.py")</code> matches recursively in all subdirectories.</dd>
+
+    <dt><strong><code>os.stat()</code></strong></dt>
+    <dd>Returns file metadata as <code>stat_result</code>. Attributes: <code>st_size</code> (bytes), <code>st_mtime</code> (modification time), <code>st_ctime</code> (creation/change time), <code>st_mode</code> (permissions/type).</dd>
+
+    <dt><strong><code>os.scandir()</code></strong></dt>
+    <dd>Efficient directory listing that returns <code>DirEntry</code> objects with cached metadata. 2-20x faster than <code>os.listdir()</code> + <code>os.stat()</code>. Use when you need file type or size.</dd>
+
+    <dt><strong><code>os.walk()</code></strong></dt>
+    <dd>Recursive directory traversal. Yields <code>(dirpath, dirnames, filenames)</code> for each directory. <code>topdown=True</code> (default) for top-down, <code>topdown=False</code> for bottom-up (useful for deletion).</dd>
+
+    <dt><strong><code>glob.glob()</code></strong></dt>
+    <dd>Finds files by shell-style pattern. Supports <code>*</code> (any characters), <code>?</code> (single char), <code>[range]</code>. <code>recursive=True</code> enables <code>**</code> to match any depth.</dd>
+
+    <dt><strong><code>shutil</code> module</strong></dt>
+    <dd>High-level file operations. <code>copy()</code>/<code>copy2()</code>: copy files. <code>copytree()</code>: copy directories. <code>move()</code>: move files/dirs. <code>rmtree()</code>: delete directories recursively (dangerous!).</dd>
+
+    <dt><strong><code>shutil.copy()</code> vs <code>shutil.copy2()</code></strong></dt>
+    <dd><code>copy()</code>: copies content + permissions. <code>copy2()</code>: copies content + permissions + metadata (timestamps). Use <code>copy2()</code> when you want to preserve all file information.</dd>
+
+    <dt><strong><code>tempfile</code> module</strong></dt>
+    <dd>Creates temporary files and directories. <code>NamedTemporaryFile()</code>: named temp file with <code>.name</code> attribute. <code>TemporaryDirectory()</code>: temp dir with auto-cleanup. Both support context managers.</dd>
+
+    <dt><strong><code>io.StringIO</code> / <code>io.BytesIO</code></strong></dt>
+    <dd>In-memory streams. <code>StringIO()</code>: text in memory. <code>BytesIO()</code>: binary in memory. Both support <code>read()</code>, <code>write()</code>, <code>seek()</code>, <code>tell()</code>. Use for testing or building content before writing to disk.</dd>
+
+    <dt><strong><code>csv</code> module</strong></dt>
+    <dd>Handles CSV file reading/writing. <code>csv.reader()</code>: returns rows as lists. <code>csv.DictReader()</code>: returns rows as dicts. <code>csv.writer()</code>/<code>csv.DictWriter()</code>: write CSV. Always open CSV files with <code>newline=''</code>.</dd>
+
+    <dt><strong><code>json</code> module</strong></dt>
+    <dd>Handles JSON data. <code>json.dump()</code>/<code>json.load()</code>: file I/O. <code>json.dumps()</code>/<code>json.loads()</code>: string I/O. <code>indent</code> for pretty printing. <code>ensure_ascii=False</code> for Unicode. Python types map: dict→object, list→array, str→string, int/float→number, True/False/None→true/false/null.</dd>
+
+    <dt><strong>JSON serialization</strong></dt>
+    <dd>Converting Python objects to JSON strings. <code>json.dumps(obj)</code> serializes. Non-serializable types (datetime, custom objects) need a <code>default</code> function that returns a serializable representation.</dd>
+
+    <dt><strong>Binary files</strong></dt>
+    <dd>Files containing non-text data (images, audio, compiled code). Open with <code>b</code> mode (<code>rb</code>, <code>wb</code>). Read/write bytes objects, not strings. No encoding or newline translation.</dd>
+
+    <dt><strong>Buffering</strong></dt>
+    <dd>Data is buffered in memory for efficiency. <code>flush()</code> writes buffer to disk. <code>close()</code> flushes then closes. <code>with</code> statement calls <code>close()</code> automatically. Use <code>flush()</code> when you need immediate disk write.</dd>
+
+    <dt><strong>File object</strong></dt>
+    <dd>An object returned by <code>open()</code> that provides methods for reading/writing. Also called a "file handle" or "stream". Supports iteration (line by line), context manager protocol, and has properties like <code>.closed</code>.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="modules-and-packages">Modules &amp; Packages</h2>
+
+  <dl>
+    <dt><strong>Module</strong></dt>
+    <dd>A <code>.py</code> file containing Python code. The file name (minus <code>.py</code>) becomes the module name. Each module has its own private namespace. Any <code>.py</code> file is automatically a module.</dd>
+
+    <dt><strong>Package</strong></dt>
+    <dd>A special kind of module that contains submodules or subpackages. Identified by having a <code>__path__</code> attribute. All packages are modules, but not all modules are packages.</dd>
+
+    <dt><strong><code>import</code> statement</strong></dt>
+    <dd>The statement that searches for a named module and binds it in the local namespace. Forms: <code>import x</code>, <code>import x.y.z</code>, <code>from x import y</code>, <code>from x import *</code>, <code>import x as y</code>, <code>from . import y</code>.</dd>
+
+    <dt><strong><code>from x import y</code></strong></dt>
+    <dd>Loads module <code>x</code>, then binds <code>y</code> directly in the current namespace. No prefix needed to use <code>y</code>. Works for submodules, functions, classes, and variables.</dd>
+
+    <dt><strong><code>from x import *</code></strong></dt>
+    <dd>Imports all public names from module <code>x</code>. What counts as "public" is determined by <code>__all__</code> if defined, otherwise all names not starting with <code>_</code>. Only allowed at module level. Generally discouraged due to namespace pollution.</dd>
+
+    <dt><strong>Absolute import</strong></dt>
+    <dd>An import using the full dotted path from the top-level package: <code>from mypackage.sub import mod</code>. Always clear where the import comes from.</dd>
+
+    <dt><strong>Relative import</strong></dt>
+    <dd>An import using leading dots to navigate relative to the current package: <code>from . import sibling</code>, <code>from .. import parent_module</code>. One dot = current package, two dots = parent. Only works with the <code>from</code> form.</dd>
+
+    <dt><strong><code>__name__</code></strong></dt>
+    <dd>A special attribute on every module. Set to the module's fully qualified name when imported (e.g., <code>"json"</code>), or <code>"__main__"</code> when the module is executed directly.</dd>
+
+    <dt><strong><code>if __name__ == "__main__"</code></strong></dt>
+    <dd>A pattern that makes a file usable both as an importable module and as a standalone script. The code inside the block only runs when the file is executed directly, not when imported.</dd>
+
+    <dt><strong><code>__init__.py</code></strong></dt>
+    <dd>A file that marks a directory as a regular Python package. Executed when the package is imported. Can set <code>__all__</code>, re-export submodules, or be empty. Optional for namespace packages (Python 3.3+).</dd>
+
+    <dt><strong>Namespace package</strong></dt>
+    <dd>A package that exists without <code>__init__.py</code>, allowing a single package to be split across multiple directories on <code>sys.path</code>. Has a dynamic, read-only <code>__path__</code> attribute. Slower to import than regular packages.</dd>
+
+    <dt><strong><code>sys.path</code></strong></dt>
+    <dd>A list of directories that Python searches for modules. Initialized from the script's directory, <code>PYTHONPATH</code>, and installation defaults (including <code>site-packages</code>). Can be modified at runtime.</dd>
+
+    <dt><strong><code>sys.modules</code></strong></dt>
+    <dd>A dictionary mapping module names to module objects. Serves as the import cache — the first place checked during import. If a module is found here, it's returned immediately without re-execution.</dd>
+
+    <dt><strong><code>PYTHONPATH</code></strong></dt>
+    <dd>An environment variable containing a list of directories to add to <code>sys.path</code>. Set it in the shell to make custom modules importable from anywhere.</dd>
+
+    <dt><strong><code>site-packages</code></strong></dt>
+    <dd>The directory where third-party packages are installed (e.g., via <code>pip</code>). Automatically added to <code>sys.path</code> by the <code>site</code> module.</dd>
+
+    <dt><strong><code>dir()</code></strong></dt>
+    <dd>Built-in that returns a sorted list of names. Without arguments: names in the current scope. With a module argument: names defined in that module. Useful for exploring modules interactively.</dd>
+
+    <dt><strong><code>hasattr(obj, name)</code></strong></dt>
+    <dd>Built-in that returns <code>True</code> if <code>obj</code> has an attribute called <code>name</code>. More readable than <code>name in dir(obj)</code> for checking if a module defines a specific name.</dd>
+
+    <dt><strong><code>__all__</code></strong></dt>
+    <dd>A list of strings in a module that defines which names are exported by <code>from module import *</code>. If not defined, all names not starting with <code>_</code> are exported. Used in packages to define the public API.</dd>
+
+    <dt><strong>Re-export</strong></dt>
+    <dd>Making an imported name available to users of your package. Done by importing in <code>__init__.py</code> and including the name in <code>__all__</code>, or by using <code>from X import Y as Y</code> (explicit re-export for type checkers).</dd>
+
+    <dt><strong><code>__spec__</code></strong></dt>
+    <dd>A <code>ModuleSpec</object> encapsulating all import-related information. Recommended way to access module metadata. Attributes: <code>.name</code>, <code>.origin</code>, <code>.parent</code>, <code>.loader</code>, <code>.submodule_search_locations</code>. Introduced in Python 3.4 (PEP 451).</dd>
+
+    <dt><strong><code>__path__</code></strong></dt>
+    <dd>A list of directories where a package's submodules will be found. Present only on packages (not plain modules). Non-package modules don't have this attribute. By definition, any module with <code>__path__</code> is a package.</dd>
+
+    <dt><strong><code>importlib</code></strong></dt>
+    <dd>Standard library module that provides tools for programmatic importing. Key functions: <code>import_module()</code> (dynamic import from string), <code>reload()</code> (re-execute module code), <code>invalidate_caches()</code>.</dd>
+
+    <dt><strong><code>importlib.import_module(name)</code></strong></dt>
+    <dd>The recommended way to dynamically import a module from a string name. Returns the module object. <code>importlib.import_module("math")</code> is equivalent to <code>import math</code> but works with a runtime string.</dd>
+
+    <dt><strong><code>importlib.reload(module)</code></strong></dt>
+    <dd>Re-executes a module's code without creating a new module object. The module dictionary is retained — names not redefined keep old values. Existing <code>from X import Y</code> references are NOT updated. Not thread-safe.</dd>
+
+    <dt><strong>Circular import</strong></dt>
+    <dd>When two or more modules depend on each other at import time. Can cause <code>AttributeError</code> if one tries to use a name that hasn't been defined yet. Fix by importing inside functions, refactoring shared code, or restructuring dependencies.</dd>
+
+    <dt><strong>Lazy import</strong></dt>
+    <dd>Deferring the actual import until the module is first used. Python provides <code>importlib.util.LazyLoader</code> for explicit lazy loading. Reduces startup time for heavy modules that may not be needed.</dd>
+
+    <dt><strong>Module namespace</strong></dt>
+    <dd>Each module has its own global namespace (<code>module.__dict__</code>). Functions defined in a module use the module's namespace as their global namespace, preventing accidental name clashes between modules.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="iterators-and-generators">Iterators &amp; Generators</h2>
+
+  <dl>
+    <dt><strong>Iterable</strong></dt>
+    <dd>An object capable of returning its elements one at a time. Has an <code>__iter__()</code> method that returns an iterator. Examples: <code>list</code>, <code>str</code>, <code>tuple</code>, <code>dict</code>, <code>set</code>, <code>range</code>, file objects. Can be used in a <code>for</code> loop or with <code>iter()</code>. NOT the same as an iterator.</dd>
+
+    <dt><strong>Iterator</strong></dt>
+    <dd>An object representing a stream of data. Implements both <code>__iter__()</code> (returns <code>self</code>) and <code>__next__()</code> (returns next element or raises <code>StopIteration</code>). Single-use — once exhausted, it cannot be reused. All iterators are iterables, but not vice versa.</dd>
+
+    <dt><strong>Iterator protocol</strong></dt>
+    <dd>The contract that makes <code>for</code> loops work. Consists of <code>__iter__()</code> (returns the iterator) and <code>__next__()</code> (returns next value, raises <code>StopIteration</code> when done). The <code>for</code> loop calls <code>iter()</code> on the container, then <code>next()</code> repeatedly until <code>StopIteration</code>.</dd>
+
+    <dt><strong><code>StopIteration</code></strong></dt>
+    <dd>An exception raised by <code>__next__()</code> to signal that an iterator has no more values. Caught internally by <code>for</code> loops. Also raised by generators when they finish. Can carry a return value in <code>StopIteration.value</code>.</dd>
+
+    <dt><strong><code>iter()</code></strong></dt>
+    <dd>Built-in function that returns an iterator from an iterable. Also used in <code>for</code> loops internally. With a callable and sentinel: <code>iter(callable, sentinel)</code> calls the callable until it returns the sentinel.</dd>
+
+    <dt><strong><code>next()</code></strong></dt>
+    <dd>Built-in function that advances an iterator and returns the next element. Raises <code>StopIteration</code> if exhausted. With a second argument: <code>next(iterator, default)</code> returns <code>default</code> instead of raising.</dd>
+
+    <dt><strong>Generator function</strong></dt>
+    <dd>A function that contains <code>yield</code>. When called, returns a generator object (not executing the body). The body runs incrementally on each <code>next()</code> call. Local variables and execution state are automatically preserved between calls. <code>StopIteration</code> is raised automatically when the function ends. Much simpler than writing a class-based iterator.</dd>
+
+    <dt><strong><code>yield</code></strong></dt>
+    <dd>A keyword that turns a function into a generator. <code>yield x</code> outputs <code>x</code> and suspends execution. On the next <code>next()</code> call, execution resumes after the <code>yield</code>. Unlike <code>return</code>, <code>yield</code> preserves local state and can be called multiple times.</dd>
+
+    <dt><strong><code>yield from</code></strong></dt>
+    <dd>An expression that delegates iteration to a sub-generator (Python 3.3+). <code>yield from subgen</code> yields all values from <code>subgen</code> and forwards <code>send()</code>, <code>throw()</code>, and <code>close()</code> calls. Simplifies generator composition, flattening, and chaining.</dd>
+
+    <dt><strong>Generator expression (genexp)</strong></dt>
+    <dd>A lazy, single-use iterable created with parentheses instead of square brackets: <code>(expr for x in iterable if cond)</code>. Returns a generator object. Memory-efficient for large datasets. Often used inline in function calls: <code>sum(x**2 for x in range(10))</code>.</dd>
+
+    <dt><strong>Lazy evaluation</strong></dt>
+    <dd>Computing values only when needed, not in advance. Generators and generator expressions use lazy evaluation. Map, filter, zip, enumerate are all lazy in Python 3. Saves memory and can handle infinite sequences.</dd>
+
+    <dt><strong>Iterator exhaustion</strong></dt>
+    <dd>An iterator can only be consumed once. After all values have been yielded (or extracted via <code>next()</code>), the iterator is exhausted and will raise <code>StopIteration</code> on further attempts. To iterate again, create a new iterator or materialize to a list.</dd>
+
+    <dt><strong>Infinite iterator</strong></dt>
+    <dd>An iterator that never raises <code>StopIteration</code>. Created by generator functions with <code>while True: yield x</code> or by <code>itertools.count()</code>, <code>itertools.cycle()</code>, <code>itertools.repeat()</code>. Must be used with truncation (<code>break</code>, <code>islice</code>, <code>takewhile</code>) or risk infinite loops.</dd>
+
+    <dt><strong><code>itertools</code></strong></dt>
+    <dd>Standard library module providing fast, memory-efficient iterator building blocks. Combines into an "iterator algebra" for constructing specialized tools. Categories: infinite iterators, finite iterators, and combinatoric iterators.</dd>
+
+    <dt><strong><code>itertools.count(start=0, step=1)</code></strong></dt>
+    <dd>Infinite iterator that returns evenly spaced values starting with <code>start</code>. Supports floats. Useful with <code>map()</code> for consecutive data points or <code>zip()</code> for numbering. Never stops — always pair with <code>islice</code> or <code>takewhile</code>.</dd>
+
+    <dt><strong><code>itertools.cycle(iterable)</code></strong></dt>
+    <dd>Infinite iterator that saves a copy of the iterable and cycles through it forever. Useful for alternating patterns, round-robin behavior. Stores the entire iterable in memory for the cycling phase.</dd>
+
+    <dt><strong><code>itertools.repeat(elem, [n])</code></strong></dt>
+    <dd>Infinite (or bounded) iterator that returns the same element repeatedly. Common use: supplying constant values to <code>map()</code> or <code>zip()</code>. With <code>n</code>, stops after <code>n</code> repetitions.</dd>
+
+    <dt><strong><code>itertools.chain(*iterables)</code></strong></dt>
+    <dd>Returns an iterator that concatenates iterables. <code>chain("AB", "CD")</code> → <code>A B C D</code>. Flattens one level. <code>chain.from_iterable(iterable)</code> chains from nested iterables.</dd>
+
+    <dt><strong><code>itertools.islice(iterable, start, stop [, step])</code></strong></dt>
+    <dd>Returns selected elements from an iterator, like sequence slicing. Does NOT support negative indices. Consumes the input up to the stop position. Essential for working with infinite iterators.</dd>
+
+    <dt><strong><code>itertools.compress(data, selectors)</code></strong></dt>
+    <dd>Filters data by a parallel boolean selector. <code>compress("ABCDEF", [1,0,1,0,1,1])</code> → <code>A C E F</code>. Useful for filtering one iterable by patterns in another.</dd>
+
+    <dt><strong><code>itertools.groupby(iterable, key=None)</code></strong></dt>
+    <dd>Returns consecutive keys and groups from an iterable. The iterable MUST already be sorted by the key function. Unlike SQL's GROUP BY, only groups consecutive equal keys. The returned group is itself an iterator shared with the parent.</dd>
+
+    <dt><strong><code>itertools.takewhile(pred, seq)</code> / <code>dropwhile(pred, seq)</code></strong></dt>
+    <dd><code>takewhile</code> yields elements as long as predicate is true, then stops. <code>dropwhile</code> skips elements while predicate is true, then yields all remaining. Both consume the failing element.</dd>
+
+    <dt><strong><code>itertools.pairwise(iterable)</code></strong></dt>
+    <dd>Returns successive overlapping pairs (Python 3.10+). <code>pairwise("ABCDE")</code> → <code>AB BC CD DE</code>. The output has one fewer element than the input.</dd>
+
+    <dt><strong><code>itertools.zip_longest(*iterables, fillvalue=None)</code></strong></dt>
+    <dd>Like <code>zip()</code> but continues until the longest iterable is exhausted, filling missing values with <code>fillvalue</code>. Use for pairing uneven-length sequences.</dd>
+
+    <dt><strong><code>itertools.tee(iterable, n=2)</code></strong></dt>
+    <dd>Splits an iterator into <code>n</code> independent iterators. May use significant memory if one iterator runs far ahead of others. If one iterator consumes all data before others start, prefer <code>list()</code> instead.</dd>
+
+    <dt><strong><code>itertools.accumulate(iterable, func=operator.add, *, initial=None)</code></strong></dt>
+    <dd>Returns running totals or running results of any binary function. <code>accumulate([1,2,3,4])</code> → <code>1 3 6 10</code>. With <code>initial</code>, the output has one more element than the input (Python 3.8+).</dd>
+
+    <dt><strong><code>itertools.product(*iterables, repeat=1)</code></strong></dt>
+    <dd>Cartesian product of input iterables. Equivalent to nested for-loops. <code>product("AB", repeat=2)</code> → <code>AA AB BA BB</code>. Consumes all inputs eagerly into tuples.</dd>
+
+    <dt><strong><code>itertools.permutations(iterable, r=None)</code></strong></dt>
+    <dd>All possible r-length orderings (permutations) of the input. Order matters, no repeated elements. If <code>r</code> is omitted, defaults to full length. <code>permutations("ABC", 2)</code> → <code>AB AC BA BC CA CB</code>.</dd>
+
+    <dt><strong><code>itertools.combinations(iterable, r)</code></strong></dt>
+    <dd>All r-length subsequences (combinations) of the input. Order does NOT matter, no repeated elements. <code>combinations("ABC", 2)</code> → <code>AB AC BC</code>. Elements are treated as unique by position, not value.</dd>
+
+    <dt><strong><code>itertools.combinations_with_replacement(iterable, r)</code></strong></dt>
+    <dd>All r-length subsequences where elements can repeat. <code>combinations_with_replacement("ABC", 2)</code> → <code>AA AB AC BB BC CC</code>.</dd>
+
+    <dt><strong>Generator pipeline</strong></dt>
+    <dd>A data processing chain composed of chained generators. Each generator transforms data one item at a time, and no intermediate collections are created. Memory-efficient for large datasets. Example: read lines → parse → filter → extract → aggregate.</dd>
+
+    <dt><strong>Coroutine</strong></dt>
+    <dd>A generator enhanced with <code>.send()</code>, <code>.throw()</code>, and <code>.close()</code> methods. <code>send(value)</code> passes a value into the generator (the value becomes the result of <code>yield</code>). Must be "primed" with <code>next()</code> first. This is the foundation of async/await in Python.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="oop-classes-objects">OOP — Classes &amp; Objects</h2>
+
+  <dl>
+    <dt><strong>Class</strong></dt>
+    <dd>A blueprint for creating objects. Defines attributes (data) and methods (behavior). Created with the <code>class</code> keyword. Classes are first-class objects in Python — they can be assigned to variables, passed as arguments, and stored in data structures.</dd>
+
+    <dt><strong>Object</strong></dt>
+    <dd>An instance of a class. Created by calling the class like a function: <code>obj = MyClass()</code>. Each object has its own identity (<code>id()</code>), type (<code>type()</code>), and value (its attributes).</dd>
+
+    <dt><strong>Instance</strong></dt>
+    <dd>Synonym for "object" when referring to a specific creation of a class. <code>alice</code> is an instance of the <code>Person</code> class. An instance has its own attributes that can differ from other instances of the same class.</dd>
+
+    <dt><strong><code>__init__</code></strong></dt>
+    <dd>The initialization method (constructor) called automatically when a class is instantiated. Sets up the initial state of the instance. Must accept <code>self</code> as the first parameter. Called after <code>__new__</code> creates the instance.</dd>
+
+    <dt><strong><code>self</code></strong></dt>
+    <dd>The first parameter of instance methods. Represents the instance being operated on. Python passes it automatically when you call a method on an instance. Just a convention — could use any name, but always use <code>self</code>.</dd>
+
+    <dt><strong>Instance attribute</strong></dt>
+    <dd>An attribute unique to each instance. Created in <code>__init__</code> or other methods with <code>self.name = value</code>. Stored in the instance's <code>__dict__</code>. Different instances can have different values for the same attribute.</dd>
+
+    <dt><strong>Class attribute</strong></dt>
+    <dd>An attribute shared across all instances of a class. Defined directly in the class body: <code>class MyClass: x = 10</code>. Stored in the class's <code>__dict__</code>. Modifying it affects all instances (unless an instance attribute shadows it).</dd>
+
+    <dt><strong>Instance method</strong></dt>
+    <dd>A function defined inside a class that operates on instance data. Takes <code>self</code> as the first parameter. Can access and modify instance attributes. Called on an instance: <code>obj.method()</code>.</dd>
+
+    <dt><strong>Class method</strong></dt>
+    <dd>A method that receives the class (<code>cls</code>) instead of the instance. Created with the <code>@classmethod</code> decorator. Can access class attributes but not instance attributes. Often used as alternative constructors (factory methods).</dd>
+
+    <dt><strong>Static method</strong></dt>
+    <dd>A function that lives inside a class's namespace but doesn't receive <code>self</code> or <code>cls</code>. Created with the <code>@staticmethod</code> decorator. A regular function that logically belongs with the class. Used for utility functions.</dd>
+
+    <dt><strong><code>__str__</code></strong></dt>
+    <dd>A special method that returns a human-readable string representation. Called by <code>print()</code>, <code>str()</code>, and f-strings. Should return a user-friendly string. Falls back to <code>__repr__</code> if not defined.</dd>
+
+    <dt><strong><code>__repr__</code></strong></dt>
+    <dd>A special method that returns an unambiguous, developer-friendly string representation. Called by <code>repr()</code>, interactive display, and debugging. Should ideally be a valid Python expression that recreates the object. Always define this; <code>__str__</code> is optional.</dd>
+
+    <dt><strong>Public</strong></dt>
+    <dd>An attribute or method with no underscore prefix. Part of the class's public API. Accessible from anywhere. This is the default visibility in Python.</dd>
+
+    <dt><strong>Protected</strong></dt>
+    <dd>An attribute or method with a single underscore prefix (<code>_attr</code>). Convention signaling "internal use." Not enforced by Python — accessible from outside. Respected by <code>from module import *</code>.</dd>
+
+    <dt><strong>Private</strong></dt>
+    <dd>In Python, refers to name mangling with double underscores (<code>__attr</code>). Python transforms <code>__attr</code> in class <code>MyClass</code> to <code>_MyClass__attr</code>. Prevents naming conflicts in inheritance, NOT access control. Anyone can access the mangled name.</dd>
+
+    <dt><strong>Name mangling</strong></dt>
+    <dd>The automatic renaming of <code>__attr</code> to <code>_ClassName__attr</code> by Python. Designed to prevent accidental name collisions in inheritance hierarchies. Not a security feature — the mangled name is easily accessible.</dd>
+
+    <dt><strong><code>@property</code></strong></dt>
+    <dd>A decorator that turns a method into a managed attribute. Allows getter, setter, and deleter logic while maintaining clean attribute syntax. Use for validation, computation, or controlled access without changing the API.</dd>
+
+    <dt><strong>Getter</strong></dt>
+    <dd>A property method decorated with <code>@property</code> that returns the attribute value. Called when accessing the property: <code>obj.attr</code>. Can include validation or computation.</dd>
+
+    <dt><strong>Setter</strong></dt>
+    <dd>A property method decorated with <code>@attr.setter</code> that sets the attribute value. Called when assigning: <code>obj.attr = value</code>. Can include validation before storing the value.</dd>
+
+    <dt><strong><code>__slots__</code></strong></dt>
+    <dd>A class attribute that restricts attribute creation and eliminates the per-instance <code>__dict__</code>. Saves memory (~40-50% reduction). Syntax: <code>__slots__ = ('x', 'y')</code>. Trade-off: no dynamic attributes.</dd>
+
+    <dt><strong>Dataclass</strong></dt>
+    <dd>A class decorated with <code>@dataclass</code> that auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>, and other methods. Reduces boilerplate for data container classes. From the <code>dataclasses</code> module (Python 3.7+).</dd>
+
+    <dt><strong>Descriptor</strong></dt>
+    <dd>An object that defines <code>__get__</code>, <code>__set__</code>, or <code>__delete__</code> methods to control attribute access. Properties, class methods, static methods, and <code>__slots__</code> all use descriptors internally. Data descriptors (with <code>__set__</code>) take priority over instance dictionaries.</dd>
+
+    <dt><strong>Factory method</strong></dt>
+    <dd>A class method that creates and returns an instance of the class, often with a different signature than <code>__init__</code>. Example: <code>Date.from_string("2024-01-15")</code>. Useful for alternative construction patterns.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="oop-inheritance-polymorphism">OOP — Inheritance &amp; Polymorphism</h2>
+
+  <dl>
+    <dt><strong>Inheritance</strong></dt>
+    <dd>A mechanism where a new class (child/derived) adopts attributes and methods from an existing class (parent/base). Enables code reuse and models "is-a" relationships. Syntax: <code>class Child(Parent):</code>.</dd>
+
+    <dt><strong>Parent / Base Class</strong></dt>
+    <dd>The class being inherited from. Provides attributes and methods that child classes can reuse or override. Also called superclass.</dd>
+
+    <dt><strong>Child / Derived Class</strong></dt>
+    <dd>The class that inherits from a parent. Can add new attributes/methods or override parent methods. Also called subclass.</dd>
+
+    <dt><strong><code>super()</code></strong></dt>
+    <dd>A built-in function that returns a proxy for calling parent methods. Most commonly used in <code>__init__</code> to call the parent's constructor: <code>super().__init__(...)</code>. In Python 3, takes no arguments.</dd>
+
+    <dt><strong>Method Resolution Order (MRO)</strong></dt>
+    <dd>The order Python searches for methods in a class hierarchy. Determined by C3 linearization. View with <code>ClassName.__mro__</code> or <code>ClassName.mro()</code>. Ensures each class is visited exactly once in diamond hierarchies.</dd>
+
+    <dt><strong>Multiple Inheritance</strong></dt>
+    <dd>A class inheriting from more than one parent: <code>class Child(Parent1, Parent2):</code>. Powerful but can cause complexity. Python uses C3 linearization to handle method resolution.</dd>
+
+    <dt><strong>Diamond Problem</strong></dt>
+    <dd>A situation in multiple inheritance where a child inherits from two parents that share a common ancestor. Without careful MRO, methods from the common ancestor could be called multiple times. C3 linearization prevents this.</dd>
+
+    <dt><strong>Mixin</strong></dt>
+    <dd>A class that provides reusable methods for other classes but is not meant to be instantiated directly. Conventionally named with <code>Mixin</code> suffix. Used to add orthogonal functionality (logging, serialization, etc.) in a composable way.</dd>
+
+    <dt><strong>Abstract Base Class (ABC)</strong></dt>
+    <dd>A class that defines an interface using <code>@abstractmethod</code> decorators. Cannot be instantiated directly — subclasses must implement all abstract methods. From <code>abc.ABC</code> or <code>abc.ABCMeta</code>.</dd>
+
+    <dt><strong><code>@abstractmethod</code></strong></dt>
+    <dd>A decorator from <code>abc</code> that marks a method as abstract. Subclasses must override it. Can be applied to methods, properties, classmethods, and staticmethods. Should be the innermost decorator when combined with others.</dd>
+
+    <dt><strong>Virtual Subclass</strong></dt>
+    <dd>A class registered with an ABC using <code>ABC.register()</code> without inheriting from it. Makes <code>isinstance()</code> and <code>issubclass()</code> return True, but does NOT enforce abstract method implementation.</dd>
+
+    <dt><strong><code>__subclasshook__</code></strong></dt>
+    <dd>A classmethod on ABCs that customizes <code>issubclass()</code> behavior. Can check for specific methods in a class's <code>__dict__</code> or <code>__mro__</code> to determine subclass relationship dynamically.</dd>
+
+    <dt><strong>Duck Typing</strong></dt>
+    <dd>A programming style where an object's suitability is determined by the presence of certain methods/properties, not its type. "If it walks like a duck and quacks like a duck, it's a duck." Python's preferred polymorphism approach.</dd>
+
+    <dt><strong>Polymorphism</strong></dt>
+    <dd>The ability to use a unified interface for different data types. In Python, achieved through duck typing — any object with the right methods works, regardless of its class hierarchy.</dd>
+
+    <dt><strong><code>isinstance()</code></strong></dt>
+    <dd>Built-in function that checks if an object is an instance of a class (or tuple of classes). Respects inheritance: <code>isinstance(dog, Animal)</code> is True if Dog inherits from Animal. Preferred over <code>type() is</code>.</dd>
+
+    <dt><strong><code>issubclass()</code></strong></dt>
+    <dd>Built-in function that checks if a class is a subclass of another (or tuple). <code>issubclass(Dog, Animal)</code> is True if Dog inherits from Animal. Returns True for transitive relationships.</dd>
+
+    <dt><strong>Liskov Substitution Principle (LSP)</strong></dt>
+    <dd>A principle stating that objects of a subclass should be substitutable for objects of the parent class without breaking the program. Subclasses should not strengthen preconditions or weaken postconditions.</dd>
+
+    <dt><strong>Template Method Pattern</strong></dt>
+    <dd>A design pattern where a base class defines an algorithm skeleton with abstract "hook" methods. Subclasses implement the hooks while the base class controls the overall flow. Uses inheritance to vary steps.</dd>
+
+    <dt><strong>Composition</strong></dt>
+    <dd>A design approach where objects contain other objects to reuse functionality ("has-a" relationship) instead of inheriting ("is-a"). Often preferred over inheritance for flexibility and avoiding deep hierarchies.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <h2 id="oop-magic-methods-protocols">OOP — Magic Methods &amp; Protocols</h2>
+
+  <dl>
+    <dt><strong>Magic method (dunder method)</strong></dt>
+    <dd>A special method with double underscores (<code>__name__</code>) that Python calls behind the scenes. Implementing these lets your objects participate in built-in operations like arithmetic, comparison, iteration, and context management. Never call them directly — use normal syntax instead.</dd>
+
+    <dt><strong><code>NotImplemented</code></strong></dt>
+    <dd>A special singleton returned from binary operators when the operation is not supported. Signals Python to try the right operand's reflected method. Different from <code>NotImplementedError</code> (an exception class).</dd>
+
+    <dt><strong>Protocol</strong></dt>
+    <dd>A set of magic methods that define a behavior (e.g., sequence protocol = <code>__len__</code> + <code>__getitem__</code>). If your object implements the protocol's methods, it works with Python's built-in functions that use that protocol — regardless of its actual type.</dd>
+
+    <dt><strong><code>__repr__</code></strong></dt>
+    <dd>Returns an unambiguous, developer-friendly string representation. Called by <code>repr()</code>, interactive display, and debugging. Should be a valid Python expression that recreates the object if possible. Always define this.</dd>
+
+    <dt><strong><code>__str__</code></strong></dt>
+    <dd>Returns a human-readable string representation. Called by <code>str()</code>, <code>print()</code>, and f-strings. Falls back to <code>__repr__</code> if not defined. Optional — use when you want friendlier output than <code>__repr__</code>.</dd>
+
+    <dt><strong><code>__format__</code></strong></dt>
+    <dd>Controls the output of <code>format(obj, spec)</code> and f-string format specs: <code>f"{obj:spec}"</code>. Lets you define custom format specifications for your objects. Called after <code>__str__</code> when a format spec is provided.</dd>
+
+    <dt><strong>Binary operator</strong></dt>
+    <dd>An operator that takes two operands: <code>x + y</code>. Python first tries <code>x.__add__(y)</code>. If that returns <code>NotImplemented</code>, it tries <code>y.__radd__(x)</code>. If both fail, raises <code>TypeError</code>.</dd>
+
+    <dt><strong>Reflected (right-hand) operator</strong></dt>
+    <dd>The right operand's version of a binary operator: <code>__radd__</code>, <code>__rsub__</code>, etc. Called when the left operand's method returns <code>NotImplemented</code>. Enables <code>0 + vector</code> when <code>int.__add__</code> doesn't know about vectors.</dd>
+
+    <dt><strong>In-place operator</strong></dt>
+    <dd>Operators like <code>+=</code>, <code>-=</code>, <code>*=</code> that modify objects in place. Implemented via <code>__iadd__</code>, <code>__isub__</code>, etc. Should return <code>self</code> for in-place modification, or a new object if in-place isn't feasible. Falls back to <code>x = x + y</code> if not defined.</dd>
+
+    <dt><strong>Unary operator</strong></dt>
+    <dd>An operator that takes one operand: <code>-x</code> (<code>__neg__</code>), <code>+x</code> (<code>__pos__</code>), <code>abs(x)</code> (<code>__abs__</code>), <code>~x</code> (<code>__invert__</code>).</dd>
+
+    <dt><strong><code>@functools.total_ordering</code></strong></dt>
+    <dd>A class decorator that generates the missing comparison methods from just <code>__eq__</code> and one of <code>__lt__</code>, <code>__le__</code>, <code>__gt__</code>, <code>__ge__</code>. Saves writing all six methods manually.</dd>
+
+    <dt><strong><code>__hash__</code></strong></dt>
+    <dd>Returns the hash value for the object, used for dict keys and set membership. Must be consistent: if <code>x == y</code>, then <code>hash(x) == hash(y)</code>. Defining <code>__eq__</code> without <code>__hash__</code> sets <code>__hash__</code> to <code>None</code> (unhashable).</dd>
+
+    <dt><strong><code>__len__</code></strong></dt>
+    <dd>Returns the length of the container (must be >= 0). Called by <code>len()</code>. If defined without <code>__bool__</code>, objects with length 0 are falsy.</dd>
+
+    <dt><strong><code>__getitem__</code></strong></dt>
+    <dd>Enables bracket access: <code>obj[key]</code>. Handles indexing, slicing (with <code>slice</code> objects), and dict-like access. Raises <code>IndexError</code> for out-of-range sequence indices, <code>KeyError</code> for missing dict keys.</dd>
+
+    <dt><strong><code>__setitem__</code></strong></dt>
+    <dd>Enables bracket assignment: <code>obj[key] = value</code>. Used for mutable sequences and mappings.</dd>
+
+    <dt><strong><code>__delitem__</code></strong></dt>
+    <dd>Enables bracket deletion: <code>del obj[key]</code>. Used for mutable sequences and mappings.</dd>
+
+    <dt><strong><code>__contains__</code></strong></dt>
+    <dd>Enables membership testing: <code>item in obj</code>. If not defined, Python falls back to <code>__iter__</code>, then <code>__getitem__</code> with integer indices starting from 0.</dd>
+
+    <dt><strong><code>__iter__</code></strong></dt>
+    <dd>Returns an iterator for the object. Called by <code>for</code> loops and <code>iter()</code>. If defined with <code>__getitem__</code> using sequential integers, the class is iterable even without <code>__iter__</code> (legacy protocol).</dd>
+
+    <dt><strong><code>__next__</code></strong></dt>
+    <dd>Returns the next item from an iterator. Raises <code>StopIteration</code> when exhausted. Together with <code>__iter__</code>, forms the iterator protocol.</dd>
+
+    <dt><strong><code>__reversed__</code></strong></dt>
+    <dd>Returns a reverse iterator. Called by <code>reversed(obj)</code>. If not defined, falls back to <code>__len__</code> + <code>__getitem__</code>.</dd>
+
+    <dt><strong><code>__missing__</code></strong></dt>
+    <dd>Called by <code>dict.__getitem__()</code> when a key is not found in a dict subclass. Used by <code>defaultdict</code>. Regular dicts don't support this hook.</dd>
+
+    <dt><strong><code>__bool__</code></strong></dt>
+    <dd>Returns the boolean value of the object. Called by <code>bool()</code>, <code>if</code>, <code>while</code>. If not defined, falls back to <code>__len__</code> (truthy if nonzero). If neither is defined, all instances are truthy.</dd>
+
+    <dt><strong><code>__call__</code></strong></dt>
+    <dd>Makes instances callable like functions: <code>obj()</code>. Useful for stateful functions, strategy patterns, decorators, and functors. Objects with <code>__call__</code> pass <code>callable()</code> checks.</dd>
+
+    <dt><strong><code>__enter__</code></strong></dt>
+    <dd>Sets up a context manager. Called at the start of a <code>with</code> block. The return value is bound to the <code>as</code> variable. Part of the context manager protocol.</dd>
+
+    <dt><strong><code>__exit__</code></strong></dt>
+    <dd>Tears down a context manager. Called at the end of a <code>with</code> block (always, even on exceptions). Receives <code>exc_type</code>, <code>exc_val</code>, <code>exc_tb</code> (all <code>None</code> if no exception). Return <code>True</code> to suppress the exception, <code>False</code>/<code>None</code> to let it propagate.</dd>
+
+    <dt><strong><code>__getattr__</code></strong></dt>
+    <dd>Called <strong>only</strong> when normal attribute lookup fails with <code>AttributeError</code>. Used for fallback/default attribute values. Not called for attributes that exist in <code>__dict__</code> or the class.</dd>
+
+    <dt><strong><code>__getattribute__</code></strong></dt>
+    <dd>Called <strong>unconditionally</strong> for every attribute access on the instance. Must call <code>object.__getattribute__(self, name)</code> internally to avoid infinite recursion. Rarely overridden.</dd>
+
+    <dt><strong><code>__setattr__</code></strong></dt>
+    <dd>Called for every attribute assignment: <code>self.name = value</code>. Use <code>object.__setattr__(self, name, value)</code> inside it to actually set attributes (avoids infinite recursion).</dd>
+
+    <dt><strong><code>__delattr__</code></strong></dt>
+    <dd>Called for every <code>del self.name</code>. Use <code>object.__delattr__(self, name)</code> inside it to actually delete attributes.</dd>
+
+    <dt><strong>Attribute lookup order</strong></dt>
+    <dd>For <code>obj.name</code>: 1) Data descriptors, 2) Instance <code>__dict__</code>, 3) Non-data descriptors, 4) Class variables (via MRO), 5) <code>__getattr__</code> as fallback.</dd>
+
+    <dt><strong><code>__slots__</code></strong></dt>
+    <dd>A class attribute that restricts attribute creation and eliminates the per-instance <code>__dict__</code>. Saves memory (~40-50% reduction) and improves attribute access speed. Syntax: <code>__slots__ = ('x', 'y')</code>. Trade-off: no dynamic attributes.</dd>
+
+    <dt><strong>Dataclass</strong></dt>
+    <dd>A class decorated with <code>@dataclass</code> that auto-generates <code>__init__</code>, <code>__repr__</code>, <code>__eq__</code>, and other methods. Reduces boilerplate for data container classes. From the <code>dataclasses</code> module (Python 3.7+).</dd>
+
+    <dt><strong><code>field()</code></strong></dt>
+    <dd>A function from <code>dataclasses</code> that provides fine-grained control over individual fields: <code>default</code>, <code>default_factory</code> (for mutable defaults), <code>init</code>, <code>repr</code>, <code>compare</code>, <code>hash</code>, <code>metadata</code>, <code>kw_only</code>.</dd>
+
+    <dt><strong><code>__post_init__</code></strong></dt>
+    <dd>A method called at the end of a dataclass's generated <code>__init__</code>. Used for computed fields, validation, or any logic that needs all fields set first.</dd>
+
+    <dt><strong><code>InitVar</code></strong></dt>
+    <dd>A pseudo-field in dataclasses that is passed to <code>__init__</code> and <code>__post_init__</code> but not stored as an actual field. Useful for parameters needed during initialization only.</dd>
+
+    <dt><strong><code>asdict()</code></strong></dt>
+    <dd>A dataclass helper that recursively converts a dataclass instance to a dict. Nested dataclasses are also converted. <code>asdict(obj)</code> returns a dict of field_name → value.</dd>
+
+    <dt><strong><code>astuple()</code></strong></dt>
+    <dd>A dataclass helper that recursively converts a dataclass instance to a tuple. Nested dataclasses are also converted. <code>astuple(obj)</code> returns a tuple of values.</dd>
+
+    <dt><strong><code>replace()</code></strong></dt>
+    <dd>A dataclass helper that creates a new instance with specified fields replaced: <code>replace(obj, field=value)</code>. The original is unchanged. Works with frozen dataclasses.</dd>
+
+    <dt><strong><code>fields()</code></strong></dt>
+    <dd>A dataclass helper that returns a tuple of <code>Field</code> objects describing each field: name, type, default, etc. Useful for introspection and serialization.</dd>
+
+    <dt><strong>Descriptor protocol</strong></dt>
+    <dd>An object that defines <code>__get__</code>, <code>__set__</code>, or <code>__delete__</code> methods to control attribute access. Properties, classmethods, staticmethods, and <code>__slots__</code> all use descriptors internally.</dd>
+
+    <dt><strong>Data descriptor</strong></dt>
+    <dd>A descriptor defining <code>__get__</code> AND at least one of <code>__set__</code>/<code>__delete__</code>. Data descriptors take priority over instance <code>__dict__</code> entries. Example: <code>property</code>.</dd>
+
+    <dt><strong>Non-data descriptor</strong></dt>
+    <dd>A descriptor defining only <code>__get__</code>. Can be overridden by instance <code>__dict__</code> entries. Examples: <code>classmethod</code>, <code>staticmethod</code>, <code>functools.cached_property</code>.</dd>
+  </dl>
+
+  <p><a href="#">↑ Top</a></p>
+
+  <p><em>Last updated with Lesson 20: OOP — Magic Methods &amp; Protocols.</em></p>
+  <nav>
+    <a href="../index.html">← Home</a> |
+    <a href="../lessons/0001-python-basics.html">Lesson 1</a> |
+    <a href="../lessons/0002-variables-in-depth.html">Lesson 2</a> |
+    <a href="../lessons/0003-data-types-overview.html">Lesson 3</a> |
+    <a href="../lessons/0004-operators-in-depth.html">Lesson 4</a> |
+    <a href="../lessons/0005-conditionals.html">Lesson 5</a> |
+    <a href="../lessons/0006-loops.html">Lesson 6</a> |
+    <a href="../lessons/0007-strings-in-depth.html">Lesson 7</a> |
+    <a href="../lessons/0008-lists-in-depth.html">Lesson 8</a> |
+    <a href="../lessons/0009-tuples.html">Lesson 9</a> |
+    <a href="../lessons/0010-dictionaries-in-depth.html">Lesson 10</a> |
+    <a href="../lessons/0011-sets.html">Lesson 11</a> |
+    <a href="../lessons/0012-functions-in-depth.html">Lesson 12</a> |
+    <a href="../lessons/0013-comprehensions.html">Lesson 13</a> |
+    <a href="../lessons/0014-error-handling.html">Lesson 14</a> |
+    <a href="../lessons/0015-file-io.html">Lesson 15</a> |
+    <a href="../lessons/0016-modules-and-packages.html">Lesson 16</a> |
+    <a href="../lessons/0017-iterators-and-generators.html">Lesson 17</a> |
+    <a href="../lessons/0018-oop-classes-and-objects.html">Lesson 18</a> |
+    <a href="../lessons/0019-oop-inheritance-and-polymorphism.html">Lesson 19</a> |
+    <a href="../lessons/0020-oop-magic-methods-and-protocols.html">Lesson 20</a>
+  </nav>
   <script src="../assets/theme-toggle.js"></script>
 </body>
 </html>
